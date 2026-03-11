@@ -1,36 +1,15 @@
-import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
-import { Product3DGrid } from "@/components/Product3DCard";
-import { useProducts } from "@/hooks/useProducts";
+import ProductShowcase from "@/components/ProductShowcase";
 import { useCollections } from "@/hooks/useCollections";
 import { useI18n } from "@/lib/i18n";
 import collectionsImg from "@/assets/collections-banner.png";
 
 const Collections = () => {
   const { t } = useI18n();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const filter = searchParams.get("filter") || "all";
-  const { data: dbProducts } = useProducts();
   const { data: collections } = useCollections();
-
-  const products = useMemo(() => {
-    return (dbProducts ?? []).map(p => ({
-      name: p.name,
-      price: Number(p.price),
-      modelUrl: p.image_url,
-      slug: p.slug,
-      badge: p.badge,
-      collection: p.collection,
-    }));
-  }, [dbProducts]);
-
-  const filtered = useMemo(() => {
-    return filter === "all" ? products : products.filter(p => p.collection === filter);
-  }, [filter, products]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,27 +30,26 @@ const Collections = () => {
           </div>
         </div>
 
+        {/* Collection Cards */}
         <div className="section-padding">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {(collections ?? []).map((col, i) => (
-              <motion.button
+              <motion.div
                 key={col.slug}
-                onClick={() => setSearchParams(col.slug === filter ? {} : { filter: col.slug })}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className={`text-left border p-8 transition-all duration-300 ${
-                  filter === col.slug ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
-                }`}
+                className="text-left border border-border p-8 hover:border-primary/30 transition-all duration-300"
               >
                 <h3 className="font-display uppercase tracking-wider text-lg mb-2">{col.name}</h3>
                 <p className="text-muted-foreground text-sm">{col.description}</p>
-              </motion.button>
+              </motion.div>
             ))}
           </div>
-
-          <Product3DGrid items={filtered} />
         </div>
+
+        {/* 3D Product Showcase */}
+        <ProductShowcase height="h-[65vh] md:h-[80vh]" />
       </main>
       <Footer />
     </div>
