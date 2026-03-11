@@ -760,15 +760,15 @@ const Shop = () => {
 
                 {/* Overlay Text (Title & Price) */}
                 {viewMode === 'customizing' && (
-                    <div className="absolute inset-0 z-20 pointer-events-none container mx-auto px-6 md:px-8">
-                        <div className="relative w-full h-full flex flex-col justify-between pt-20 md:pt-28 pb-48">
+                <div className="absolute inset-0 z-20 pointer-events-none container mx-auto px-4 sm:px-6 md:px-8">
+                        <div className="relative w-full h-full flex flex-col justify-between pt-16 sm:pt-20 md:pt-28 pb-48">
                             {/* Top Area titles */}
-                            <div className="flex justify-between items-start w-full">
+                            <div className="flex justify-between items-start w-full gap-2">
                                 <motion.h2
                                     key={`title-${selectedProduct}`}
                                     initial={{ opacity: 0, x: -50 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="text-2xl md:text-5xl font-black text-white drop-shadow-lg tracking-tight font-display uppercase tracking-widest w-[40%] leading-[0.9] md:leading-tight text-left break-words"
+                                    className="text-lg sm:text-2xl md:text-5xl font-black text-white drop-shadow-lg font-display uppercase tracking-wider w-[45%] sm:w-[40%] leading-[0.9] md:leading-tight text-left break-words"
                                 >
                                     {activeProductData.name}
                                 </motion.h2>
@@ -777,7 +777,7 @@ const Shop = () => {
                                     key={`price-${selectedProduct}`}
                                     initial={{ opacity: 0, x: 50 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="text-2xl md:text-5xl font-black text-white tracking-widest drop-shadow-md font-display uppercase tracking-widest text-right"
+                                    className="text-lg sm:text-2xl md:text-5xl font-black text-white drop-shadow-md font-display uppercase tracking-wider text-right"
                                 >
                                     {activeProductData.price.toFixed(2)}€
                                 </motion.div>
