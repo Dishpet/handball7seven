@@ -3,23 +3,22 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShopScene } from '@/components/3d/ShopScene';
 import { useShopConfig } from '@/hooks/useShopConfig';
+import { useDesignCollections } from '@/hooks/useDesignCollections';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag } from 'lucide-react';
 
-// Import all designs (same as Shop.tsx)
+// Import all designs
 // @ts-ignore
-const streetDesigns = import.meta.glob('/src/assets/design-collections/street/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+const classicDesigns = import.meta.glob('/src/assets/design-collections/classic/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
 const vintageDesigns = import.meta.glob('/src/assets/design-collections/vintage/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
-const logoDesigns = import.meta.glob('/src/assets/design-collections/logo/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+const kidsDesigns = import.meta.glob('/src/assets/design-collections/kids/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+// @ts-ignore
+const fallbackLogoDesigns = import.meta.glob('/src/assets/design-collections/logo/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 
-const COLOR_TO_LOGO_MAP: Record<string, string> = {};
-const placeholderLogo = Object.values(logoDesigns)[0] as string;
-['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'].forEach(color => {
-  COLOR_TO_LOGO_MAP[color] = placeholderLogo;
-});
+const STATIC_FRONT_LOGO = (Object.values(fallbackLogoDesigns)[0] as string) || '';
 
 const URL_TO_FILENAME: Record<string, string> = {};
 const FILENAME_TO_URL: Record<string, string> = {};
