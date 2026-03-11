@@ -94,11 +94,7 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
     ...DESIGN_COLLECTIONS['VINTAGE']
   ], []);
 
-  const designReplacements = useMemo(() => {
-    const s3 = streetDesigns['/src/assets/design-collections/street/street-3.png'] as string;
-    const s3Alt = streetDesigns['/src/assets/design-collections/street/street-3-alt.png'] as string;
-    return (s3 && s3Alt) ? { [s3]: s3Alt } : {};
-  }, []);
+  const designReplacements = useMemo(() => ({}), []);
 
   const productAllowedColors = useMemo(() => ({
     tshirt: shopConfig?.tshirt?.allowed_colors,
