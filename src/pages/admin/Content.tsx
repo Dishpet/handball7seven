@@ -1,16 +1,23 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { useState, useEffect } from "react";
-import { Save, ChevronDown, ChevronRight, Languages, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Save, ChevronDown, ChevronRight, Languages, Loader2, Upload, X, ImageIcon } from "lucide-react";
 import { useSiteContent, useUpdateSiteContent } from "@/hooks/useSiteContent";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Content sections config — maps DB keys to form fields
-const SECTIONS = [
+type FieldConfig = {
+  name: string;
+  label: string;
+  type: "text" | "textarea" | "image";
+  i18n: boolean;
+};
+
+const SECTIONS: { key: string; label: string; fields: FieldConfig[] }[] = [
   {
     key: "hero",
     label: "Hero Banner",
     fields: [
+      { name: "bg_image", label: "Background Image", type: "image", i18n: false },
       { name: "subtitle", label: "Subtitle", type: "text", i18n: true },
       { name: "slogan", label: "Main Slogan", type: "text", i18n: true },
       { name: "shop_button", label: "Shop Button Text", type: "text", i18n: true },
@@ -30,6 +37,7 @@ const SECTIONS = [
     key: "lifestyle",
     label: "Lifestyle Banner",
     fields: [
+      { name: "bg_image", label: "Background Image", type: "image", i18n: false },
       { name: "headline", label: "Headline", type: "text", i18n: true },
       { name: "sub", label: "Subheadline", type: "text", i18n: true },
     ],
@@ -62,6 +70,8 @@ const SECTIONS = [
     key: "about",
     label: "About Page",
     fields: [
+      { name: "main_image", label: "Main Image", type: "image", i18n: false },
+      { name: "banner_image", label: "Bottom Banner Image", type: "image", i18n: false },
       { name: "title", label: "Page Title", type: "text", i18n: true },
       { name: "p1", label: "Paragraph 1", type: "textarea", i18n: true },
       { name: "p2", label: "Paragraph 2", type: "textarea", i18n: true },
@@ -99,11 +109,88 @@ const SECTIONS = [
   {
     key: "features_bar",
     label: "Features Bar (Footer Strip)",
-    fields: [], // special handling
+    fields: [],
   },
 ];
 
 type ContentData = Record<string, any>;
+
+// Image upload component
+function ImageUploadField({ value, onChange, sectionKey, fieldName }: {
+  value: string;
+  onChange: (url: string) => void;
+  sectionKey: string;
+  fieldName: string;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${sectionKey}/${fieldName}.${ext}`;
+
+      // Delete old file if exists (ignore errors)
+      await supabase.storage.from("cms-images").remove([path]);
+
+      const { error } = await supabase.storage.from("cms-images").upload(path, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage.from("cms-images").getPublicUrl(path);
+      // Add cache-buster
+      onChange(urlData.publicUrl + "?t=" + Date.now());
+      toast.success("Image uploaded!");
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {value ? (
+        <div className="relative inline-block">
+          <img src={value} alt="Preview" className="h-32 object-cover border border-white/10" />
+          <button
+            onClick={() => onChange("")}
+            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-0.5 hover:bg-red-700"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <div className="h-32 w-48 border border-dashed border-white/20 flex items-center justify-center text-white/30">
+          <ImageIcon className="w-8 h-8" />
+        </div>
+      )}
+      <div>
+        <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2 border border-white/20 text-white/70 text-xs font-display uppercase tracking-widest hover:bg-white/5 transition-colors disabled:opacity-50"
+        >
+          {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+          {uploading ? "Uploading..." : "Upload Image"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function Content() {
   const { data: allContent, isLoading } = useSiteContent();
@@ -112,7 +199,6 @@ export default function Content() {
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["hero"]));
   const [saving, setSaving] = useState(false);
 
-  // Load from DB
   useEffect(() => {
     if (Array.isArray(allContent)) {
       const map: Record<string, ContentData> = {};
@@ -155,7 +241,6 @@ export default function Content() {
     return section[fieldName] || "";
   };
 
-  // Features bar special handling
   const getFeaturesBar = () => {
     const fb = contentMap["features_bar"];
     if (!fb?.items || !Array.isArray(fb.items)) return [];
@@ -178,7 +263,6 @@ export default function Content() {
     });
   };
 
-  // Collect all i18n Croatian texts that need translating from a section
   const collectI18nTexts = (sectionKey: string): Record<string, string> => {
     const section = contentMap[sectionKey];
     if (!section) return {};
@@ -195,7 +279,6 @@ export default function Content() {
       }
     }
 
-    // Special: features_bar items
     if (sectionKey === "features_bar" && section.items) {
       section.items.forEach((item: any, idx: number) => {
         if (typeof item.label === "object" && item.label?.hr) {
@@ -207,45 +290,9 @@ export default function Content() {
     return texts;
   };
 
-  // Apply translations back to a section
-  const applyTranslations = (sectionKey: string, translations: Record<string, { en: string; de: string }>) => {
-    setContentMap((prev) => {
-      const section = { ...(prev[sectionKey] || {}) };
-      const sectionConfig = SECTIONS.find(s => s.key === sectionKey);
-      if (!sectionConfig) return prev;
-
-      for (const field of sectionConfig.fields) {
-        if (field.i18n && translations[field.name]) {
-          const existing = typeof section[field.name] === "object" ? section[field.name] : {};
-          section[field.name] = {
-            ...existing,
-            en: translations[field.name].en,
-            de: translations[field.name].de,
-          };
-        }
-      }
-
-      // Special: features_bar
-      if (sectionKey === "features_bar" && section.items) {
-        const items = [...section.items];
-        items.forEach((item: any, idx: number) => {
-          const key = `item_${idx}_label`;
-          if (translations[key]) {
-            const existing = typeof item.label === "object" ? item.label : {};
-            items[idx] = { ...item, label: { ...existing, en: translations[key].en, de: translations[key].de } };
-          }
-        });
-        section.items = items;
-      }
-
-      return { ...prev, [sectionKey]: section };
-    });
-  };
-
   const handleSaveAll = async () => {
     setSaving(true);
     try {
-      // 1. Collect all i18n Croatian texts across all sections
       const allTexts: Record<string, string> = {};
       for (const section of SECTIONS) {
         const texts = collectI18nTexts(section.key);
@@ -254,10 +301,8 @@ export default function Content() {
         }
       }
 
-      // 2. Build finalMap from current state
       const finalMap: Record<string, ContentData> = JSON.parse(JSON.stringify(contentMap));
 
-      // 3. Translate if there are i18n texts
       if (Object.keys(allTexts).length > 0) {
         toast.info("Translating to English and German...");
         
@@ -270,7 +315,6 @@ export default function Content() {
 
         const translations = translateData?.translations || {};
         
-        // Apply translations to finalMap
         for (const [uniqueKey, trans] of Object.entries(translations) as [string, { en: string; de: string }][]) {
           const [sectionKey, ...fieldParts] = uniqueKey.split("__");
           const fieldName = fieldParts.join("__");
@@ -291,7 +335,6 @@ export default function Content() {
         }
       }
 
-      // 4. Save all
       for (const [key, value] of Object.entries(finalMap)) {
         await updateContent.mutateAsync({ key, value });
       }
@@ -307,7 +350,6 @@ export default function Content() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-3xl font-display uppercase tracking-widest font-black text-white">Content Manager</h2>
@@ -355,7 +397,15 @@ export default function Content() {
                               <span className="ml-2 text-primary/60">(HR — auto-translates to EN/DE)</span>
                             )}
                           </label>
-                          {field.type === "textarea" ? (
+
+                          {field.type === "image" ? (
+                            <ImageUploadField
+                              value={getFieldValue(section.key, field.name, false)}
+                              onChange={(url) => updateField(section.key, field.name, url, false)}
+                              sectionKey={section.key}
+                              fieldName={field.name}
+                            />
+                          ) : field.type === "textarea" ? (
                             <textarea
                               value={getFieldValue(section.key, field.name, field.i18n)}
                               onChange={(e) => updateField(section.key, field.name, e.target.value, field.i18n)}
@@ -373,7 +423,6 @@ export default function Content() {
                         </div>
                       ))}
 
-                      {/* Special: Features Bar */}
                       {section.key === "features_bar" && (
                         <div className="space-y-4">
                           {getFeaturesBar().map((item: any, idx: number) => (
