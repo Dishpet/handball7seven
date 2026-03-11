@@ -59,11 +59,8 @@ const ALL_DESIGNS: string[] = [
     ...DESIGN_COLLECTIONS['KIDS']
 ];
 
-const COLOR_TO_LOGO_MAP: Record<string, string> = {};
-const defaultFrontLogo = FRONT_LOGO_DESIGNS[0] || '';
-['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'].forEach(color => {
-    COLOR_TO_LOGO_MAP[color] = defaultFrontLogo;
-});
+// Static fallback front logo (used if DB has none)
+const STATIC_FRONT_LOGO = FRONT_LOGO_DESIGNS[0] || '';
 
 // Helper to find design URL by filename (for URL deep-linking)
 const findDesignUrlByFilename = (filename: string): string | null => {
