@@ -1,15 +1,9 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useState, useEffect } from "react";
-import { Save, Globe, ChevronDown, ChevronRight } from "lucide-react";
+import { Save, ChevronDown, ChevronRight, Languages, Loader2 } from "lucide-react";
 import { useSiteContent, useUpdateSiteContent } from "@/hooks/useSiteContent";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { Lang } from "@/lib/i18n";
-
-const LANGS: { code: Lang; label: string }[] = [
-  { code: "en", label: "English" },
-  { code: "de", label: "Deutsch" },
-  { code: "hr", label: "Hrvatski" },
-];
 
 // Content sections config — maps DB keys to form fields
 const SECTIONS = [
@@ -115,7 +109,6 @@ export default function Content() {
   const { data: allContent, isLoading } = useSiteContent();
   const updateContent = useUpdateSiteContent();
   const [contentMap, setContentMap] = useState<Record<string, ContentData>>({});
-  const [activeLang, setActiveLang] = useState<Lang>("en");
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["hero"]));
   const [saving, setSaving] = useState(false);
 
@@ -143,7 +136,7 @@ export default function Content() {
       const section = { ...(prev[sectionKey] || {}) };
       if (isI18n) {
         const existing = typeof section[fieldName] === "object" ? section[fieldName] : {};
-        section[fieldName] = { ...existing, [activeLang]: value };
+        section[fieldName] = { ...existing, hr: value };
       } else {
         section[fieldName] = value;
       }
@@ -156,7 +149,7 @@ export default function Content() {
     if (!section) return "";
     if (isI18n) {
       const val = section[fieldName];
-      if (typeof val === "object" && val !== null) return val[activeLang] || "";
+      if (typeof val === "object" && val !== null) return val.hr || "";
       return "";
     }
     return section[fieldName] || "";
@@ -178,20 +171,132 @@ export default function Content() {
         items[index].icon = value;
       } else {
         const existing = typeof items[index].label === "object" ? items[index].label : {};
-        items[index].label = { ...existing, [activeLang]: value };
+        items[index].label = { ...existing, hr: value };
       }
       fb.items = items;
       return { ...prev, features_bar: fb };
     });
   };
 
+  // Collect all i18n Croatian texts that need translating from a section
+  const collectI18nTexts = (sectionKey: string): Record<string, string> => {
+    const section = contentMap[sectionKey];
+    if (!section) return {};
+    const sectionConfig = SECTIONS.find(s => s.key === sectionKey);
+    if (!sectionConfig) return {};
+    
+    const texts: Record<string, string> = {};
+    for (const field of sectionConfig.fields) {
+      if (field.i18n) {
+        const val = section[field.name];
+        if (typeof val === "object" && val?.hr) {
+          texts[field.name] = val.hr;
+        }
+      }
+    }
+
+    // Special: features_bar items
+    if (sectionKey === "features_bar" && section.items) {
+      section.items.forEach((item: any, idx: number) => {
+        if (typeof item.label === "object" && item.label?.hr) {
+          texts[`item_${idx}_label`] = item.label.hr;
+        }
+      });
+    }
+
+    return texts;
+  };
+
+  // Apply translations back to a section
+  const applyTranslations = (sectionKey: string, translations: Record<string, { en: string; de: string }>) => {
+    setContentMap((prev) => {
+      const section = { ...(prev[sectionKey] || {}) };
+      const sectionConfig = SECTIONS.find(s => s.key === sectionKey);
+      if (!sectionConfig) return prev;
+
+      for (const field of sectionConfig.fields) {
+        if (field.i18n && translations[field.name]) {
+          const existing = typeof section[field.name] === "object" ? section[field.name] : {};
+          section[field.name] = {
+            ...existing,
+            en: translations[field.name].en,
+            de: translations[field.name].de,
+          };
+        }
+      }
+
+      // Special: features_bar
+      if (sectionKey === "features_bar" && section.items) {
+        const items = [...section.items];
+        items.forEach((item: any, idx: number) => {
+          const key = `item_${idx}_label`;
+          if (translations[key]) {
+            const existing = typeof item.label === "object" ? item.label : {};
+            items[idx] = { ...item, label: { ...existing, en: translations[key].en, de: translations[key].de } };
+          }
+        });
+        section.items = items;
+      }
+
+      return { ...prev, [sectionKey]: section };
+    });
+  };
+
   const handleSaveAll = async () => {
     setSaving(true);
     try {
-      for (const [key, value] of Object.entries(contentMap)) {
+      // 1. Collect all i18n Croatian texts across all sections
+      const allTexts: Record<string, string> = {};
+      for (const section of SECTIONS) {
+        const texts = collectI18nTexts(section.key);
+        for (const [fieldName, value] of Object.entries(texts)) {
+          allTexts[`${section.key}__${fieldName}`] = value;
+        }
+      }
+
+      // 2. Build finalMap from current state
+      const finalMap: Record<string, ContentData> = JSON.parse(JSON.stringify(contentMap));
+
+      // 3. Translate if there are i18n texts
+      if (Object.keys(allTexts).length > 0) {
+        toast.info("Translating to English and German...");
+        
+        const { data: translateData, error: fnError } = await supabase.functions.invoke("translate", {
+          body: { texts: allTexts, sourceLang: "hr", targetLangs: ["en", "de"] },
+        });
+        
+        if (fnError) throw new Error(`Translation failed: ${fnError.message}`);
+        if (translateData?.error) throw new Error(`Translation failed: ${translateData.error}`);
+
+        const translations = translateData?.translations || {};
+        
+        // Apply translations to finalMap
+        for (const [uniqueKey, trans] of Object.entries(translations) as [string, { en: string; de: string }][]) {
+          const [sectionKey, ...fieldParts] = uniqueKey.split("__");
+          const fieldName = fieldParts.join("__");
+          const section = finalMap[sectionKey] || {};
+
+          if (fieldName.startsWith("item_") && fieldName.endsWith("_label")) {
+            const idx = parseInt(fieldName.split("_")[1]);
+            if (section.items && section.items[idx]) {
+              const existing = typeof section.items[idx].label === "object" ? section.items[idx].label : {};
+              section.items[idx] = { ...section.items[idx], label: { ...existing, en: trans.en, de: trans.de } };
+            }
+          } else {
+            const existing = typeof section[fieldName] === "object" ? section[fieldName] : {};
+            section[fieldName] = { ...existing, en: trans.en, de: trans.de };
+          }
+          
+          finalMap[sectionKey] = section;
+        }
+      }
+
+      // 4. Save all
+      for (const [key, value] of Object.entries(finalMap)) {
         await updateContent.mutateAsync({ key, value });
       }
-      toast.success("All content saved!");
+      
+      toast.success("All content saved with translations!");
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -206,30 +311,20 @@ export default function Content() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-3xl font-display uppercase tracking-widest font-black text-white">Content Manager</h2>
-            <p className="text-white/60 font-body mt-1">Edit all frontend text, contact info, and social links</p>
+            <p className="text-white/60 font-body mt-1">Edit content in Croatian — English & German are auto-translated on save</p>
           </div>
           <div className="flex items-center gap-3">
-            {/* Language Tabs */}
-            <div className="flex border border-white/10">
-              {LANGS.map((l) => (
-                <button
-                  key={l.code}
-                  onClick={() => setActiveLang(l.code)}
-                  className={`px-4 py-2 text-xs font-display uppercase tracking-widest transition-colors ${
-                    activeLang === l.code ? "bg-primary text-black font-bold" : "text-white/50 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Globe className="w-3 h-3 inline mr-1" />
-                  {l.label}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 px-4 py-2 border border-white/10 text-white/50 text-xs font-display uppercase tracking-widest">
+              <Languages className="w-3 h-3" />
+              Editing: Hrvatski (HR)
             </div>
             <button
               onClick={handleSaveAll}
               disabled={saving}
               className="bg-primary text-black flex items-center gap-2 font-display uppercase tracking-widest font-bold px-6 py-2 hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
-              <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save All"}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? "Translating & Saving..." : "Save All"}
             </button>
           </div>
         </div>
@@ -252,13 +347,12 @@ export default function Content() {
 
                   {isOpen && (
                     <div className="px-5 pb-5 space-y-4 border-t border-white/5 pt-4">
-                      {/* Regular fields */}
                       {section.fields.map((field) => (
                         <div key={field.name}>
                           <label className="block text-white/50 text-xs font-display uppercase tracking-widest mb-2">
                             {field.label}
                             {field.i18n && (
-                              <span className="ml-2 text-primary/60">({activeLang.toUpperCase()})</span>
+                              <span className="ml-2 text-primary/60">(HR — auto-translates to EN/DE)</span>
                             )}
                           </label>
                           {field.type === "textarea" ? (
@@ -295,11 +389,11 @@ export default function Content() {
                               </div>
                               <div className="flex-1">
                                 <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">
-                                  Label <span className="text-primary/60">({activeLang.toUpperCase()})</span>
+                                  Label <span className="text-primary/60">(HR)</span>
                                 </label>
                                 <input
                                   type="text"
-                                  value={(typeof item.label === "object" ? item.label[activeLang] : item.label) || ""}
+                                  value={(typeof item.label === "object" ? item.label.hr : item.label) || ""}
                                   onChange={(e) => updateFeatureItem(idx, "label", e.target.value)}
                                   className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors font-body text-sm"
                                 />

@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
 import Designs from "./pages/admin/Designs";
+import AdminCollections from "./pages/admin/AdminCollections";
 import Content from "./pages/admin/Content";
 import Settings from "./pages/admin/Settings";
 import Orders from "./pages/admin/Orders";
@@ -44,6 +45,7 @@ const App = () => (
                 {/* Admin Routes */}
                 <Route path="/admin" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
                 <Route path="/admin/products" element={<RequireAdmin><Products /></RequireAdmin>} />
+                <Route path="/admin/collections" element={<RequireAdmin><AdminCollections /></RequireAdmin>} />
                 <Route path="/admin/designs" element={<RequireAdmin><Designs /></RequireAdmin>} />
                 <Route path="/admin/content" element={<RequireAdmin><Content /></RequireAdmin>} />
                 <Route path="/admin/users" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />

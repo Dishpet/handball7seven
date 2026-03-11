@@ -25,11 +25,11 @@ const processGlob = (glob: Record<string, string>) =>
 
 export default function Designs() {
   const collections = useMemo<DesignCollection[]>(() => [
-    { id: 'street', name: 'CLASSIC / STREET', designs: processGlob(streetDesigns) },
     { id: 'vintage', name: 'VINTAGE', designs: processGlob(vintageDesigns) },
-    { id: 'logo', name: 'LOGO', designs: processGlob(logoDesigns) },
     { id: 'kids', name: 'KIDS', designs: processGlob(kidsDesigns) },
     { id: 'classic', name: 'CLASSIC', designs: processGlob(classicDesigns) },
+    { id: 'logo', name: 'FRONT LOGO', designs: processGlob(logoDesigns) },
+    { id: 'street', name: 'STREET', designs: processGlob(streetDesigns) },
     { id: 'color-coded', name: 'COLOR-CODED LOGO', designs: processGlob(colorCodedDesigns) },
   ].filter(c => c.designs.length > 0), []);
 
