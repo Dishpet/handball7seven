@@ -400,10 +400,8 @@ const Shop = () => {
     const [isShowingAltDesign, setIsShowingAltDesign] = useState(false);
 
     useEffect(() => {
-        const street3Path = '/src/assets/design-collections/street/street-3.png';
-        const street3AltPath = '/src/assets/design-collections/street/street-3-alt.png';
-        const street3Url = streetDesigns[street3Path] as string;
-        const street3AltUrl = streetDesigns[street3AltPath] as string;
+        const street3Url = classicDesigns[Object.keys(classicDesigns).find(k => k.includes('classic-1')) || ''] as string;
+        const street3AltUrl = street3Url;
 
         // Pink, Mint, Cyan (Light Blue) - trigger colors for alt design
         const altColors = ['#e78fab', '#a1d7c0', '#00aeef'];
@@ -727,11 +725,7 @@ const Shop = () => {
                                 ...DESIGN_COLLECTIONS['CLASSIC'],
                                 ...DESIGN_COLLECTIONS['VINTAGE']
                             ], [])}
-                            designReplacements={useMemo(() => {
-                                const s3 = streetDesigns['/src/assets/design-collections/street/street-3.png'] as string;
-                                const s3Alt = streetDesigns['/src/assets/design-collections/street/street-3-alt.png'] as string;
-                                return (s3 && s3Alt) ? { [s3]: s3Alt } : {};
-                            }, [])}
+                            designReplacements={useMemo(() => ({}), [])}
                             onCycleDesignUpdate={handleCycleDesignUpdate}
                             productAllowedColors={useMemo(() => ({
                                 tshirt: shopConfig?.tshirt?.allowed_colors,
