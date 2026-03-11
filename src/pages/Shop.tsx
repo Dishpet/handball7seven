@@ -723,7 +723,7 @@ const Shop = () => {
                             products={products}
                             colorToLogoMap={COLOR_TO_LOGO_MAP}
                             hasUserInteracted={hasUserInteracted}
-                            logoList={DESIGN_COLLECTIONS['KIDS']}
+                            logoList={frontLogoUrl ? [frontLogoUrl] : DESIGN_COLLECTIONS['KIDS']}
                             hoodieBackList={useMemo(() => [
                                 ...DESIGN_COLLECTIONS['CLASSIC']
                             ], [])}
