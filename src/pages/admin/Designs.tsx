@@ -56,6 +56,11 @@ export default function Designs() {
     if (!file) return;
     if (!file.type.startsWith("image/")) return toast.error("Only image files are allowed");
 
+    // Front Logo: only 1 design allowed — replace existing
+    if (collection === "front_logo" && localCollections.front_logo.length > 0) {
+      return handleReplace(collection, localCollections.front_logo[0], file);
+    }
+
     const opKey = `${collection}:create`;
     setBusyKey(opKey);
     try {

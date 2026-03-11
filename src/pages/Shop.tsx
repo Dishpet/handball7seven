@@ -378,18 +378,15 @@ const Shop = () => {
         };
     }, []);
 
-    // Sync Hoodie/T-shirt Front Logo with Color
+    // Sync Hoodie/T-shirt Front Logo with Color (and when DB logo changes)
     useEffect(() => {
         if (selectedProduct === 'hoodie' || selectedProduct === 'tshirt') {
-            const logo = COLOR_TO_LOGO_MAP[selectedColor];
-            if (logo) {
-                setDesigns(prev => ({
-                    ...prev,
-                    front: logo
-                }));
-            }
+            setDesigns(prev => ({
+                ...prev,
+                front: frontLogoUrl
+            }));
         }
-    }, [selectedProduct, selectedColor]);
+    }, [selectedProduct, selectedColor, frontLogoUrl]);
 
     // Sync viewMode and isCustomizing with URL params for Back button support
     useEffect(() => {
