@@ -1,8 +1,24 @@
 import React, { createContext, useContext, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Lang = "en" | "de" | "hr";
 
-const translations: Record<string, Record<Lang, string>> = {
+// Mapping from DB section.field → i18n key
+const DB_TO_I18N_MAP: Record<string, Record<string, string>> = {
+  hero: { subtitle: "hero.subtitle", slogan: "hero.slogan", shop_button: "hero.shop", explore_button: "hero.explore" },
+  brand: { title: "brand.title", text: "brand.text", cta: "brand.cta" },
+  lifestyle: { headline: "lifestyle.headline", sub: "lifestyle.sub" },
+  newsletter: { title: "newsletter.title", sub: "newsletter.sub", placeholder: "newsletter.placeholder", button: "newsletter.button" },
+  bestsellers: { title: "bestsellers.title" },
+  collections_page: { title: "featured.title" },
+  about: { title: "about.title", p1: "about.p1", p2: "about.p2", p3: "about.p3" },
+  contact: { title: "contact.title", info: "contact.info" },
+  footer: { tagline: "footer.tagline" },
+};
+
+// Hardcoded fallback translations (for keys not managed via CMS)
+const fallbackTranslations: Record<string, Record<Lang, string>> = {
   // Nav
   "nav.home": { en: "Home", de: "Startseite", hr: "Početna" },
   "nav.shop": { en: "Shop", de: "Shop", hr: "Trgovina" },
@@ -11,7 +27,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "nav.contact": { en: "Contact", de: "Kontakt", hr: "Kontakt" },
   "nav.cart": { en: "Cart", de: "Warenkorb", hr: "Košarica" },
 
-  // Hero
+  // Hero (fallbacks)
   "hero.subtitle": { en: "The first lifestyle handball brand.", de: "Die erste Lifestyle-Handballmarke.", hr: "Prvi lifestyle handball brend." },
   "hero.slogan": { en: "Stubborn by nature.", de: "Stur von Natur aus.", hr: "Tvrdoglavi po prirodi." },
   "hero.shop": { en: "Shop Now", de: "Jetzt kaufen", hr: "Kupi sada" },
@@ -23,8 +39,8 @@ const translations: Record<string, Record<Lang, string>> = {
   "brand.title": { en: "Born from the Toughest Game", de: "Geboren aus dem härtesten Spiel", hr: "Rođeno iz najtvrđe igre" },
   "brand.text": {
     en: "Handball Seven is the first lifestyle handball brand. Built for the stubborn — the players, the fans, and everyone who lives the game beyond the court. We are inspired by handball culture, resilience, resin-stained hands, taped fingers, and the everyday identity of those who breathe this sport.",
-    de: "Handball Seven ist die erste Lifestyle-Handballmarke. Gebaut für die Sturköpfe — die Spieler, die Fans und alle, die das Spiel über das Spielfeld hinaus leben. Inspiriert von Handballkultur, Widerstandsfähigkeit, harzverschmierten Händen, getapten Fingern und der alltäglichen Identität derer, die diesen Sport atmen.",
-    hr: "Handball Seven je prvi lifestyle handball brend. Stvoren za tvrdoglave — igrače, navijače i sve koji žive igru izvan terena. Inspirirani smo handball kulturom, otpornošću, rukama umrljanim smolom, zatapiranim prstima i svakodnevnim identitetom onih koji dišu ovaj sport."
+    de: "Handball Seven ist die erste Lifestyle-Handballmarke. Gebaut für die Sturköpfe — die Spieler, die Fans und alle, die das Spiel über das Spielfeld hinaus leben.",
+    hr: "Handball Seven je prvi lifestyle handball brend. Stvoren za tvrdoglave — igrače, navijače i sve koji žive igru izvan terena."
   },
   "brand.cta": { en: "Discover More", de: "Mehr entdecken", hr: "Saznaj više" },
 
@@ -75,8 +91,6 @@ const translations: Record<string, Record<Lang, string>> = {
   "shop.details": { en: "Product Details", de: "Produktdetails", hr: "Detalji proizvoda" },
   "shop.shipping": { en: "Shipping & Returns", de: "Versand & Rückgabe", hr: "Dostava i povrati" },
   "shop.quantity": { en: "Quantity", de: "Menge", hr: "Količina" },
-
-  // Shop 3D configurator
   "shop.headline": { en: "The Court Collection", de: "Die Court Kollektion", hr: "Court kolekcija" },
   "shop.subheadline": { en: "Design your piece. Built for the stubborn.", de: "Gestalte dein Stück. Gebaut für die Sturköpfe.", hr: "Dizajniraj svoj komad. Stvoren za tvrdoglave." },
   "shop.outofstock": { en: "Out of Stock", de: "Ausverkauft", hr: "Nema na zalihi" },
@@ -97,18 +111,18 @@ const translations: Record<string, Record<Lang, string>> = {
   "about.title": { en: "Our Story", de: "Unsere Geschichte", hr: "Naša priča" },
   "about.p1": {
     en: "Handball Seven was born from a simple truth: handball players have a unique identity — on and off the court. We are the first lifestyle brand built entirely around handball culture.",
-    de: "Handball Seven wurde aus einer einfachen Wahrheit geboren: Handballspieler haben eine einzigartige Identität — auf und neben dem Spielfeld. Wir sind die erste Lifestyle-Marke, die vollständig auf Handballkultur aufgebaut ist.",
-    hr: "Handball Seven je nastao iz jednostavne istine: rukometaši imaju jedinstven identitet — na terenu i izvan njega. Mi smo prvi lifestyle brend u potpunosti izgrađen oko handball kulture."
+    de: "Handball Seven wurde aus einer einfachen Wahrheit geboren: Handballspieler haben eine einzigartige Identität — auf und neben dem Spielfeld.",
+    hr: "Handball Seven je nastao iz jednostavne istine: rukometaši imaju jedinstven identitet — na terenu i izvan njega."
   },
   "about.p2": {
-    en: "Our pieces are inspired by the resilience, the grit, the resin on your hands, the tape on your fingers, and the worn-out shoes that tell a thousand stories. This is more than clothing — it's a statement of identity.",
-    de: "Unsere Stücke sind inspiriert von der Widerstandsfähigkeit, dem Kampfgeist, dem Harz an den Händen, dem Tape an den Fingern und den abgenutzten Schuhen, die tausend Geschichten erzählen. Das ist mehr als Kleidung — es ist ein Statement der Identität.",
-    hr: "Naši komadi inspirirani su otpornošću, borbenim duhom, smolom na rukama, trakom na prstima i istrošenim tenisicama koje pričaju tisuću priča. Ovo je više od odjeće — ovo je izjava identiteta."
+    en: "Our pieces are inspired by the resilience, the grit, the resin on your hands, the tape on your fingers, and the worn-out shoes that tell a thousand stories.",
+    de: "Unsere Stücke sind inspiriert von der Widerstandsfähigkeit, dem Kampfgeist, dem Harz an den Händen, dem Tape an den Fingern.",
+    hr: "Naši komadi inspirirani su otpornošću, borbenim duhom, smolom na rukama, trakom na prstima."
   },
   "about.p3": {
     en: "From the court to everyday life — Handball Seven bridges the gap between sport heritage and modern streetwear. Built for the stubborn.",
-    de: "Vom Spielfeld ins tägliche Leben — Handball Seven schließt die Lücke zwischen Sporterbe und moderner Streetwear. Gebaut für die Sturköpfe.",
-    hr: "S terena u svakodnevni život — Handball Seven premošćuje jaz između sportske baštine i modernog streetweara. Stvoreno za tvrdoglave."
+    de: "Vom Spielfeld ins tägliche Leben — Handball Seven schließt die Lücke zwischen Sporterbe und moderner Streetwear.",
+    hr: "S terena u svakodnevni život — Handball Seven premošćuje jaz između sportske baštine i modernog streetweara."
   },
 
   // Contact
@@ -117,25 +131,96 @@ const translations: Record<string, Record<Lang, string>> = {
   "contact.email": { en: "Email", de: "E-Mail", hr: "Email" },
   "contact.message": { en: "Message", de: "Nachricht", hr: "Poruka" },
   "contact.send": { en: "Send Message", de: "Nachricht senden", hr: "Pošalji poruku" },
-  "contact.info": { en: "We'd love to hear from you. Whether you have a question, feedback, or just want to connect — reach out.", de: "Wir freuen uns von dir zu hören. Ob Frage, Feedback oder einfach nur Kontakt — schreib uns.", hr: "Voljeli bismo čuti od tebe. Bilo da imaš pitanje, povratnu informaciju ili se samo želiš povezati — javi se." },
+  "contact.info": { en: "We'd love to hear from you.", de: "Wir freuen uns von dir zu hören.", hr: "Voljeli bismo čuti od tebe." },
 };
+
+// Feature bar keys mapping (by index)
+const FEATURE_I18N_KEYS = ["features.shipping", "features.quality", "features.payments", "features.team"];
 
 type I18nContextType = {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (key: string) => string;
+  getSiteContent: (sectionKey: string) => Record<string, any> | undefined;
 };
 
 const I18nContext = createContext<I18nContextType>({
   lang: "en",
   setLang: () => {},
   t: (key) => key,
+  getSiteContent: () => undefined,
 });
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [lang, setLang] = useState<Lang>("en");
-  const t = (key: string) => translations[key]?.[lang] || translations[key]?.en || key;
-  return <I18nContext.Provider value={{ lang, setLang, t }}>{children}</I18nContext.Provider>;
+
+  // Fetch all site_content from DB
+  const { data: dbContent } = useQuery({
+    queryKey: ["site_content_all"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("site_content").select("*");
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 60_000, // cache for 1 min
+  });
+
+  // Build DB overrides map: i18n key → { en, de, hr }
+  const dbOverrides = React.useMemo(() => {
+    if (!dbContent) return {};
+    const overrides: Record<string, Record<Lang, string>> = {};
+    const contentMap: Record<string, any> = {};
+
+    for (const row of dbContent) {
+      contentMap[row.key] = row.value;
+    }
+
+    // Map standard sections
+    for (const [sectionKey, fieldMap] of Object.entries(DB_TO_I18N_MAP)) {
+      const section = contentMap[sectionKey];
+      if (!section) continue;
+      for (const [fieldName, i18nKey] of Object.entries(fieldMap)) {
+        const val = section[fieldName];
+        if (typeof val === "object" && val !== null) {
+          overrides[i18nKey] = { en: val.en || "", de: val.de || "", hr: val.hr || "" };
+        }
+      }
+    }
+
+    // Map features_bar items
+    const fb = contentMap["features_bar"];
+    if (fb?.items && Array.isArray(fb.items)) {
+      fb.items.forEach((item: any, idx: number) => {
+        if (FEATURE_I18N_KEYS[idx] && typeof item.label === "object") {
+          overrides[FEATURE_I18N_KEYS[idx]] = { en: item.label.en || "", de: item.label.de || "", hr: item.label.hr || "" };
+        }
+      });
+    }
+
+    return overrides;
+  }, [dbContent]);
+
+  // Build raw content map for non-i18n access (socials, contact details, etc.)
+  const siteContentMap = React.useMemo(() => {
+    if (!dbContent) return {};
+    const map: Record<string, any> = {};
+    for (const row of dbContent) {
+      map[row.key] = row.value;
+    }
+    return map;
+  }, [dbContent]);
+
+  const t = (key: string) => {
+    // DB overrides first
+    const override = dbOverrides[key];
+    if (override && override[lang]) return override[lang];
+    // Fallback to hardcoded
+    return fallbackTranslations[key]?.[lang] || fallbackTranslations[key]?.en || key;
+  };
+
+  const getSiteContent = (sectionKey: string) => siteContentMap[sectionKey];
+
+  return <I18nContext.Provider value={{ lang, setLang, t, getSiteContent }}>{children}</I18nContext.Provider>;
 };
 
 export const useI18n = () => useContext(I18nContext);

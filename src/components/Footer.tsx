@@ -4,7 +4,19 @@ import { Instagram } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
-  const { t } = useI18n();
+  const { t, getSiteContent } = useI18n();
+
+  // Get social links from DB
+  const socials = getSiteContent("socials") as Record<string, string> | undefined;
+  
+  // Get features bar from DB
+  const featuresBar = getSiteContent("features_bar") as { items?: { icon: string; label: Record<string, string> }[] } | undefined;
+  const features = featuresBar?.items?.length
+    ? featuresBar.items.map(item => ({
+        icon: item.icon,
+        label: typeof item.label === "object" ? t("features.shipping") : item.icon, // use t() which reads from DB overrides
+      }))
+    : null;
 
   return (
     <footer className="bg-card border-t border-border">
@@ -15,9 +27,9 @@ const Footer = () => {
           { icon: "💎", label: t("features.quality") },
           { icon: "🔒", label: t("features.payments") },
           { icon: "🤝", label: t("features.team") },
-        ].map(f => (
-          <div key={f.label} className="flex items-center justify-center gap-2 py-4 px-3 border-r border-border last:border-r-0 text-xs font-display uppercase tracking-widest text-foreground/60">
-            <span>{f.icon}</span>
+        ].map((f, i) => (
+          <div key={i} className="flex items-center justify-center gap-2 py-4 px-3 border-r border-border last:border-r-0 text-xs font-display uppercase tracking-widest text-foreground/60">
+            <span>{featuresBar?.items?.[i]?.icon || f.icon}</span>
             <span>{f.label}</span>
           </div>
         ))}
@@ -51,7 +63,14 @@ const Footer = () => {
           <div>
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.connect")}</h4>
             <div className="flex gap-4">
-              <a href="#" className="text-foreground/40 hover:text-primary transition-colors"><Instagram size={20} /></a>
+              {socials?.instagram && (
+                <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-primary transition-colors">
+                  <Instagram size={20} />
+                </a>
+              )}
+              {!socials?.instagram && (
+                <a href="#" className="text-foreground/40 hover:text-primary transition-colors"><Instagram size={20} /></a>
+              )}
             </div>
           </div>
         </div>
