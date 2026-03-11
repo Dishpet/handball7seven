@@ -77,14 +77,21 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         </nav>
 
         {/* Footer Area */}
-        <div className="p-4 border-t border-white/10 hidden md:block">
+        <div className="p-4 border-t border-white/10 hidden md:block space-y-1">
           <Link
             to="/"
             className="flex items-center gap-3 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 transition-colors"
           >
             <LogOut className="w-5 h-5 shrink-0" />
-            <span className="font-display uppercase tracking-widest text-sm">Exit Admin</span>
+            <span className="font-display uppercase tracking-widest text-sm">Back to Store</span>
           </Link>
+          <button
+            onClick={signOut}
+            className="flex items-center gap-3 px-4 py-3 text-red-400/70 hover:text-red-400 hover:bg-red-400/5 transition-colors w-full"
+          >
+            <LogOut className="w-5 h-5 shrink-0" />
+            <span className="font-display uppercase tracking-widest text-sm">Sign Out</span>
+          </button>
         </div>
       </aside>
 

@@ -16,12 +16,12 @@ export default function Content() {
     if (Array.isArray(allContent)) {
       const hero = allContent.find((c: any) => c.key === 'hero');
       const about = allContent.find((c: any) => c.key === 'about');
-      if (hero?.value) {
-        setHeroTitle(hero.value.title || '');
-        setHeroSub(hero.value.subtitle || '');
+      if (hero?.value && typeof hero.value === 'object' && !Array.isArray(hero.value)) {
+        setHeroTitle((hero.value as any).title || '');
+        setHeroSub((hero.value as any).subtitle || '');
       }
-      if (about?.value) {
-        setAboutStory(about.value.story || '');
+      if (about?.value && typeof about.value === 'object' && !Array.isArray(about.value)) {
+        setAboutStory((about.value as any).story || '');
       }
     }
   }, [allContent]);
