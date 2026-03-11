@@ -1,6 +1,6 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useState, useEffect, useRef } from "react";
-import { Save, ChevronDown, ChevronRight, Languages, Loader2, Upload, X, ImageIcon } from "lucide-react";
+import { Save, ChevronDown, ChevronRight, Languages, Loader2, Upload, X, ImageIcon, Download } from "lucide-react";
 import { useSiteContent, useUpdateSiteContent } from "@/hooks/useSiteContent";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
