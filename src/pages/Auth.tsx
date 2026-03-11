@@ -37,11 +37,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-5">
+    <div className="min-h-[100svh] bg-background flex items-center justify-center px-5 py-12">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <img src={logo} alt="Handball Seven" className="h-12 mx-auto mb-6" />
-          <h1 className="text-2xl font-display uppercase tracking-widest">
+          <img src={logo} alt="Handball Seven" className="h-10 sm:h-12 mx-auto mb-6" />
+          <h1 className="text-xl sm:text-2xl font-display uppercase tracking-widest">
             {isLogin ? 'Sign In' : 'Create Account'}
           </h1>
         </div>
@@ -54,7 +54,7 @@ export default function Auth() {
                 type="text"
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
-                className="w-full bg-card border border-border text-foreground p-3 focus:outline-none focus:border-primary transition-colors font-body"
+                className="w-full bg-card border border-border text-foreground p-3 focus:outline-none focus:border-primary transition-colors font-body min-h-[48px]"
                 required
               />
             </div>
@@ -65,7 +65,7 @@ export default function Auth() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full bg-card border border-border text-foreground p-3 focus:outline-none focus:border-primary transition-colors font-body"
+              className="w-full bg-card border border-border text-foreground p-3 focus:outline-none focus:border-primary transition-colors font-body min-h-[48px]"
               required
             />
           </div>
@@ -75,7 +75,7 @@ export default function Auth() {
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full bg-card border border-border text-foreground p-3 focus:outline-none focus:border-primary transition-colors font-body"
+              className="w-full bg-card border border-border text-foreground p-3 focus:outline-none focus:border-primary transition-colors font-body min-h-[48px]"
               required
               minLength={6}
             />
@@ -87,7 +87,7 @@ export default function Auth() {
           <button
             type="submit"
             disabled={submitting}
-            className="btn-primary w-full disabled:opacity-50"
+            className="btn-primary w-full disabled:opacity-50 min-h-[48px]"
           >
             {submitting ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
           </button>
@@ -95,7 +95,7 @@ export default function Auth() {
 
         <p className="text-center text-muted-foreground text-sm font-body">
           {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-          <button onClick={() => { setIsLogin(!isLogin); setError(''); setMessage(''); }} className="text-primary hover:underline">
+          <button onClick={() => { setIsLogin(!isLogin); setError(''); setMessage(''); }} className="text-primary hover:underline py-1">
             {isLogin ? 'Sign Up' : 'Sign In'}
           </button>
         </p>

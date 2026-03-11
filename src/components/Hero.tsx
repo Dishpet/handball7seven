@@ -9,24 +9,26 @@ const Hero = () => {
   const bgImage = heroContent?.bg_image || "/images/hero-bg.jpg";
 
   return (
-    <section className="relative min-h-screen flex items-center justify-start overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-end sm:items-center justify-start overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${bgImage}')` }}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+      {/* Extra bottom gradient for mobile readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent sm:hidden" />
 
-      <div className="relative z-10 px-5 md:px-12 lg:px-20 py-32 max-w-2xl">
+      <div className="relative z-10 px-5 md:px-12 lg:px-20 pb-20 sm:pb-32 pt-32 max-w-2xl">
         <motion.img
           src={logo}
           alt="Handball Seven"
-          className="h-16 md:h-24 mb-6"
+          className="h-12 sm:h-16 md:h-24 mb-4 sm:mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         />
         <motion.p
-          className="text-foreground/70 text-sm md:text-base font-body tracking-wide mb-2"
+          className="text-foreground/70 text-xs sm:text-sm md:text-base font-body tracking-wide mb-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -34,7 +36,7 @@ const Hero = () => {
           {t("hero.subtitle")}
         </motion.p>
         <motion.h1
-          className="text-4xl md:text-6xl lg:text-7xl font-display uppercase tracking-wider leading-none text-foreground"
+          className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-display uppercase tracking-wider leading-[0.95] text-foreground"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
@@ -42,7 +44,7 @@ const Hero = () => {
           {t("hero.slogan")}
         </motion.h1>
         <motion.div
-          className="flex flex-col sm:flex-row gap-4 mt-10"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}

@@ -21,16 +21,16 @@ const Contact = () => {
       <Navbar />
       <CartDrawer />
       <main className="pt-20">
-        <div className="section-padding max-w-2xl mx-auto">
+        <div className="px-5 md:px-12 lg:px-20 py-10 md:py-16 max-w-2xl mx-auto">
           <motion.h1
-            className="text-3xl md:text-5xl font-display uppercase tracking-[0.2em] mb-4"
+            className="text-2xl sm:text-3xl md:text-5xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             {t("contact.title")}
           </motion.h1>
           <motion.p
-            className="text-muted-foreground mb-12"
+            className="text-muted-foreground text-sm md:text-base mb-8 md:mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -40,7 +40,7 @@ const Contact = () => {
 
           <motion.form
             onSubmit={handleSubmit}
-            className="space-y-6"
+            className="space-y-5 md:space-y-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -51,7 +51,7 @@ const Contact = () => {
                 type="text"
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
-                className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-colors"
+                className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-colors min-h-[48px]"
                 required
               />
             </div>
@@ -61,7 +61,7 @@ const Contact = () => {
                 type="email"
                 value={form.email}
                 onChange={e => setForm({ ...form, email: e.target.value })}
-                className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-colors"
+                className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-colors min-h-[48px]"
                 required
               />
             </div>
@@ -70,12 +70,12 @@ const Contact = () => {
               <textarea
                 value={form.message}
                 onChange={e => setForm({ ...form, message: e.target.value })}
-                rows={6}
+                rows={5}
                 className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-colors resize-none"
                 required
               />
             </div>
-            <button type="submit" className="btn-primary w-full text-center">{t("contact.send")}</button>
+            <button type="submit" className="btn-primary w-full text-center min-h-[48px]">{t("contact.send")}</button>
           </motion.form>
         </div>
       </main>

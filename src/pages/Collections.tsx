@@ -16,12 +16,12 @@ const Collections = () => {
       <Navbar />
       <CartDrawer />
       <main className="pt-20">
-        <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
+        <div className="relative h-[30vh] sm:h-[40vh] md:h-[50vh] overflow-hidden">
           <img src={collectionsImg} alt="Collections" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 px-5 md:px-12 lg:px-20 pb-10">
+          <div className="absolute bottom-0 left-0 right-0 px-5 md:px-12 lg:px-20 pb-6 sm:pb-10">
             <motion.h1
-              className="text-3xl md:text-5xl font-display uppercase tracking-[0.2em]"
+              className="text-2xl sm:text-3xl md:text-5xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -31,17 +31,17 @@ const Collections = () => {
         </div>
 
         {/* Collection Cards */}
-        <div className="section-padding">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="px-5 md:px-12 lg:px-20 py-10 md:py-16">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
             {(collections ?? []).map((col, i) => (
               <motion.div
                 key={col.slug}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="text-left border border-border p-8 hover:border-primary/30 transition-all duration-300"
+                className="text-left border border-border p-5 sm:p-6 md:p-8 hover:border-primary/30 transition-all duration-300 active:bg-muted/30"
               >
-                <h3 className="font-display uppercase tracking-wider text-lg mb-2">{col.name}</h3>
+                <h3 className="font-display uppercase tracking-wider text-base sm:text-lg mb-2">{col.name}</h3>
                 <p className="text-muted-foreground text-sm">{col.description}</p>
               </motion.div>
             ))}
@@ -49,7 +49,7 @@ const Collections = () => {
         </div>
 
         {/* 3D Product Showcase */}
-        <ProductShowcase height="h-[65vh] md:h-[80vh]" />
+        <ProductShowcase height="h-[50vh] sm:h-[65vh] md:h-[80vh]" />
       </main>
       <Footer />
     </div>

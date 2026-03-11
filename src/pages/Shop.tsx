@@ -670,7 +670,7 @@ const Shop = () => {
             <motion.div
                 layout
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className={`w-full bg-gradient-to-br from-muted/80 via-background to-muted/30 overflow-hidden ${isFullScreen ? 'fixed inset-0 z-[100] h-screen' : 'relative h-[92vh] md:h-[85vh]'}`}
+                className={`w-full bg-gradient-to-br from-muted/80 via-background to-muted/30 overflow-hidden ${isFullScreen ? 'fixed inset-0 z-[100] h-screen' : 'relative h-[75vh] sm:h-[85vh] md:h-[85vh]'}`}
             >
 
                 {/* Navigation Arrows & Back Button */}
@@ -760,15 +760,15 @@ const Shop = () => {
 
                 {/* Overlay Text (Title & Price) */}
                 {viewMode === 'customizing' && (
-                    <div className="absolute inset-0 z-20 pointer-events-none container mx-auto px-6 md:px-8">
-                        <div className="relative w-full h-full flex flex-col justify-between pt-20 md:pt-28 pb-48">
+                <div className="absolute inset-0 z-20 pointer-events-none container mx-auto px-4 sm:px-6 md:px-8">
+                        <div className="relative w-full h-full flex flex-col justify-between pt-16 sm:pt-20 md:pt-28 pb-48">
                             {/* Top Area titles */}
-                            <div className="flex justify-between items-start w-full">
+                            <div className="flex justify-between items-start w-full gap-2">
                                 <motion.h2
                                     key={`title-${selectedProduct}`}
                                     initial={{ opacity: 0, x: -50 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="text-2xl md:text-5xl font-black text-white drop-shadow-lg tracking-tight font-display uppercase tracking-widest w-[40%] leading-[0.9] md:leading-tight text-left break-words"
+                                    className="text-lg sm:text-2xl md:text-5xl font-black text-white drop-shadow-lg font-display uppercase tracking-wider w-[45%] sm:w-[40%] leading-[0.9] md:leading-tight text-left break-words"
                                 >
                                     {activeProductData.name}
                                 </motion.h2>
@@ -777,7 +777,7 @@ const Shop = () => {
                                     key={`price-${selectedProduct}`}
                                     initial={{ opacity: 0, x: 50 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="text-2xl md:text-5xl font-black text-white tracking-widest drop-shadow-md font-display uppercase tracking-widest text-right"
+                                    className="text-lg sm:text-2xl md:text-5xl font-black text-white drop-shadow-md font-display uppercase tracking-wider text-right"
                                 >
                                     {activeProductData.price.toFixed(2)}€
                                 </motion.div>
@@ -937,15 +937,15 @@ const Shop = () => {
             </motion.div>
 
             {/* Placeholder to prevent layout shift when header becomes fixed */}
-            {isFullScreen && <div className="h-[92vh] md:h-[85vh]" />}
+            {isFullScreen && <div className="h-[75vh] sm:h-[85vh] md:h-[85vh]" />}
 
             {viewMode === 'showcase' ? (
                 <div className="w-full relative z-40 bg-background -mt-2 pt-8 md:pt-16 pb-16">
-                    <div className="container mx-auto px-4 py-8 md:py-16 relative z-50 text-center">
-                        <h2 className="text-4xl md:text-6xl font-black text-primary font-display uppercase tracking-widest mb-6 drop-shadow-sm">
+                    <div className="container mx-auto px-5 py-8 md:py-16 relative z-50 text-center">
+                        <h2 className="text-2xl sm:text-4xl md:text-6xl font-black text-primary font-display uppercase tracking-wider sm:tracking-widest mb-4 sm:mb-6 drop-shadow-sm">
                             {t('shop.title')}
                         </h2>
-                        <p className="text-sm md:text-base font-medium text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+                        <p className="text-xs sm:text-sm md:text-base font-medium text-muted-foreground max-w-4xl mx-auto leading-relaxed">
                             {t('hero.subtitle')}
                         </p>
                     </div>
@@ -1090,7 +1090,7 @@ const Shop = () => {
                                         onClick={() => setActiveTab(tab.id as any)}
                                         className={`flex-1 py-4 px-2 md:px-8 text-sm md:text-lg font-bold font-heading transition-colors whitespace-nowrap ${activeTab === tab.id
                                             ? 'text-primary border-b-4 border-primary bg-primary/10'
-                                            : 'text-muted-foreground hover:text-gray-700 hover:bg-muted/50'
+                                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                             }`}
                                     >
                                         {tab.label}
@@ -1122,7 +1122,7 @@ const Shop = () => {
                                                     <div className="text-muted-foreground text-xs font-bold uppercase">Toplo/Hladno</div>
                                                 </div>
                                                 <div className="bg-muted p-4 rounded-none text-center border border-border">
-                                                    <div className="text-green-500 font-black text-2xl mb-1">283g</div>
+                                                    <div className="text-primary font-black text-2xl mb-1">283g</div>
                                                     <div className="text-muted-foreground text-xs font-bold uppercase">Težina</div>
                                                 </div>
                                             </div>
@@ -1141,7 +1141,7 @@ const Shop = () => {
                                                     <div className="text-muted-foreground text-xs font-bold uppercase">Pranje</div>
                                                 </div>
                                                 <div className="bg-muted p-4 rounded-none text-center border border-border">
-                                                    <div className="text-green-500 font-black text-2xl mb-1">HR</div>
+                                                    <div className="text-primary font-black text-2xl mb-1">HR</div>
                                                     <div className="text-muted-foreground text-xs font-bold uppercase">Proizvodnja</div>
                                                 </div>
                                             </div>
@@ -1169,100 +1169,100 @@ const Shop = () => {
                                         {selectedProduct === 'bottle' ? (
                                             <ul className="space-y-4">
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Nepropusno (Leakproof)</span>
+                                                    <span className="font-medium text-foreground text-lg">Nepropusno (Leakproof)</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-destructive/15 flex items-center justify-center text-destructive shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Toplinska izolacija: 12h</span>
+                                                    <span className="font-medium text-foreground text-lg">Toplinska izolacija: 12h</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center text-accent-foreground shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Hladna izolacija: 24h</span>
+                                                    <span className="font-medium text-foreground text-lg">Hladna izolacija: 24h</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
                                                     <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Dvostruka stijenka s bakrenom izolacijom</span>
+                                                    <span className="font-medium text-foreground text-lg">Dvostruka stijenka s bakrenom izolacijom</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
                                                     <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Dimenzije: Ă¸70Ă—263 mm</span>
+                                                    <span className="font-medium text-foreground text-lg">Dimenzije: Ă¸70Ă—263 mm</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-400 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center text-destructive/70 shrink-0">
                                                         <X className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Nije za mikrovalnu</span>
+                                                    <span className="font-medium text-foreground text-lg">Nije za mikrovalnu</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-400 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center text-destructive/70 shrink-0">
                                                         <X className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Nije za perilicu posuđa</span>
+                                                    <span className="font-medium text-foreground text-lg">Nije za perilicu posuđa</span>
                                                 </li>
                                             </ul>
                                         ) : (selectedProduct === 'hoodie' || selectedProduct === 'tshirt') ? (
                                             <ul className="space-y-4">
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent-foreground shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Sastav: 100% Pamuk</span>
+                                                    <span className="font-medium text-foreground text-lg">Sastav: 100% Pamuk</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Skupljanje: po visini 2%, po dužini 2%</span>
+                                                    <span className="font-medium text-foreground text-lg">Skupljanje: po visini 2%, po dužini 2%</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center text-accent-foreground shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Održavanje: Pranje na 40°C, Glačanje</span>
+                                                    <span className="font-medium text-foreground text-lg">Održavanje: Pranje na 40°C, Glačanje</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Proizvođač: Tina-co Solin d.o.o.</span>
+                                                    <span className="font-medium text-foreground text-lg">Proizvođač: Tina-co Solin d.o.o.</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Stavlja na tržište: 021 d.o.o.</span>
+                                                    <span className="font-medium text-foreground text-lg">Stavlja na tržište: 021 d.o.o.</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Tehnika tiska: DTF</span>
+                                                    <span className="font-medium text-foreground text-lg">Tehnika tiska: DTF</span>
                                                 </li>
                                             </ul>
                                         ) : (
                                             <ul className="space-y-4">
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent-foreground shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">100% Poliester</span>
+                                                    <span className="font-medium text-foreground text-lg">100% Poliester</span>
                                                 </li>
                                                 <li className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
                                                         <Check className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-medium text-gray-700 text-lg">Tehnika tiska: DTF</span>
+                                                    <span className="font-medium text-foreground text-lg">Tehnika tiska: DTF</span>
                                                 </li>
                                             </ul>
                                         )}
@@ -1273,14 +1273,14 @@ const Shop = () => {
                                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
                                         {activeProductData.ratingCount > 0 ? (
                                             <>
-                                                <div className="flex items-center gap-4 mb-8 p-6 bg-yellow-50 rounded-2xl border border-yellow-100">
-                                                    <div className="text-5xl font-black text-yellow-500">{activeProductData.averageRating.toFixed(1)}</div>
+                                                <div className="flex items-center gap-4 mb-8 p-6 bg-primary/10 rounded-2xl border border-primary/20">
+                                                    <div className="text-5xl font-black text-primary">{activeProductData.averageRating.toFixed(1)}</div>
                                                     <div>
-                                                        <div className="flex text-yellow-500 mb-1">
+                                                        <div className="flex text-primary mb-1">
                                                             {[1, 2, 3, 4, 5].map(i => (
                                                                 <Star
                                                                     key={i}
-                                                                    className={`w-5 h-5 ${i <= Math.round(activeProductData.averageRating) ? 'fill-current' : 'text-gray-300'}`}
+                                                                    className={`w-5 h-5 ${i <= Math.round(activeProductData.averageRating) ? 'fill-current' : 'text-muted-foreground'}`}
                                                                 />
                                                             ))}
                                                         </div>
@@ -1294,7 +1294,7 @@ const Shop = () => {
                                                         <div className="font-bold text-foreground">Marko P.</div>
                                                         <span className="text-sm text-muted-foreground/70">Prije 2 dana</span>
                                                     </div>
-                                                    <div className="flex text-yellow-400 mb-2">
+                                                    <div className="flex text-primary mb-2">
                                                         {[1, 2, 3, 4, 5].map(i => <Star key={i} className="fill-current w-4 h-4" />)}
                                                     </div>
                                                     <p className="text-muted-foreground">"Vrhunska hoodica, print je jasan i boje su žive. Dostava je bila super brza!"</p>
@@ -1303,7 +1303,7 @@ const Shop = () => {
                                         ) : (
                                             <div className="text-center py-12">
                                                 <div className="flex justify-center mb-4">
-                                                    <Star className="w-12 h-12 text-gray-300" />
+                                                    <Star className="w-12 h-12 text-muted-foreground" />
                                                 </div>
                                                 <h3 className="text-xl font-bold text-foreground mb-2">{t('shop.noreviews')}</h3>
                                                 <p className="text-muted-foreground">

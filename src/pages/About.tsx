@@ -17,32 +17,33 @@ const About = () => {
       <Navbar />
       <CartDrawer />
       <main className="pt-20">
-        <div className="section-padding">
+        <div className="px-5 md:px-12 lg:px-20 py-10 md:py-16">
           <motion.h1
-            className="text-3xl md:text-5xl font-display uppercase tracking-[0.2em] mb-12"
+            className="text-2xl sm:text-3xl md:text-5xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-8 md:mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             {t("about.title")}
           </motion.h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center mb-16 md:mb-20">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="space-y-6"
+              className="space-y-5 md:space-y-6 order-2 md:order-1"
             >
-              <p className="text-foreground/80 leading-relaxed">{t("about.p1")}</p>
-              <p className="text-foreground/80 leading-relaxed">{t("about.p2")}</p>
-              <p className="text-foreground/80 leading-relaxed">{t("about.p3")}</p>
+              <p className="text-foreground/80 leading-relaxed text-sm md:text-base">{t("about.p1")}</p>
+              <p className="text-foreground/80 leading-relaxed text-sm md:text-base">{t("about.p2")}</p>
+              <p className="text-foreground/80 leading-relaxed text-sm md:text-base">{t("about.p3")}</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="order-1 md:order-2"
             >
-              <img src={mainImage} alt="Handball Seven" className="w-full max-w-md mx-auto" />
+              <img src={mainImage} alt="Handball Seven" className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto" />
             </motion.div>
           </div>
 

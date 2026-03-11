@@ -114,7 +114,7 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
   const handleSelectProduct = () => {};
 
   return (
-    <div className={`relative w-full ${height} pb-24 overflow-hidden bg-gradient-to-br from-muted/80 via-background to-muted/30`}>
+    <div className={`relative w-full ${height} pb-16 sm:pb-24 overflow-hidden bg-gradient-to-br from-muted/80 via-background to-muted/30`}>
       {/* 3D Scene - always in showcase mode, pointer-events enabled for hover */}
       <div className="absolute inset-0 z-10">
         <ShopScene

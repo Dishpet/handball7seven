@@ -30,9 +30,9 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
-      <div className="flex items-center justify-between px-5 md:px-12 py-3">
-        <Link to="/" className="flex items-center">
-          <img src={logo} alt="Handball Seven" className="h-10 md:h-12" />
+      <div className="flex items-center justify-between px-4 md:px-12 py-3">
+        <Link to="/" className="flex items-center shrink-0">
+          <img src={logo} alt="Handball Seven" className="h-9 md:h-12" />
         </Link>
 
         {/* Desktop Nav */}
@@ -50,7 +50,7 @@ const Navbar = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
           {/* Language Switcher */}
           <div className="hidden md:flex items-center gap-1 text-xs font-display">
             {langs.map(l => (
@@ -78,22 +78,28 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <Link to="/auth" className="text-foreground/70 hover:text-foreground transition-colors">
+              <Link to="/auth" className="text-foreground/70 hover:text-foreground transition-colors p-1">
                 <User size={18} />
               </Link>
             )}
           </div>
 
-          <button onClick={() => setCartOpen(true)} className="relative text-foreground/70 hover:text-foreground transition-colors">
+          <button 
+            onClick={() => setCartOpen(true)} 
+            className="relative text-foreground/70 hover:text-foreground transition-colors p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+          >
             <ShoppingBag size={20} />
             {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-body font-semibold">
+              <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-body font-semibold">
                 {totalItems}
               </span>
             )}
           </button>
 
-          <button className="md:hidden text-foreground" onClick={() => setIsOpen(!isOpen)}>
+          <button 
+            className="md:hidden text-foreground p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center" 
+            onClick={() => setIsOpen(!isOpen)}
+          >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -108,14 +114,14 @@ const Navbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-background border-t border-border overflow-hidden"
           >
-            <div className="flex flex-col px-5 py-6 gap-4">
+            <div className="flex flex-col px-5 py-6 gap-1">
               {links.map(link => (
                 <Link
                   key={link.to}
                   to={link.to}
                   onClick={() => setIsOpen(false)}
-                  className={`font-display uppercase text-sm tracking-[0.2em] ${
-                    location.pathname === link.to ? "text-primary" : "text-foreground/70"
+                  className={`font-display uppercase text-sm tracking-[0.2em] py-3 px-2 rounded-sm transition-colors ${
+                    location.pathname === link.to ? "text-primary bg-primary/5" : "text-foreground/70 active:bg-muted"
                   }`}
                 >
                   {link.label}
@@ -124,25 +130,25 @@ const Navbar = () => {
               {user ? (
                 <>
                   {isAdmin && (
-                    <Link to="/admin" onClick={() => setIsOpen(false)} className="font-display uppercase text-sm tracking-[0.2em] text-primary">
+                    <Link to="/admin" onClick={() => setIsOpen(false)} className="font-display uppercase text-sm tracking-[0.2em] text-primary py-3 px-2">
                       Admin Panel
                     </Link>
                   )}
-                  <button onClick={() => { signOut(); setIsOpen(false); }} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/50 text-left">
+                  <button onClick={() => { signOut(); setIsOpen(false); }} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/50 text-left py-3 px-2">
                     Sign Out
                   </button>
                 </>
               ) : (
-                <Link to="/auth" onClick={() => setIsOpen(false)} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/70">
+                <Link to="/auth" onClick={() => setIsOpen(false)} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/70 py-3 px-2">
                   Sign In
                 </Link>
               )}
-              <div className="flex gap-2 pt-4 border-t border-border">
+              <div className="flex gap-2 pt-4 mt-2 border-t border-border">
                 {langs.map(l => (
                   <button
                     key={l.code}
                     onClick={() => setLang(l.code)}
-                    className={`font-display text-xs px-3 py-1 border ${lang === l.code ? "border-primary text-primary" : "border-border text-foreground/40"}`}
+                    className={`font-display text-xs px-4 py-2 border min-w-[44px] min-h-[44px] flex items-center justify-center ${lang === l.code ? "border-primary text-primary" : "border-border text-foreground/40"}`}
                   >
                     {l.label}
                   </button>
