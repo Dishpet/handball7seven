@@ -152,14 +152,14 @@ export default function Designs() {
               const createKey = `${collectionKey}:create`;
               return (
                 <div key={collectionKey} className="bg-black border border-white/10">
-                  <div className="w-full flex justify-between items-center p-4 border-b border-white/10">
+                  <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 border-b border-white/10">
                     <button
                       onClick={() => setExpandedId(expandedId === collectionKey ? "vintage" : collectionKey)}
-                      className="flex items-center gap-4"
+                      className="flex items-center gap-3"
                     >
-                      <h3 className="text-lg font-display uppercase tracking-widest text-primary font-bold">{COLLECTION_LABELS[collectionKey]}</h3>
-                      <span className="text-white/40 text-sm font-body">
-                        {collectionKey === "front_logo" ? (designs.length > 0 ? "1 design (max 1)" : "0 designs (max 1)") : `${designs.length} designs`}
+                      <h3 className="text-base sm:text-lg font-display uppercase tracking-widest text-primary font-bold">{COLLECTION_LABELS[collectionKey]}</h3>
+                      <span className="text-white/40 text-xs font-body">
+                        {collectionKey === "front_logo" ? (designs.length > 0 ? "1 (max 1)" : "0 (max 1)") : `${designs.length}`}
                       </span>
                     </button>
 
@@ -178,10 +178,10 @@ export default function Designs() {
                       <button
                         onClick={() => addInputRefs.current[collectionKey]?.click()}
                         disabled={isBusy(createKey)}
-                        className="flex items-center gap-2 px-3 py-2 bg-primary text-black text-xs font-display uppercase tracking-widest font-bold disabled:opacity-60"
+                        className="flex items-center gap-2 px-3 py-2 bg-primary text-black text-xs font-display uppercase tracking-widest font-bold disabled:opacity-60 min-h-[40px]"
                       >
                         {isBusy(createKey) ? <Loader2 className="w-3 h-3 animate-spin" /> : collectionKey === "front_logo" && designs.length > 0 ? <Pencil className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                        {collectionKey === "front_logo" && designs.length > 0 ? "Replace Design" : "Add Design"}
+                        {collectionKey === "front_logo" && designs.length > 0 ? "Replace" : "Add"}
                       </button>
                     </div>
                   </div>
