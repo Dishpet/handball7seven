@@ -10,7 +10,6 @@ interface AdminLayoutProps {
 const navItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { name: "Products", path: "/admin/products", icon: Package },
-  { name: "Collections", path: "/admin/collections", icon: Layers },
   { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
   { name: "Designs", path: "/admin/designs", icon: Palette },
   { name: "Content", path: "/admin/content", icon: FileText },

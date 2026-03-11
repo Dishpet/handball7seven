@@ -45,7 +45,7 @@ const App = () => (
                 {/* Admin Routes */}
                 <Route path="/admin" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
                 <Route path="/admin/products" element={<RequireAdmin><Products /></RequireAdmin>} />
-                <Route path="/admin/collections" element={<RequireAdmin><AdminCollections /></RequireAdmin>} />
+                
                 <Route path="/admin/designs" element={<RequireAdmin><Designs /></RequireAdmin>} />
                 <Route path="/admin/content" element={<RequireAdmin><Content /></RequireAdmin>} />
                 <Route path="/admin/users" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
