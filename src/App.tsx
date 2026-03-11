@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
 import Designs from "./pages/admin/Designs";
+import AdminCollections from "./pages/admin/AdminCollections";
 import Content from "./pages/admin/Content";
 import Settings from "./pages/admin/Settings";
 import Orders from "./pages/admin/Orders";
