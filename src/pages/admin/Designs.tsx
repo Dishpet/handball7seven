@@ -203,7 +203,7 @@ export default function Designs() {
                                 </button>
                                 <p className="text-[10px] text-white/60 truncate font-body">{design.name}</p>
 
-                                <div className="grid grid-cols-4 gap-1">
+                                <div className="grid grid-cols-4 gap-1 [&_button]:min-w-[36px] [&_button]:min-h-[36px] [&_button]:flex [&_button]:items-center [&_button]:justify-center">
                                   <button onClick={() => setPreviewUrl(design.url)} className="p-1 text-white/70 hover:text-white"><Eye className="w-3 h-3" /></button>
                                   <button onClick={() => window.open(design.url, "_blank")} className="p-1 text-white/70 hover:text-white"><Download className="w-3 h-3" /></button>
 

@@ -87,7 +87,7 @@ export default function Settings() {
                 <div>
                   <label className="block text-white/50 text-xs font-display uppercase tracking-widest mb-2">Currency</label>
                   <select value={currency} onChange={e => setCurrency(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 text-white p-3 focus:outline-none focus:border-primary transition-colors">
+                    className="w-full bg-white/5 border border-white/10 text-white p-3 focus:outline-none focus:border-primary transition-colors min-h-[48px]">
                     <option value="EUR">EUR (€)</option>
                     <option value="USD">USD ($)</option>
                     <option value="GBP">GBP (£)</option>
