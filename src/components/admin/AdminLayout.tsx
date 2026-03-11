@@ -24,7 +24,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col md:flex-row font-body">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-black border-b md:border-b-0 md:border-r border-white/10 shrink-0 flex flex-col">
+      <aside className="w-full md:w-64 md:h-screen md:sticky md:top-0 bg-black border-b md:border-b-0 md:border-r border-white/10 shrink-0 flex flex-col">
         {/* Logo Area */}
         <div className="p-6 border-b border-white/10 flex items-center gap-3">
           <MountainSnow className="w-8 h-8 text-primary" />
