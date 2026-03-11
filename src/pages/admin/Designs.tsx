@@ -158,7 +158,9 @@ export default function Designs() {
                       className="flex items-center gap-4"
                     >
                       <h3 className="text-lg font-display uppercase tracking-widest text-primary font-bold">{COLLECTION_LABELS[collectionKey]}</h3>
-                      <span className="text-white/40 text-sm font-body">{designs.length} designs</span>
+                      <span className="text-white/40 text-sm font-body">
+                        {collectionKey === "front_logo" ? (designs.length > 0 ? "1 design (max 1)" : "0 designs (max 1)") : `${designs.length} designs`}
+                      </span>
                     </button>
 
                     <div className="flex items-center gap-2">
