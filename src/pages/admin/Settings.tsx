@@ -45,13 +45,13 @@ export default function Settings() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4">
           <div>
-            <h2 className="text-3xl font-display uppercase tracking-widest font-black text-white">Store Settings</h2>
-            <p className="text-white/60 font-body mt-1">Configure global store behavior</p>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Settings</h2>
+            <p className="text-white/60 font-body text-sm mt-1">Configure global store behavior</p>
           </div>
           <button onClick={handleSave} disabled={updateSetting.isPending}
-            className="bg-primary text-black flex items-center gap-2 font-display uppercase tracking-widest font-bold px-6 py-2 hover:bg-primary/90 transition-colors disabled:opacity-50">
+            className="bg-primary text-black flex items-center gap-2 font-display uppercase tracking-widest font-bold px-5 py-2.5 hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm min-h-[44px] w-full sm:w-auto justify-center">
             <Save className="w-4 h-4" /> {updateSetting.isPending ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
