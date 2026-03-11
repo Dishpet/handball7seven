@@ -19,6 +19,7 @@ import Designs from "./pages/admin/Designs";
 import Content from "./pages/admin/Content";
 import Settings from "./pages/admin/Settings";
 import Orders from "./pages/admin/Orders";
+import AdminUsers from "./pages/admin/Users";
 import { RequireAdmin } from "@/components/admin/RequireAdmin";
 
 const queryClient = new QueryClient();
