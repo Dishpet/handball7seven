@@ -19,6 +19,7 @@ import Designs from "./pages/admin/Designs";
 import Content from "./pages/admin/Content";
 import Settings from "./pages/admin/Settings";
 import Orders from "./pages/admin/Orders";
+import AdminUsers from "./pages/admin/Users";
 import { RequireAdmin } from "@/components/admin/RequireAdmin";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
                 <Route path="/admin/products" element={<RequireAdmin><Products /></RequireAdmin>} />
                 <Route path="/admin/designs" element={<RequireAdmin><Designs /></RequireAdmin>} />
                 <Route path="/admin/content" element={<RequireAdmin><Content /></RequireAdmin>} />
+                <Route path="/admin/users" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
                 <Route path="/admin/settings" element={<RequireAdmin><Settings /></RequireAdmin>} />
                 <Route path="/admin/orders" element={<RequireAdmin><Orders /></RequireAdmin>} />
 
