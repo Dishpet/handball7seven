@@ -4,13 +4,15 @@ import { useI18n } from "@/lib/i18n";
 import logo from "@/assets/logo.png";
 
 const Hero = () => {
-  const { t } = useI18n();
+  const { t, getSiteContent } = useI18n();
+  const heroContent = getSiteContent("hero") as Record<string, any> | undefined;
+  const bgImage = heroContent?.bg_image || "/images/hero-bg.jpg";
 
   return (
     <section className="relative min-h-screen flex items-center justify-start overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
+        style={{ backgroundImage: `url('${bgImage}')` }}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
 

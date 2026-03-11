@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 
 const LifestyleBanner = () => {
-  const { t } = useI18n();
+  const { t, getSiteContent } = useI18n();
+  const lifestyleContent = getSiteContent("lifestyle") as Record<string, any> | undefined;
+  const bgImage = lifestyleContent?.bg_image || "/images/lifestyle-banner.jpg";
 
   return (
     <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/lifestyle-banner.jpg')" }}
+        style={{ backgroundImage: `url('${bgImage}')` }}
       />
       <div className="absolute inset-0 bg-background/60" />
 

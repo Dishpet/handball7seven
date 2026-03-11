@@ -7,7 +7,10 @@ import hoodieImg from "@/assets/hoodie-vintage.png";
 import collectionsImg from "@/assets/collections-banner.png";
 
 const About = () => {
-  const { t } = useI18n();
+  const { t, getSiteContent } = useI18n();
+  const aboutContent = getSiteContent("about") as Record<string, any> | undefined;
+  const mainImage = aboutContent?.main_image || hoodieImg;
+  const bannerImage = aboutContent?.banner_image || collectionsImg;
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,7 +42,7 @@ const About = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <img src={hoodieImg} alt="Handball Seven" className="w-full max-w-md mx-auto" />
+              <img src={mainImage} alt="Handball Seven" className="w-full max-w-md mx-auto" />
             </motion.div>
           </div>
 
@@ -48,7 +51,7 @@ const About = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <img src={collectionsImg} alt="Collections" className="w-full" />
+            <img src={bannerImage} alt="Collections" className="w-full" />
           </motion.div>
         </div>
       </main>
