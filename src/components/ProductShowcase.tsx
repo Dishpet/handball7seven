@@ -85,7 +85,7 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
     return map;
   }, [frontLogoUrl]);
 
-  const logoList = useMemo(() => DESIGN_COLLECTIONS['KIDS'], []);
+  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : DESIGN_COLLECTIONS['KIDS'], [frontLogoUrl]);
   const hoodieBackList = useMemo(() => [...DESIGN_COLLECTIONS['CLASSIC']], []);
   const vintageList = useMemo(() => [...DESIGN_COLLECTIONS['VINTAGE']], []);
   const allDesignsList = useMemo(() => [
