@@ -157,7 +157,22 @@ const SIZES = ['6-8 g.', '8-10 g.', '10-12 g.', 'S', 'M', 'L', 'XL'];
 const Shop = () => {
     // i18n
     const { t } = useI18n();
+    const { collections: dbDesignCollections } = useDesignCollections();
 
+    // Resolve front logo: DB first, then static fallback
+    const frontLogoUrl = useMemo(() => {
+        const dbLogo = dbDesignCollections.front_logo?.[0]?.url;
+        return dbLogo || STATIC_FRONT_LOGO;
+    }, [dbDesignCollections]);
+
+    // Build color-to-logo map dynamically from DB front logo
+    const COLOR_TO_LOGO_MAP = useMemo(() => {
+        const map: Record<string, string> = {};
+        ['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'].forEach(color => {
+            map[color] = frontLogoUrl;
+        });
+        return map;
+    }, [frontLogoUrl]);
     // State
     const [searchParams, setSearchParams] = useSearchParams();
     const [products, setProducts] = useState(INITIAL_PRODUCTS);
