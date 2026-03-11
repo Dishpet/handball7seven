@@ -133,8 +133,8 @@ export default function Designs() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-display uppercase tracking-widest font-black text-white">Design Management</h2>
-          <p className="text-white/60 font-body mt-1">Manage designs for VINTAGE, KIDS, CLASSIC and FRONT LOGO</p>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Designs</h2>
+          <p className="text-white/60 font-body text-sm mt-1">Manage designs for collections</p>
         </div>
 
         {previewUrl && (
