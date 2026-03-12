@@ -221,7 +221,6 @@ const Shop = () => {
     }, [frontLogoUrl]);
     // State
     const [searchParams, setSearchParams] = useSearchParams();
-    const [products, setProducts] = useState(INITIAL_PRODUCTS);
     const [variationCache, setVariationCache] = useState<Record<string, any[]>>({});
     const [selectedProduct, setSelectedProduct] = useState<'hoodie' | 'tshirt' | 'cap' | 'bottle'>('tshirt');
     const [isCustomizing, setIsCustomizing] = useState(false);
