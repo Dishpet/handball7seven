@@ -10,7 +10,7 @@ export type Product = {
   image: string;
 };
 
-// We'll use the uploaded images + generated ones
+// Static fallback — components should prefer useProducts() from hooks
 export const products: Product[] = [
   {
     id: "classic-logo-hoodie",

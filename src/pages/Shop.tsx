@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useShopConfig } from '@/hooks/useShopConfig';
 import { useI18n } from '@/lib/i18n';
 import { useDesignCollections } from '@/hooks/useDesignCollections';
+import { useProducts as useDbProducts } from '@/hooks/useProducts';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
@@ -158,6 +159,26 @@ const Shop = () => {
     // i18n
     const { t } = useI18n();
     const { collections: dbDesignCollections } = useDesignCollections();
+    const { data: dbProducts } = useDbProducts();
+
+    // Merge DB product data into INITIAL_PRODUCTS (prices, names, descriptions)
+    const products = useMemo(() => {
+        const merged = { ...INITIAL_PRODUCTS };
+        if (dbProducts) {
+            for (const dbp of dbProducts) {
+                const key = dbp.slug as keyof typeof INITIAL_PRODUCTS;
+                if (merged[key]) {
+                    merged[key] = {
+                        ...merged[key],
+                        name: dbp.name || merged[key].name,
+                        price: Number(dbp.price) || merged[key].price,
+                        description: dbp.description || merged[key].description,
+                    };
+                }
+            }
+        }
+        return merged;
+    }, [dbProducts]);
 
     // Resolve front logo: DB first, then static fallback
     const frontLogoUrl = useMemo(() => {
@@ -199,7 +220,6 @@ const Shop = () => {
     }, [frontLogoUrl]);
     // State
     const [searchParams, setSearchParams] = useSearchParams();
-    const [products, setProducts] = useState(INITIAL_PRODUCTS);
     const [variationCache, setVariationCache] = useState<Record<string, any[]>>({});
     const [selectedProduct, setSelectedProduct] = useState<'hoodie' | 'tshirt' | 'cap' | 'bottle'>('tshirt');
     const [isCustomizing, setIsCustomizing] = useState(false);
@@ -356,10 +376,7 @@ const Shop = () => {
     }, [designs, activeZone, shopConfig]);
 
 
-    // Static local products (No WP fetch)
-    useEffect(() => {
-        // KeepingINITIAL_PRODUCTS
-    }, []);
+    // DB products are now reactive via useMemo - no need for static init
 
     // Reset defaults when product changes
     useEffect(() => {
