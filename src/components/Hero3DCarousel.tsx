@@ -54,10 +54,11 @@ interface HeroModelProps {
   frontDesignUrl: string;
   backDesignUrl: string;
   transitionProgress: number;
-  rotationRef: React.MutableRefObject<number>; // shared rotation angle
+  rotationRef: React.MutableRefObject<number>;
+  isPrimary?: boolean; // only primary model advances the shared rotation
 }
 
-const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionProgress, rotationRef }: HeroModelProps) => {
+const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionProgress, rotationRef, isPrimary = false }: HeroModelProps) => {
   const { scene } = useGLTF(product.url);
   const groupRef = useRef<THREE.Group>(null);
   const bodyMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
