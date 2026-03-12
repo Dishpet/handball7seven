@@ -102,7 +102,13 @@ const CartDrawer = () => {
                   <span className="font-display uppercase tracking-wider text-sm">Total</span>
                   <span className="font-display text-lg">€{totalPrice.toFixed(2)}</span>
                 </div>
-                <button className="btn-primary w-full text-center min-h-[48px]">Checkout</button>
+                <button
+                  onClick={handleCheckout}
+                  disabled={checkingOut}
+                  className="btn-primary w-full text-center min-h-[48px] flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {checkingOut ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : "Checkout"}
+                </button>
               </div>
             )}
           </motion.div>
