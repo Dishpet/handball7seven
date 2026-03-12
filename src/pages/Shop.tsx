@@ -628,8 +628,8 @@ const Shop = () => {
             // Fallback: If expandedCollection is null (intro mode), try to guess or default
             if (!currentCollectionName) {
                 // Heuristic: check where current design exists
-                if (DESIGN_COLLECTIONS['CLASSIC'].includes(currentDesign)) currentCollectionName = 'CLASSIC';
-                else if (DESIGN_COLLECTIONS['VINTAGE'].includes(currentDesign)) currentCollectionName = 'VINTAGE';
+                if (effectiveCollections['CLASSIC'].includes(currentDesign)) currentCollectionName = 'CLASSIC';
+                else if (effectiveCollections['VINTAGE'].includes(currentDesign)) currentCollectionName = 'VINTAGE';
                 else currentCollectionName = 'KIDS';
             }
 
