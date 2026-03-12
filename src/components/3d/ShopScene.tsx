@@ -4,6 +4,47 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useTexture, Text, Environment, Float, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
+// 3D gradient background rendered as a full-screen quad behind the scene
+const GradientBackground = () => {
+  const mesh = useRef<THREE.Mesh>(null);
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      depthWrite: false,
+      depthTest: false,
+      uniforms: {
+        uColorTop: { value: new THREE.Color('#ffffff') },
+        uColorMid: { value: new THREE.Color('#f0f0f0') },
+        uColorBottom: { value: new THREE.Color('#e0e0e0') },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.9999, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uColorTop;
+        uniform vec3 uColorMid;
+        uniform vec3 uColorBottom;
+        varying vec2 vUv;
+        void main() {
+          vec3 color = mix(uColorBottom, uColorMid, smoothstep(0.0, 0.5, vUv.y));
+          color = mix(color, uColorTop, smoothstep(0.5, 1.0, vUv.y));
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+    });
+  }, []);
+
+  return (
+    <mesh ref={mesh} frustumCulled={false} renderOrder={-1000}>
+      <planeGeometry args={[2, 2]} />
+      <primitive object={material} attach="material" />
+    </mesh>
+  );
+};
+
 // Model loading order: smallest to largest file size
 const MODEL_LOAD_ORDER: { id: 'cap' | 'bottle' | 'tshirt' | 'hoodie'; url: string }[] = [
     { id: 'cap', url: '/models/cap_webshop.glb' },
