@@ -694,7 +694,7 @@ const Shop = () => {
             <motion.div
                 layout
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className={`w-full bg-gradient-to-br from-muted/80 via-background to-muted/30 overflow-hidden ${isFullScreen ? 'fixed inset-0 z-[100] h-screen' : 'relative h-[75vh] sm:h-[85vh] md:h-[85vh]'}`}
+                className={`w-full overflow-hidden ${isFullScreen ? 'fixed inset-0 z-[100] h-screen' : 'relative h-[75vh] sm:h-[85vh] md:h-[85vh]'}`}
             >
 
                 {/* Navigation Arrows & Back Button */}
