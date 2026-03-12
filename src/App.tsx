@@ -13,6 +13,9 @@ import About from "./pages/About";
 import Collections from "./pages/Collections";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
+import Account from "./pages/Account";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
+import CheckoutCanceled from "./pages/CheckoutCanceled";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
@@ -49,6 +52,9 @@ const App = () => (
                 <Route path="/collections" element={<Collections />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                <Route path="/checkout/canceled" element={<CheckoutCanceled />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<RequireAdmin><Dashboard /></RequireAdmin>} />

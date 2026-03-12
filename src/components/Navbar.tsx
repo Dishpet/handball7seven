@@ -73,9 +73,9 @@ const Navbar = () => {
                     Admin
                   </Link>
                 )}
-                <button onClick={signOut} className="text-foreground/50 hover:text-foreground text-xs font-display uppercase tracking-widest">
-                  Sign Out
-                </button>
+                <Link to="/account" className="text-foreground/70 hover:text-foreground transition-colors p-1">
+                  <User size={18} />
+                </Link>
               </>
             ) : (
               <Link to="/auth" className="text-foreground/70 hover:text-foreground transition-colors p-1">
@@ -134,6 +134,9 @@ const Navbar = () => {
                       Admin Panel
                     </Link>
                   )}
+                  <Link to="/account" onClick={() => setIsOpen(false)} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/70 py-3 px-2">
+                    My Account
+                  </Link>
                   <button onClick={() => { signOut(); setIsOpen(false); }} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/50 text-left py-3 px-2">
                     Sign Out
                   </button>

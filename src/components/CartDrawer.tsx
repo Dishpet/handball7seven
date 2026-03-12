@@ -1,11 +1,33 @@
-import { X, Plus, Minus } from "lucide-react";
+import { X, Plus, Minus, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice } = useCart();
   const { t } = useI18n();
+  const [checkingOut, setCheckingOut] = useState(false);
+
+  const handleCheckout = async () => {
+    setCheckingOut(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { items },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Checkout failed");
+      setCheckingOut(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -80,7 +102,13 @@ const CartDrawer = () => {
                   <span className="font-display uppercase tracking-wider text-sm">Total</span>
                   <span className="font-display text-lg">€{totalPrice.toFixed(2)}</span>
                 </div>
-                <button className="btn-primary w-full text-center min-h-[48px]">Checkout</button>
+                <button
+                  onClick={handleCheckout}
+                  disabled={checkingOut}
+                  className="btn-primary w-full text-center min-h-[48px] flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {checkingOut ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : "Checkout"}
+                </button>
               </div>
             )}
           </motion.div>
