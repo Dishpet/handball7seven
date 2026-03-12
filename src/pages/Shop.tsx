@@ -13,7 +13,6 @@ import { useProducts as useDbProducts } from '@/hooks/useProducts';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
-import CartDrawer from '@/components/CartDrawer';
 
 // Fallback local designs
 // @ts-ignore
