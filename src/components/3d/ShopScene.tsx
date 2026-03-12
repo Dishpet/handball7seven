@@ -1708,7 +1708,7 @@ const ProductModel = ({
                     <Text
                         font="/fonts/Oswald/static/Oswald-Bold.ttf"
                         fontSize={0.25 / (scale || 1)}
-                        color="#6b6b6b"
+                        color="#d0d0d0"
                         anchorX="center"
                         anchorY="bottom"
                         textAlign="center"
