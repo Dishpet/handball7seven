@@ -12,9 +12,9 @@ const GradientBackground = () => {
       depthWrite: false,
       depthTest: false,
       uniforms: {
-        uColorTop: { value: new THREE.Color('#2a2a2a') },
-        uColorMid: { value: new THREE.Color('#1a1a1a') },
-        uColorBottom: { value: new THREE.Color('#111111') },
+        uColorTop: { value: new THREE.Color('#4a4a4a') },
+        uColorMid: { value: new THREE.Color('#3a3a3a') },
+        uColorBottom: { value: new THREE.Color('#2e2e2e') },
       },
       vertexShader: `
         varying vec2 vUv;
