@@ -1,6 +1,6 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, Eye, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { Check, Download, Eye, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
