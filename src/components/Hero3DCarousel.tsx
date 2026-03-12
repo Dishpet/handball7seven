@@ -3,6 +3,9 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Products that DON'T color-cycle should keep their original texture map
+const NO_COLOR_CYCLE = new Set(['cap']);
+
 const PRODUCTS = [
   { id: 'tshirt' as const, url: '/models/tshirt_webshop.glb', scale: 5.5, yOffset: -1.2 },
   { id: 'hoodie' as const, url: '/models/hoodie-webshop.glb', scale: 5.0, yOffset: -1.2 },
@@ -50,10 +53,12 @@ interface HeroModelProps {
   color: string;
   frontDesignUrl: string;
   backDesignUrl: string;
-  transitionProgress: number; // 0 = fully visible, 1 = fully glitched out
+  transitionProgress: number;
+  rotationRef: React.MutableRefObject<number>;
+  isPrimary?: boolean; // only primary model advances the shared rotation
 }
 
-const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionProgress }: HeroModelProps) => {
+const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionProgress, rotationRef, isPrimary = false }: HeroModelProps) => {
   const { scene } = useGLTF(product.url);
   const groupRef = useRef<THREE.Group>(null);
   const bodyMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
@@ -88,6 +93,11 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
             std.color.set('#000000');
             std.roughness = 0.5;
             std.metalness = 0;
+          } else if (NO_COLOR_CYCLE.has(product.id)) {
+            // Cap etc: keep original texture, just set color
+            std.color.set(color);
+            std.roughness = 0.85;
+            std.metalness = 0.05;
           } else {
             std.color.set(color);
             std.map = null;
@@ -231,8 +241,12 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
   useFrame((_, delta) => {
     timeRef.current += delta;
 
+    // Only primary model advances rotation; both read it
+    if (isPrimary) {
+      rotationRef.current += delta * 0.4;
+    }
     if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.4;
+      groupRef.current.rotation.y = rotationRef.current;
     }
 
     // Drive glitch uniforms from transitionProgress
@@ -298,10 +312,11 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
 
   const [current, setCurrent] = useState<CycleState>(() => pickForProduct(0));
   const [next, setNext] = useState<CycleState | null>(null);
-  const [transition, setTransition] = useState(0); // 0=showing current, 1=fully transitioned
+  const [transition, setTransition] = useState(0);
   const transitionRef = useRef(0);
   const isTransitioning = useRef(false);
   const nextProductIdx = useRef(1);
+  const sharedRotation = useRef(0); // shared rotation for seamless handoff
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -312,7 +327,6 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
       isTransitioning.current = true;
       transitionRef.current = 0;
 
-      // Fade out current
       const fadeOut = setTimeout(() => {
         setCurrent(nextState);
         setNext(null);
@@ -341,7 +355,6 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
       <spotLight position={[5, 5, 5]} angle={0.3} penumbra={1} intensity={0.6} />
       <Environment preset="city" />
       <group position={[0, -0.5, 0]}>
-        {/* Current product fading out */}
         <Suspense fallback={null}>
           <HeroModel
             product={PRODUCTS[current.productIndex]}
@@ -349,9 +362,10 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
             frontDesignUrl={current.frontDesign || TRANSPARENT_PIXEL}
             backDesignUrl={current.backDesign || TRANSPARENT_PIXEL}
             transitionProgress={next ? transition : 0}
+            rotationRef={sharedRotation}
+            isPrimary={true}
           />
         </Suspense>
-        {/* Next product fading in */}
         {next && (
           <Suspense fallback={null}>
             <HeroModel
@@ -360,6 +374,7 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
               frontDesignUrl={next.frontDesign || TRANSPARENT_PIXEL}
               backDesignUrl={next.backDesign || TRANSPARENT_PIXEL}
               transitionProgress={1 - transition}
+              rotationRef={sharedRotation}
             />
           </Suspense>
         )}
