@@ -363,6 +363,7 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
             backDesignUrl={current.backDesign || TRANSPARENT_PIXEL}
             transitionProgress={next ? transition : 0}
             rotationRef={sharedRotation}
+            isPrimary={true}
           />
         </Suspense>
         {next && (
