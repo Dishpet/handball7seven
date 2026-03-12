@@ -142,7 +142,7 @@ export default function Designs() {
               <Loader2 className="w-4 h-4 animate-spin" /> Saving…
             </span>
           ) : (
-            <span className="flex items-center gap-2 text-green-400 text-xs font-display uppercase tracking-widest">
+            <span className="flex items-center gap-2 text-emerald-400 text-xs font-display uppercase tracking-widest">
               <Check className="w-4 h-4" /> All changes saved
             </span>
           )}
