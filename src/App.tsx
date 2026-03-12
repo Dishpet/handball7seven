@@ -52,6 +52,9 @@ const App = () => (
                 <Route path="/collections" element={<Collections />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                <Route path="/checkout/canceled" element={<CheckoutCanceled />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<RequireAdmin><Dashboard /></RequireAdmin>} />

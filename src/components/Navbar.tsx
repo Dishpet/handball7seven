@@ -134,6 +134,9 @@ const Navbar = () => {
                       Admin Panel
                     </Link>
                   )}
+                  <Link to="/account" onClick={() => setIsOpen(false)} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/70 py-3 px-2">
+                    My Account
+                  </Link>
                   <button onClick={() => { signOut(); setIsOpen(false); }} className="font-display uppercase text-sm tracking-[0.2em] text-foreground/50 text-left py-3 px-2">
                     Sign Out
                   </button>
