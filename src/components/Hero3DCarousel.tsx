@@ -92,6 +92,11 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
             std.color.set('#000000');
             std.roughness = 0.5;
             std.metalness = 0;
+          } else if (NO_COLOR_CYCLE.has(product.id)) {
+            // Cap etc: keep original texture, just set color
+            std.color.set(color);
+            std.roughness = 0.85;
+            std.metalness = 0.05;
           } else {
             std.color.set(color);
             std.map = null;
