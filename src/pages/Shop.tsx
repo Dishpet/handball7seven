@@ -165,6 +165,30 @@ const Shop = () => {
         return dbLogo || STATIC_FRONT_LOGO;
     }, [dbDesignCollections]);
 
+    // Build effective design collections: DB designs take priority, fallback to static
+    const effectiveCollections = useMemo(() => {
+        const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
+        const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
+        const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+
+        // Register DB URLs in the filename maps so config lookups work
+        [dbClassic, dbVintage, dbKids].flat().forEach(url => {
+            if (!URL_TO_FILENAME[url]) {
+                const filename = url.split('/').pop()?.split('?')[0] || '';
+                if (filename) {
+                    URL_TO_FILENAME[url] = filename;
+                    FILENAME_TO_URL[filename] = url;
+                }
+            }
+        });
+
+        return {
+            'CLASSIC': dbClassic.length > 0 ? dbClassic : DESIGN_COLLECTIONS['CLASSIC'],
+            'VINTAGE': dbVintage.length > 0 ? dbVintage : DESIGN_COLLECTIONS['VINTAGE'],
+            'KIDS': dbKids.length > 0 ? dbKids : DESIGN_COLLECTIONS['KIDS'],
+        };
+    }, [dbDesignCollections]);
+
     // Build color-to-logo map dynamically from DB front logo
     const COLOR_TO_LOGO_MAP = useMemo(() => {
         const map: Record<string, string> = {};
