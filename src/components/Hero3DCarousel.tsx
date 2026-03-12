@@ -14,7 +14,9 @@ const PRODUCTS = [
 ];
 
 const CYCLE_INTERVAL = 4500;
-const TRANSITION_MS = 400;
+const GLITCH_OUT_MS = 350;
+const GLITCH_IN_MS = 350;
+const GAP_MS = 80; // brief empty gap between out and in
 const TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 // Texture UV config per product (matching ShopScene exactly)
