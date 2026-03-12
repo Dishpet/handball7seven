@@ -73,9 +73,9 @@ const Navbar = () => {
                     Admin
                   </Link>
                 )}
-                <button onClick={signOut} className="text-foreground/50 hover:text-foreground text-xs font-display uppercase tracking-widest">
-                  Sign Out
-                </button>
+                <Link to="/account" className="text-foreground/70 hover:text-foreground transition-colors p-1">
+                  <User size={18} />
+                </Link>
               </>
             ) : (
               <Link to="/auth" className="text-foreground/70 hover:text-foreground transition-colors p-1">
