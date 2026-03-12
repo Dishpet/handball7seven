@@ -1,13 +1,23 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n";
+import { useShopConfig } from "@/hooks/useShopConfig";
 import logo from "@/assets/logo.png";
 import Hero3DCarousel from "@/components/Hero3DCarousel";
 
 const Hero = () => {
   const { t, getSiteContent } = useI18n();
+  const { config: shopConfig } = useShopConfig();
   const heroContent = getSiteContent("hero") as Record<string, any> | undefined;
   const bgImage = heroContent?.bg_image || "/images/hero-bg.jpg";
+
+  const productAllowedColors = useMemo(() => ({
+    tshirt: shopConfig?.tshirt?.allowed_colors,
+    hoodie: shopConfig?.hoodie?.allowed_colors,
+    cap: shopConfig?.cap?.allowed_colors,
+    bottle: shopConfig?.bottle?.allowed_colors,
+  }), [shopConfig]);
 
   return (
     <section className="relative min-h-[100svh] flex items-end sm:items-center justify-start overflow-hidden">
@@ -16,10 +26,8 @@ const Hero = () => {
         style={{ backgroundImage: `url('${bgImage}')` }}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-      {/* Extra bottom gradient for mobile readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent sm:hidden" />
 
-      {/* Two-column layout on desktop */}
       <div className="relative z-10 w-full flex flex-col lg:flex-row items-center lg:items-center min-h-[100svh]">
         {/* Left column: text content */}
         <div className="px-5 md:px-12 lg:px-20 pb-10 sm:pb-20 pt-32 lg:pt-0 max-w-2xl lg:w-1/2 lg:flex-shrink-0">
@@ -65,7 +73,7 @@ const Hero = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 0.3 }}
         >
-          <Hero3DCarousel />
+          <Hero3DCarousel productAllowedColors={productAllowedColors} />
         </motion.div>
       </div>
     </section>

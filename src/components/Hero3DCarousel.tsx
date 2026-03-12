@@ -10,20 +10,15 @@ const PRODUCTS = [
   { id: 'bottle', url: '/models/bottle-webshop.glb', scale: 12.0, yOffset: -0.2 },
 ];
 
-const COLORS = [
-  '#231f20', '#00ab98', '#387bbf', '#8358a4', '#e78fab', '#d1d5db', '#00aeef', '#a1d7c0',
-];
+const CYCLE_INTERVAL = 4000;
+const GLITCH_DURATION = 0.5; // seconds
 
-const CYCLE_INTERVAL = 4000; // ms between product switches
-const GLITCH_DURATION = 0.6; // seconds for transition
-
-// Glitch hologram material
+// Subtle glitch hologram shaders
 const glitchVertexShader = `
   uniform float uGlitch;
   uniform float uTime;
   varying vec2 vUv;
   varying vec3 vNormal;
-  varying float vGlitchDisplace;
 
   float rand(vec2 co) {
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
@@ -35,22 +30,17 @@ const glitchVertexShader = `
 
     vec3 pos = position;
 
-    // Glitch displacement — horizontal slice offset
-    float sliceY = floor(pos.z * 15.0 + uTime * 20.0);
-    float sliceRand = rand(vec2(sliceY, uTime * 3.0));
-    float displacement = 0.0;
-
     if (uGlitch > 0.01) {
-      // Random horizontal slicing
-      if (sliceRand > 0.7) {
-        displacement = (sliceRand - 0.7) * 3.0 * uGlitch;
-        pos.x += displacement * sin(uTime * 50.0);
+      // Very subtle horizontal slice offset
+      float sliceY = floor(pos.z * 12.0 + uTime * 15.0);
+      float sliceRand = rand(vec2(sliceY, uTime * 2.0));
+      if (sliceRand > 0.85) {
+        pos.x += (sliceRand - 0.85) * 0.8 * uGlitch * sin(uTime * 30.0);
       }
-      // Vertical jitter
-      pos.y += sin(pos.z * 30.0 + uTime * 15.0) * 0.02 * uGlitch;
+      // Tiny vertical jitter
+      pos.y += sin(pos.z * 20.0 + uTime * 10.0) * 0.005 * uGlitch;
     }
 
-    vGlitchDisplace = displacement;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
   }
 `;
@@ -62,35 +52,24 @@ const glitchFragmentShader = `
   uniform float uOpacity;
   varying vec2 vUv;
   varying vec3 vNormal;
-  varying float vGlitchDisplace;
 
   void main() {
-    // Base color with simple lighting
     float lighting = dot(vNormal, normalize(vec3(1.0, 1.0, 1.0))) * 0.4 + 0.6;
     vec3 color = uColor * lighting;
 
     if (uGlitch > 0.01) {
-      // RGB split / chromatic aberration
-      float shift = uGlitch * 0.15;
-      vec3 glitchColor = vec3(
-        color.r + shift,
-        color.g,
-        color.b - shift
-      );
+      // Subtle RGB split
+      float shift = uGlitch * 0.04;
+      color = vec3(color.r + shift, color.g, color.b - shift);
 
-      // Scanlines
-      float scanline = sin(gl_FragCoord.y * 2.0 + uTime * 10.0) * 0.5 + 0.5;
-      scanline = pow(scanline, 8.0) * uGlitch * 0.3;
+      // Faint scanlines
+      float scanline = sin(gl_FragCoord.y * 1.5 + uTime * 8.0) * 0.5 + 0.5;
+      scanline = pow(scanline, 12.0) * uGlitch * 0.1;
+      color += vec3(scanline);
 
-      // Holographic edge glow
+      // Soft holographic rim
       float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
-      vec3 holoGlow = vec3(0.2, 0.8, 1.0) * fresnel * uGlitch * 0.8;
-
-      color = glitchColor + holoGlow + vec3(scanline);
-
-      // Random color flash
-      float flash = step(0.95, fract(sin(uTime * 43.0) * 1000.0)) * uGlitch;
-      color += vec3(0.0, 1.0, 0.8) * flash * 0.5;
+      color += vec3(0.2, 0.6, 1.0) * fresnel * uGlitch * 0.2;
     }
 
     gl_FragColor = vec4(color, uOpacity);
@@ -137,7 +116,6 @@ const GlitchModel = ({ productIndex, color, glitchAmount, opacity }: GlitchModel
           transparent: true,
         });
 
-        // Keep black ring black for bottle
         const origMat = (Array.isArray(m.material) ? m.material[0] : m.material) as THREE.MeshStandardMaterial;
         if (origMat?.name?.toLowerCase().includes('blackring')) {
           mat.uniforms.uColor.value = new THREE.Color('#000000');
@@ -152,7 +130,6 @@ const GlitchModel = ({ productIndex, color, glitchAmount, opacity }: GlitchModel
     return clone;
   }, [scene, productIndex]);
 
-  // Update uniforms reactively
   useEffect(() => {
     materialsRef.current.forEach((mat) => {
       if (!mat.uniforms.uColor.value.equals?.(new THREE.Color('#000000'))) {
@@ -163,11 +140,9 @@ const GlitchModel = ({ productIndex, color, glitchAmount, opacity }: GlitchModel
 
   useFrame((_, delta) => {
     timeRef.current += delta;
-
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * 0.4;
     }
-
     materialsRef.current.forEach((mat) => {
       mat.uniforms.uGlitch.value = glitchAmount;
       mat.uniforms.uOpacity.value = opacity;
@@ -182,30 +157,41 @@ const GlitchModel = ({ productIndex, color, glitchAmount, opacity }: GlitchModel
   );
 };
 
-const HeroCarouselScene = () => {
+export interface HeroCarouselConfig {
+  productAllowedColors?: Record<string, string[]>;
+}
+
+const HeroCarouselScene = ({ productAllowedColors }: HeroCarouselConfig) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [colorIndex, setColorIndex] = useState(0);
   const [glitch, setGlitch] = useState(0);
   const [opacity, setOpacity] = useState(1);
   const [displayIndex, setDisplayIndex] = useState(0);
-  const [displayColor, setDisplayColor] = useState(COLORS[0]);
+  const [displayColor, setDisplayColor] = useState('#231f20');
+
+  // Pick a random color from the current product's allowed list
+  const pickColor = (productIdx: number): string => {
+    const productId = PRODUCTS[productIdx].id;
+    const allowed = productAllowedColors?.[productId];
+    if (allowed && allowed.length > 0) {
+      return allowed[Math.floor(Math.random() * allowed.length)];
+    }
+    return '#231f20';
+  };
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
 
     const cycle = () => {
-      // Start glitch-out
+      // Start subtle glitch
       setGlitch(1);
-      setOpacity(0.7);
+      setOpacity(0.85);
 
-      // Mid-transition: swap product
+      // Mid-transition: swap product + color
       setTimeout(() => {
         const nextProduct = (currentIndex + 1) % PRODUCTS.length;
-        const nextColor = (colorIndex + 1) % COLORS.length;
         setCurrentIndex(nextProduct);
-        setColorIndex(nextColor);
         setDisplayIndex(nextProduct);
-        setDisplayColor(COLORS[nextColor]);
+        setDisplayColor(pickColor(nextProduct));
       }, GLITCH_DURATION * 500);
 
       // End glitch
@@ -219,7 +205,7 @@ const HeroCarouselScene = () => {
 
     timeout = setTimeout(cycle, CYCLE_INTERVAL);
     return () => clearTimeout(timeout);
-  }, [currentIndex, colorIndex]);
+  }, [currentIndex, productAllowedColors]);
 
   return (
     <>
@@ -238,7 +224,7 @@ const HeroCarouselScene = () => {
   );
 };
 
-const Hero3DCarousel = () => {
+const Hero3DCarousel = ({ productAllowedColors }: HeroCarouselConfig) => {
   return (
     <div className="w-full h-full">
       <Canvas
@@ -248,14 +234,13 @@ const Hero3DCarousel = () => {
         style={{ background: 'transparent' }}
       >
         <Suspense fallback={null}>
-          <HeroCarouselScene />
+          <HeroCarouselScene productAllowedColors={productAllowedColors} />
         </Suspense>
       </Canvas>
     </div>
   );
 };
 
-// Preload all models
 PRODUCTS.forEach((p) => useGLTF.preload(p.url));
 
 export default Hero3DCarousel;
