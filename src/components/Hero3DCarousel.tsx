@@ -3,6 +3,9 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Products that DON'T color-cycle should keep their original texture map
+const NO_COLOR_CYCLE = new Set(['cap']);
+
 const PRODUCTS = [
   { id: 'tshirt' as const, url: '/models/tshirt_webshop.glb', scale: 5.5, yOffset: -1.2 },
   { id: 'hoodie' as const, url: '/models/hoodie-webshop.glb', scale: 5.0, yOffset: -1.2 },
