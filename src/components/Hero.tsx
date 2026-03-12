@@ -3,14 +3,54 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n";
 import { useShopConfig } from "@/hooks/useShopConfig";
+import { useDesignCollections } from "@/hooks/useDesignCollections";
 import logo from "@/assets/logo.png";
 import Hero3DCarousel from "@/components/Hero3DCarousel";
+
+// Static fallback designs
+// @ts-ignore
+const classicDesigns = import.meta.glob('/src/assets/design-collections/classic/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+// @ts-ignore
+const vintageDesigns = import.meta.glob('/src/assets/design-collections/vintage/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+// @ts-ignore
+const kidsDesigns = import.meta.glob('/src/assets/design-collections/kids/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+// @ts-ignore
+const fallbackLogoDesigns = import.meta.glob('/src/assets/design-collections/logo/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+
+const STATIC_FRONT_LOGO = (Object.values(fallbackLogoDesigns)[0] as string) || '';
+
+const processDesigns = (globResult: Record<string, unknown>) =>
+  Object.values(globResult).map(v => v as string);
+
+const STATIC_COLLECTIONS = {
+  classic: processDesigns(classicDesigns),
+  vintage: processDesigns(vintageDesigns),
+  kids: processDesigns(kidsDesigns),
+};
 
 const Hero = () => {
   const { t, getSiteContent } = useI18n();
   const { config: shopConfig } = useShopConfig();
+  const { collections: dbDesignCollections } = useDesignCollections();
   const heroContent = getSiteContent("hero") as Record<string, any> | undefined;
   const bgImage = heroContent?.bg_image || "/images/hero-bg.jpg";
+
+  // Resolve front logo from DB or static
+  const frontLogoUrl = useMemo(() => {
+    return dbDesignCollections.front_logo?.[0]?.url || STATIC_FRONT_LOGO;
+  }, [dbDesignCollections]);
+
+  // Effective design lists (DB first, static fallback)
+  const effectiveCollections = useMemo(() => {
+    const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
+    const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
+    const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+    return {
+      classic: dbClassic.length > 0 ? dbClassic : STATIC_COLLECTIONS.classic,
+      vintage: dbVintage.length > 0 ? dbVintage : STATIC_COLLECTIONS.vintage,
+      kids: dbKids.length > 0 ? dbKids : STATIC_COLLECTIONS.kids,
+    };
+  }, [dbDesignCollections]);
 
   const productAllowedColors = useMemo(() => ({
     tshirt: shopConfig?.tshirt?.allowed_colors,
@@ -19,18 +59,48 @@ const Hero = () => {
     bottle: shopConfig?.bottle?.allowed_colors,
   }), [shopConfig]);
 
+  // Build color->logo map (same as ProductShowcase)
+  const colorToLogoMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (shopConfig?.hoodie?.allowed_colors || []).forEach((c: string) => { map[c] = frontLogoUrl; });
+    return map;
+  }, [shopConfig, frontLogoUrl]);
+
+  // Build per-product design lists
+  const allDesigns = useMemo(() => [
+    ...effectiveCollections.classic,
+    ...effectiveCollections.vintage,
+    ...effectiveCollections.kids,
+  ], [effectiveCollections]);
+
+  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : [], [frontLogoUrl]);
+
+  const frontDesigns = useMemo(() => ({
+    tshirt: logoList,
+    hoodie: logoList,
+    cap: allDesigns,
+    bottle: logoList.length > 0 ? logoList : allDesigns,
+  }), [logoList, allDesigns]);
+
+  const backDesigns = useMemo(() => ({
+    tshirt: effectiveCollections.vintage,
+    hoodie: effectiveCollections.classic,
+    cap: [] as string[],
+    bottle: [] as string[],
+  }), [effectiveCollections]);
+
   return (
-    <section className="relative min-h-[100svh] flex items-end sm:items-center justify-start overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-center justify-start overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${bgImage}')` }}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent sm:hidden" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent lg:hidden" />
 
-      <div className="relative z-10 w-full flex flex-col lg:flex-row items-center lg:items-center min-h-[100svh]">
-        {/* Left column: text content */}
-        <div className="px-5 md:px-12 lg:px-20 pb-10 sm:pb-20 pt-32 lg:pt-0 max-w-2xl lg:w-1/2 lg:flex-shrink-0">
+      <div className="relative z-10 w-full flex flex-col-reverse lg:flex-row items-center min-h-[100svh]">
+        {/* Text content — centered on mobile/tablet, left-aligned on desktop */}
+        <div className="px-5 md:px-12 lg:px-20 pb-16 sm:pb-20 lg:pb-0 pt-4 lg:pt-0 max-w-2xl lg:w-1/2 lg:flex-shrink-0 text-center lg:text-left flex flex-col items-center lg:items-start">
           <motion.img
             src={logo}
             alt="Handball Seven"
@@ -66,14 +136,19 @@ const Hero = () => {
           </motion.div>
         </div>
 
-        {/* Right column: 3D carousel */}
+        {/* 3D carousel — on top on mobile/tablet, right on desktop */}
         <motion.div
-          className="w-full lg:w-1/2 h-[50vh] sm:h-[60vh] lg:h-[80vh] relative"
+          className="w-full lg:w-1/2 h-[45vh] sm:h-[50vh] lg:h-[80vh] relative mt-20 lg:mt-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 0.3 }}
         >
-          <Hero3DCarousel productAllowedColors={productAllowedColors} />
+          <Hero3DCarousel
+            productAllowedColors={productAllowedColors}
+            frontDesigns={frontDesigns}
+            backDesigns={backDesigns}
+            colorToLogoMap={colorToLogoMap}
+          />
         </motion.div>
       </div>
     </section>

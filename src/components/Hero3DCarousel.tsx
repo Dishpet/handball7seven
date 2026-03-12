@@ -1,153 +1,181 @@
-import React, { Suspense, useMemo, useRef, useState, useEffect } from 'react';
+import React, { Suspense, useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, Environment } from '@react-three/drei';
+import { useGLTF, useTexture, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
 const PRODUCTS = [
-  { id: 'tshirt', url: '/models/tshirt_webshop.glb', scale: 5.5, yOffset: -1.2 },
-  { id: 'hoodie', url: '/models/hoodie-webshop.glb', scale: 5.0, yOffset: -1.2 },
-  { id: 'cap', url: '/models/cap_webshop.glb', scale: 1.2, yOffset: 0.5 },
-  { id: 'bottle', url: '/models/bottle-webshop.glb', scale: 12.0, yOffset: -0.2 },
+  { id: 'tshirt' as const, url: '/models/tshirt_webshop.glb', scale: 5.5, yOffset: -1.2 },
+  { id: 'hoodie' as const, url: '/models/hoodie-webshop.glb', scale: 5.0, yOffset: -1.2 },
+  { id: 'cap' as const, url: '/models/cap_webshop.glb', scale: 1.2, yOffset: 0.5 },
+  { id: 'bottle' as const, url: '/models/bottle-webshop.glb', scale: 12.0, yOffset: -0.2 },
 ];
 
-const CYCLE_INTERVAL = 4000;
-const GLITCH_DURATION = 0.5; // seconds
+const CYCLE_INTERVAL = 4500;
+const TRANSITION_MS = 400;
+const TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
-// Subtle glitch hologram shaders
-const glitchVertexShader = `
-  uniform float uGlitch;
-  uniform float uTime;
-  varying vec2 vUv;
-  varying vec3 vNormal;
-
-  float rand(vec2 co) {
-    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
-  }
-
-  void main() {
-    vUv = uv;
-    vNormal = normalize(normalMatrix * normal);
-
-    vec3 pos = position;
-
-    if (uGlitch > 0.01) {
-      // Very subtle horizontal slice offset
-      float sliceY = floor(pos.z * 12.0 + uTime * 15.0);
-      float sliceRand = rand(vec2(sliceY, uTime * 2.0));
-      if (sliceRand > 0.85) {
-        pos.x += (sliceRand - 0.85) * 0.8 * uGlitch * sin(uTime * 30.0);
-      }
-      // Tiny vertical jitter
-      pos.y += sin(pos.z * 20.0 + uTime * 10.0) * 0.005 * uGlitch;
+// Texture UV config per product (matching ShopScene exactly)
+const getTextureConfig = (productId: string, zone: 'front' | 'back') => {
+  if (zone === 'front') {
+    switch (productId) {
+      case 'hoodie': return { flipY: false, wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping, repeat: [24.4, 24.4], offset: [0.21, -0.37] };
+      case 'cap': return { flipY: false, wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping, repeat: [7.28, 7.28], offset: [0, 0.78] };
+      case 'tshirt': return { flipY: true, wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping, repeat: [3.4, -3.4], offset: [-1.05, 3.0] };
+      case 'bottle': return { flipY: false, wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping, repeat: [6.25, 6.25], offset: [-0.3, 0.18] };
+      default: return { flipY: true, wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping, repeat: [-1, 1], offset: [0, 0] };
     }
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-  }
-`;
-
-const glitchFragmentShader = `
-  uniform vec3 uColor;
-  uniform float uGlitch;
-  uniform float uTime;
-  uniform float uOpacity;
-  varying vec2 vUv;
-  varying vec3 vNormal;
-
-  void main() {
-    float lighting = dot(vNormal, normalize(vec3(1.0, 1.0, 1.0))) * 0.4 + 0.6;
-    vec3 color = uColor * lighting;
-
-    if (uGlitch > 0.01) {
-      // Subtle RGB split
-      float shift = uGlitch * 0.04;
-      color = vec3(color.r + shift, color.g, color.b - shift);
-
-      // Faint scanlines
-      float scanline = sin(gl_FragCoord.y * 1.5 + uTime * 8.0) * 0.5 + 0.5;
-      scanline = pow(scanline, 12.0) * uGlitch * 0.1;
-      color += vec3(scanline);
-
-      // Soft holographic rim
-      float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
-      color += vec3(0.2, 0.6, 1.0) * fresnel * uGlitch * 0.2;
+  } else {
+    switch (productId) {
+      case 'hoodie': return { flipY: false, wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping, repeat: [-7.26, 7.26], offset: [-0.28, 1.90] };
+      case 'tshirt': return { flipY: false, wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping, repeat: [5.31, 5.31], offset: [-0.25, 0.15] };
+      default: return { flipY: false, wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping, repeat: [-1, 1], offset: [0, 0] };
     }
-
-    gl_FragColor = vec4(color, uOpacity);
   }
-`;
+};
 
-interface GlitchModelProps {
-  productIndex: number;
+const applyTextureConfig = (tex: THREE.Texture, productId: string, zone: 'front' | 'back') => {
+  const cfg = getTextureConfig(productId, zone);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.center.set(0.5, 0.5);
+  tex.flipY = cfg.flipY;
+  tex.wrapS = cfg.wrapS;
+  tex.wrapT = cfg.wrapT;
+  tex.repeat.set(cfg.repeat[0], cfg.repeat[1]);
+  tex.offset.set(cfg.offset[0], cfg.offset[1]);
+  tex.needsUpdate = true;
+};
+
+interface HeroModelProps {
+  product: typeof PRODUCTS[number];
   color: string;
-  glitchAmount: number;
-  opacity: number;
+  frontDesignUrl: string;
+  backDesignUrl: string;
+  transitionProgress: number; // 0 = fully visible, 1 = fully glitched out
 }
 
-const GlitchModel = ({ productIndex, color, glitchAmount, opacity }: GlitchModelProps) => {
-  const product = PRODUCTS[productIndex];
+const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionProgress }: HeroModelProps) => {
   const { scene } = useGLTF(product.url);
   const groupRef = useRef<THREE.Group>(null);
-  const materialsRef = useRef<THREE.ShaderMaterial[]>([]);
-  const timeRef = useRef(0);
+  const bodyMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
+  const frontMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
+  const backMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
+
+  // Load textures
+  const frontTex = useTexture(frontDesignUrl || TRANSPARENT_PIXEL) as THREE.Texture;
+  const backTex = useTexture(backDesignUrl || TRANSPARENT_PIXEL) as THREE.Texture;
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
-    const mats: THREE.ShaderMaterial[] = [];
+    bodyMatsRef.current = [];
+    frontMatsRef.current = [];
+    backMatsRef.current = [];
 
     clone.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const m = child as THREE.Mesh;
-        const name = m.name.toLowerCase();
+      if (!(child as THREE.Mesh).isMesh) return;
+      const m = child as THREE.Mesh;
+      const name = m.name.toLowerCase();
+      const isPrint = name.includes('print');
 
-        if (name.includes('print')) {
-          m.visible = false;
-          return;
+      if (!isPrint) {
+        // Body material
+        const processMat = (mat: THREE.Material) => {
+          const std = (mat as THREE.MeshStandardMaterial).clone();
+          const matName = std.name.toLowerCase();
+          if (matName.includes('blackring')) {
+            std.color.set('#000000');
+            std.roughness = 0.5;
+            std.metalness = 0;
+          } else {
+            std.color.set(color);
+            std.map = null;
+            std.roughness = 0.85;
+            std.metalness = 0.05;
+          }
+          std.transparent = true;
+          std.opacity = 1;
+          std.needsUpdate = true;
+          bodyMatsRef.current.push(std);
+          return std;
+        };
+        if (Array.isArray(m.material)) {
+          m.material = m.material.map(processMat);
+        } else if (m.material) {
+          m.material = processMat(m.material);
         }
-
-        const mat = new THREE.ShaderMaterial({
-          uniforms: {
-            uColor: { value: new THREE.Color(color) },
-            uGlitch: { value: glitchAmount },
-            uTime: { value: 0 },
-            uOpacity: { value: opacity },
-          },
-          vertexShader: glitchVertexShader,
-          fragmentShader: glitchFragmentShader,
-          transparent: true,
-        });
-
-        const origMat = (Array.isArray(m.material) ? m.material[0] : m.material) as THREE.MeshStandardMaterial;
-        if (origMat?.name?.toLowerCase().includes('blackring')) {
-          mat.uniforms.uColor.value = new THREE.Color('#000000');
-        }
-
+      } else {
+        // Print area
+        m.visible = true;
+        m.renderOrder = 1;
+        const isBack = name.includes('back');
+        const mat = (m.material as THREE.MeshStandardMaterial).clone();
+        mat.color.set('#ffffff');
+        mat.transparent = true;
+        mat.opacity = 1;
+        mat.toneMapped = false;
+        mat.roughness = 1;
+        mat.metalness = 0;
+        mat.polygonOffset = true;
+        mat.polygonOffsetFactor = -1;
+        mat.polygonOffsetUnits = -1;
+        mat.depthWrite = false;
+        mat.needsUpdate = true;
         m.material = mat;
-        mats.push(mat);
+
+        if (isBack) {
+          backMatsRef.current.push(mat);
+        } else {
+          frontMatsRef.current.push(mat);
+        }
       }
     });
-
-    materialsRef.current = mats;
     return clone;
-  }, [scene, productIndex]);
+  }, [scene, product.id]);
 
+  // Apply color changes
   useEffect(() => {
-    materialsRef.current.forEach((mat) => {
-      if (!mat.uniforms.uColor.value.equals?.(new THREE.Color('#000000'))) {
-        mat.uniforms.uColor.value.set(color);
+    bodyMatsRef.current.forEach(mat => {
+      if (!mat.name.toLowerCase().includes('blackring')) {
+        mat.color.set(color);
+        mat.needsUpdate = true;
       }
     });
   }, [color]);
 
+  // Apply front texture
+  useEffect(() => {
+    const tex = frontTex.clone();
+    applyTextureConfig(tex, product.id, 'front');
+    frontMatsRef.current.forEach(mat => {
+      mat.map = tex;
+      mat.visible = frontDesignUrl !== TRANSPARENT_PIXEL && !!frontDesignUrl;
+      mat.needsUpdate = true;
+    });
+  }, [frontTex, product.id, frontDesignUrl]);
+
+  // Apply back texture
+  useEffect(() => {
+    const tex = backTex.clone();
+    applyTextureConfig(tex, product.id, 'back');
+    backMatsRef.current.forEach(mat => {
+      mat.map = tex;
+      mat.visible = backDesignUrl !== TRANSPARENT_PIXEL && !!backDesignUrl;
+      mat.needsUpdate = true;
+    });
+  }, [backTex, product.id, backDesignUrl]);
+
+  // Transition opacity + glitch effect
+  useEffect(() => {
+    const opacity = 1 - transitionProgress;
+    bodyMatsRef.current.forEach(mat => { mat.opacity = opacity; });
+    frontMatsRef.current.forEach(mat => { mat.opacity = opacity; });
+    backMatsRef.current.forEach(mat => { mat.opacity = opacity; });
+  }, [transitionProgress]);
+
+  // Rotation
   useFrame((_, delta) => {
-    timeRef.current += delta;
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * 0.4;
     }
-    materialsRef.current.forEach((mat) => {
-      mat.uniforms.uGlitch.value = glitchAmount;
-      mat.uniforms.uOpacity.value = opacity;
-      mat.uniforms.uTime.value = timeRef.current;
-    });
   });
 
   return (
@@ -159,53 +187,83 @@ const GlitchModel = ({ productIndex, color, glitchAmount, opacity }: GlitchModel
 
 export interface HeroCarouselConfig {
   productAllowedColors?: Record<string, string[]>;
+  frontDesigns?: Record<string, string[]>; // per product id
+  backDesigns?: Record<string, string[]>;  // per product id
+  colorToLogoMap?: Record<string, string>;
 }
 
-const HeroCarouselScene = ({ productAllowedColors }: HeroCarouselConfig) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [glitch, setGlitch] = useState(0);
-  const [opacity, setOpacity] = useState(1);
-  const [displayIndex, setDisplayIndex] = useState(0);
-  const [displayColor, setDisplayColor] = useState('#231f20');
+interface CycleState {
+  productIndex: number;
+  color: string;
+  frontDesign: string;
+  backDesign: string;
+}
 
-  // Pick a random color from the current product's allowed list
-  const pickColor = (productIdx: number): string => {
-    const productId = PRODUCTS[productIdx].id;
-    const allowed = productAllowedColors?.[productId];
-    if (allowed && allowed.length > 0) {
-      return allowed[Math.floor(Math.random() * allowed.length)];
+const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap }: HeroCarouselConfig) => {
+  const pickForProduct = useCallback((productIdx: number): CycleState => {
+    const product = PRODUCTS[productIdx];
+    const pid = product.id;
+
+    // Pick color
+    const allowed = productAllowedColors?.[pid];
+    const color = allowed && allowed.length > 0
+      ? allowed[Math.floor(Math.random() * allowed.length)]
+      : '#231f20';
+
+    // Pick front design
+    const fList = frontDesigns?.[pid] || [];
+    let frontDesign = fList.length > 0 ? fList[Math.floor(Math.random() * fList.length)] : '';
+
+    // For hoodie/tshirt: front is always the logo matched to color
+    if ((pid === 'hoodie' || pid === 'tshirt') && colorToLogoMap) {
+      frontDesign = colorToLogoMap[color] || frontDesign;
     }
-    return '#231f20';
-  };
+
+    // Pick back design
+    const bList = backDesigns?.[pid] || [];
+    const backDesign = bList.length > 0 ? bList[Math.floor(Math.random() * bList.length)] : '';
+
+    return { productIndex: productIdx, color, frontDesign, backDesign };
+  }, [productAllowedColors, frontDesigns, backDesigns, colorToLogoMap]);
+
+  const [current, setCurrent] = useState<CycleState>(() => pickForProduct(0));
+  const [next, setNext] = useState<CycleState | null>(null);
+  const [transition, setTransition] = useState(0); // 0=showing current, 1=fully transitioned
+  const transitionRef = useRef(0);
+  const isTransitioning = useRef(false);
+  const nextProductIdx = useRef(1);
 
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
+    const interval = setInterval(() => {
+      const idx = nextProductIdx.current;
+      nextProductIdx.current = (idx + 1) % PRODUCTS.length;
+      const nextState = pickForProduct(idx);
+      setNext(nextState);
+      isTransitioning.current = true;
+      transitionRef.current = 0;
 
-    const cycle = () => {
-      // Start subtle glitch
-      setGlitch(1);
-      setOpacity(0.85);
+      // Fade out current
+      const fadeOut = setTimeout(() => {
+        setCurrent(nextState);
+        setNext(null);
+        isTransitioning.current = false;
+        transitionRef.current = 0;
+        setTransition(0);
+      }, TRANSITION_MS);
 
-      // Mid-transition: swap product + color
-      setTimeout(() => {
-        const nextProduct = (currentIndex + 1) % PRODUCTS.length;
-        setCurrentIndex(nextProduct);
-        setDisplayIndex(nextProduct);
-        setDisplayColor(pickColor(nextProduct));
-      }, GLITCH_DURATION * 500);
+      return () => clearTimeout(fadeOut);
+    }, CYCLE_INTERVAL);
 
-      // End glitch
-      setTimeout(() => {
-        setGlitch(0);
-        setOpacity(1);
-      }, GLITCH_DURATION * 1000);
+    return () => clearInterval(interval);
+  }, [pickForProduct]);
 
-      timeout = setTimeout(cycle, CYCLE_INTERVAL);
-    };
-
-    timeout = setTimeout(cycle, CYCLE_INTERVAL);
-    return () => clearTimeout(timeout);
-  }, [currentIndex, productAllowedColors]);
+  // Animate transition
+  useFrame((_, delta) => {
+    if (isTransitioning.current) {
+      transitionRef.current = Math.min(1, transitionRef.current + delta / (TRANSITION_MS / 1000));
+      setTransition(transitionRef.current);
+    }
+  });
 
   return (
     <>
@@ -213,18 +271,34 @@ const HeroCarouselScene = ({ productAllowedColors }: HeroCarouselConfig) => {
       <spotLight position={[5, 5, 5]} angle={0.3} penumbra={1} intensity={0.6} />
       <Environment preset="city" />
       <group position={[0, -0.5, 0]}>
-        <GlitchModel
-          productIndex={displayIndex}
-          color={displayColor}
-          glitchAmount={glitch}
-          opacity={opacity}
-        />
+        {/* Current product fading out */}
+        <Suspense fallback={null}>
+          <HeroModel
+            product={PRODUCTS[current.productIndex]}
+            color={current.color}
+            frontDesignUrl={current.frontDesign || TRANSPARENT_PIXEL}
+            backDesignUrl={current.backDesign || TRANSPARENT_PIXEL}
+            transitionProgress={next ? transition : 0}
+          />
+        </Suspense>
+        {/* Next product fading in */}
+        {next && (
+          <Suspense fallback={null}>
+            <HeroModel
+              product={PRODUCTS[next.productIndex]}
+              color={next.color}
+              frontDesignUrl={next.frontDesign || TRANSPARENT_PIXEL}
+              backDesignUrl={next.backDesign || TRANSPARENT_PIXEL}
+              transitionProgress={1 - transition}
+            />
+          </Suspense>
+        )}
       </group>
     </>
   );
 };
 
-const Hero3DCarousel = ({ productAllowedColors }: HeroCarouselConfig) => {
+const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap }: HeroCarouselConfig) => {
   return (
     <div className="w-full h-full">
       <Canvas
@@ -234,7 +308,12 @@ const Hero3DCarousel = ({ productAllowedColors }: HeroCarouselConfig) => {
         style={{ background: 'transparent' }}
       >
         <Suspense fallback={null}>
-          <HeroCarouselScene productAllowedColors={productAllowedColors} />
+          <HeroCarouselScene
+            productAllowedColors={productAllowedColors}
+            frontDesigns={frontDesigns}
+            backDesigns={backDesigns}
+            colorToLogoMap={colorToLogoMap}
+          />
         </Suspense>
       </Canvas>
     </div>
