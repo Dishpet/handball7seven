@@ -29,7 +29,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-[200] bg-background/90 backdrop-blur-md border-b border-border">
       <div className="flex items-center justify-between px-4 md:px-12 py-3">
         <Link to="/" className="flex items-center shrink-0">
           <img src={logo} alt="Handball Seven" className="h-9 md:h-12" />
