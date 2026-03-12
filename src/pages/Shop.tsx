@@ -160,6 +160,26 @@ const Shop = () => {
     // i18n
     const { t } = useI18n();
     const { collections: dbDesignCollections } = useDesignCollections();
+    const { data: dbProducts } = useDbProducts();
+
+    // Merge DB product data into INITIAL_PRODUCTS (prices, names, descriptions)
+    const products = useMemo(() => {
+        const merged = { ...INITIAL_PRODUCTS };
+        if (dbProducts) {
+            for (const dbp of dbProducts) {
+                const key = dbp.slug as keyof typeof INITIAL_PRODUCTS;
+                if (merged[key]) {
+                    merged[key] = {
+                        ...merged[key],
+                        name: dbp.name || merged[key].name,
+                        price: Number(dbp.price) || merged[key].price,
+                        description: dbp.description || merged[key].description,
+                    };
+                }
+            }
+        }
+        return merged;
+    }, [dbProducts]);
 
     // Resolve front logo: DB first, then static fallback
     const frontLogoUrl = useMemo(() => {
