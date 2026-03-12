@@ -156,7 +156,7 @@ const Hero = () => {
 
         {/* 3D carousel — on top on mobile/tablet, right on desktop */}
         <motion.div
-          className="w-full lg:w-1/2 h-[45vh] sm:h-[50vh] lg:h-[80vh] relative mt-20 lg:mt-0"
+          className="w-full lg:w-1/2 h-[55vh] sm:h-[60vh] lg:h-[100vh] relative mt-0 lg:mt-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 0.3 }}
