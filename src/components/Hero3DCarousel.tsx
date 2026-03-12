@@ -377,7 +377,6 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
       </group>
     </>
   );
-  );
 };
 
 const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap }: HeroCarouselConfig) => {
