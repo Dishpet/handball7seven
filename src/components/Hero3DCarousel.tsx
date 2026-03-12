@@ -59,6 +59,8 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
   const bodyMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
   const frontMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
   const backMatsRef = useRef<THREE.MeshStandardMaterial[]>([]);
+  const glitchUniformsRef = useRef<{ uGlitch: { value: number }; uTime: { value: number }; uOpacity: { value: number } }[]>([]);
+  const timeRef = useRef(0);
 
   // Load textures
   const frontTex = useTexture(frontDesignUrl || TRANSPARENT_PIXEL) as THREE.Texture;
@@ -69,6 +71,7 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
     bodyMatsRef.current = [];
     frontMatsRef.current = [];
     backMatsRef.current = [];
+    glitchUniformsRef.current = [];
 
     clone.traverse((child) => {
       if (!(child as THREE.Mesh).isMesh) return;
@@ -77,7 +80,7 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
       const isPrint = name.includes('print');
 
       if (!isPrint) {
-        // Body material
+        // Body material with glitch shader injection
         const processMat = (mat: THREE.Material) => {
           const std = (mat as THREE.MeshStandardMaterial).clone();
           const matName = std.name.toLowerCase();
@@ -93,6 +96,67 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
           }
           std.transparent = true;
           std.opacity = 1;
+
+          // Inject glitch shader via onBeforeCompile
+          const uniforms = {
+            uGlitch: { value: 0 },
+            uTime: { value: 0 },
+            uOpacity: { value: 1 },
+          };
+          glitchUniformsRef.current.push(uniforms);
+
+          std.onBeforeCompile = (shader) => {
+            shader.uniforms.uGlitch = uniforms.uGlitch;
+            shader.uniforms.uTime = uniforms.uTime;
+            shader.uniforms.uOpacity = uniforms.uOpacity;
+
+            // Vertex: subtle slice displacement
+            shader.vertexShader = shader.vertexShader.replace(
+              '#include <common>',
+              `#include <common>
+              uniform float uGlitch;
+              uniform float uTime;
+              float heroRand(vec2 co) { return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453); }`
+            );
+            shader.vertexShader = shader.vertexShader.replace(
+              '#include <begin_vertex>',
+              `#include <begin_vertex>
+              if (uGlitch > 0.01) {
+                float sliceY = floor(transformed.z * 12.0 + uTime * 15.0);
+                float sr = heroRand(vec2(sliceY, uTime * 2.0));
+                if (sr > 0.85) {
+                  transformed.x += (sr - 0.85) * 0.8 * uGlitch * sin(uTime * 30.0);
+                }
+                transformed.y += sin(transformed.z * 20.0 + uTime * 10.0) * 0.005 * uGlitch;
+              }`
+            );
+
+            // Fragment: RGB split, scanlines, fresnel glow
+            shader.fragmentShader = shader.fragmentShader.replace(
+              '#include <common>',
+              `#include <common>
+              uniform float uGlitch;
+              uniform float uTime;
+              uniform float uOpacity;`
+            );
+            shader.fragmentShader = shader.fragmentShader.replace(
+              '#include <dithering_fragment>',
+              `#include <dithering_fragment>
+              if (uGlitch > 0.01) {
+                float shift = uGlitch * 0.05;
+                gl_FragColor.r += shift;
+                gl_FragColor.b -= shift;
+                float scanline = sin(gl_FragCoord.y * 1.5 + uTime * 8.0) * 0.5 + 0.5;
+                scanline = pow(scanline, 12.0) * uGlitch * 0.12;
+                gl_FragColor.rgb += vec3(scanline);
+                gl_FragColor.rgb += vec3(0.15, 0.5, 0.9) * pow(1.0 - abs(dot(vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, 1.0))), 2.0) * uGlitch * 0.15;
+              }
+              gl_FragColor.a *= uOpacity;`
+            );
+
+            std.userData.shader = shader;
+          };
+
           std.needsUpdate = true;
           bodyMatsRef.current.push(std);
           return std;
@@ -163,19 +227,25 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
     });
   }, [backTex, product.id, backDesignUrl]);
 
-  // Transition opacity + glitch effect
-  useEffect(() => {
-    const opacity = 1 - transitionProgress;
-    bodyMatsRef.current.forEach(mat => { mat.opacity = opacity; });
-    frontMatsRef.current.forEach(mat => { mat.opacity = opacity; });
-    backMatsRef.current.forEach(mat => { mat.opacity = opacity; });
-  }, [transitionProgress]);
-
-  // Rotation
+  // Animate glitch + opacity in useFrame
   useFrame((_, delta) => {
+    timeRef.current += delta;
+
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * 0.4;
     }
+
+    // Drive glitch uniforms from transitionProgress
+    const opacity = 1 - transitionProgress;
+    glitchUniformsRef.current.forEach(u => {
+      u.uGlitch.value = transitionProgress;
+      u.uTime.value = timeRef.current;
+      u.uOpacity.value = opacity;
+    });
+
+    // Also fade print area opacity
+    frontMatsRef.current.forEach(mat => { mat.opacity = opacity; });
+    backMatsRef.current.forEach(mat => { mat.opacity = opacity; });
   });
 
   return (
