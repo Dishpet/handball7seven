@@ -109,12 +109,7 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-start overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${bgImage}')` }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent lg:hidden" />
+      <div className="absolute inset-0 bg-background" />
 
       <div className="relative z-10 w-full flex flex-col-reverse lg:flex-row items-center min-h-[100svh]">
         {/* Text content — centered on mobile/tablet, left-aligned on desktop */}

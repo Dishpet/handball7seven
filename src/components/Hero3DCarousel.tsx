@@ -391,7 +391,7 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
       <ambientLight intensity={0.9} />
       <spotLight position={[5, 5, 5]} angle={0.3} penumbra={1} intensity={0.6} />
       <Environment preset="city" />
-      <group position={[0, -0.5, 0]}>
+      <group position={[0, -1.8, 0]}>
         <Suspense fallback={null}>
           <HeroModel
             product={PRODUCTS[current.productIndex]}
