@@ -9,8 +9,10 @@ import { useToast } from '@/components/ui/use-toast';
 import { useShopConfig } from '@/hooks/useShopConfig';
 import { useI18n } from '@/lib/i18n';
 import { useDesignCollections } from '@/hooks/useDesignCollections';
+import { useProducts as useDbProducts } from '@/hooks/useProducts';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import CartDrawer from '@/components/CartDrawer';
 import CartDrawer from '@/components/CartDrawer';
 
 // Fallback local designs
