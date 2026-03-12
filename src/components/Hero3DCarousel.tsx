@@ -256,10 +256,25 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
 
     // Drive glitch uniforms from transitionProgress
     const opacity = 1 - transitionProgress;
+    const isFading = opacity < 0.99;
+
     glitchUniformsRef.current.forEach(u => {
       u.uGlitch.value = transitionProgress;
       u.uTime.value = timeRef.current;
       u.uOpacity.value = opacity;
+    });
+
+    // Keep cap/body fully solid unless actively transitioning to avoid see-through artifacts
+    bodyMatsRef.current.forEach((mat) => {
+      const nextTransparent = isFading;
+      const nextAlphaTest = isFading ? 0 : ((mat.map || mat.alphaMap) ? 0.5 : 0);
+
+      if (mat.transparent !== nextTransparent || mat.alphaTest !== nextAlphaTest) {
+        mat.transparent = nextTransparent;
+        mat.depthWrite = true;
+        mat.alphaTest = nextAlphaTest;
+        mat.needsUpdate = true;
+      }
     });
 
     // Also fade print area opacity
