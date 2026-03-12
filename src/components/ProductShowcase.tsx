@@ -77,6 +77,19 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
     return dbLogo || STATIC_FRONT_LOGO;
   }, [dbDesignCollections]);
 
+  // Build effective design collections: DB designs take priority
+  const effectiveCollections = useMemo(() => {
+    const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
+    const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
+    const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+
+    return {
+      'CLASSIC': dbClassic.length > 0 ? dbClassic : DESIGN_COLLECTIONS['CLASSIC'],
+      'VINTAGE': dbVintage.length > 0 ? dbVintage : DESIGN_COLLECTIONS['VINTAGE'],
+      'KIDS': dbKids.length > 0 ? dbKids : DESIGN_COLLECTIONS['KIDS'],
+    };
+  }, [dbDesignCollections]);
+
   const COLOR_TO_LOGO_MAP = useMemo(() => {
     const map: Record<string, string> = {};
     ['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'].forEach(color => {
@@ -85,14 +98,14 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
     return map;
   }, [frontLogoUrl]);
 
-  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : DESIGN_COLLECTIONS['KIDS'], [frontLogoUrl]);
-  const hoodieBackList = useMemo(() => [...DESIGN_COLLECTIONS['CLASSIC']], []);
-  const vintageList = useMemo(() => [...DESIGN_COLLECTIONS['VINTAGE']], []);
+  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : effectiveCollections['KIDS'], [frontLogoUrl, effectiveCollections]);
+  const hoodieBackList = useMemo(() => [...effectiveCollections['CLASSIC']], [effectiveCollections]);
+  const vintageList = useMemo(() => [...effectiveCollections['VINTAGE']], [effectiveCollections]);
   const allDesignsList = useMemo(() => [
-    ...DESIGN_COLLECTIONS['KIDS'],
-    ...DESIGN_COLLECTIONS['CLASSIC'],
-    ...DESIGN_COLLECTIONS['VINTAGE']
-  ], []);
+    ...effectiveCollections['KIDS'],
+    ...effectiveCollections['CLASSIC'],
+    ...effectiveCollections['VINTAGE']
+  ], [effectiveCollections]);
 
   const designReplacements = useMemo(() => ({}), []);
 

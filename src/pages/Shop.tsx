@@ -165,6 +165,30 @@ const Shop = () => {
         return dbLogo || STATIC_FRONT_LOGO;
     }, [dbDesignCollections]);
 
+    // Build effective design collections: DB designs take priority, fallback to static
+    const effectiveCollections = useMemo(() => {
+        const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
+        const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
+        const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+
+        // Register DB URLs in the filename maps so config lookups work
+        [dbClassic, dbVintage, dbKids].flat().forEach(url => {
+            if (!URL_TO_FILENAME[url]) {
+                const filename = url.split('/').pop()?.split('?')[0] || '';
+                if (filename) {
+                    URL_TO_FILENAME[url] = filename;
+                    FILENAME_TO_URL[filename] = url;
+                }
+            }
+        });
+
+        return {
+            'CLASSIC': dbClassic.length > 0 ? dbClassic : DESIGN_COLLECTIONS['CLASSIC'],
+            'VINTAGE': dbVintage.length > 0 ? dbVintage : DESIGN_COLLECTIONS['VINTAGE'],
+            'KIDS': dbKids.length > 0 ? dbKids : DESIGN_COLLECTIONS['KIDS'],
+        };
+    }, [dbDesignCollections]);
+
     // Build color-to-logo map dynamically from DB front logo
     const COLOR_TO_LOGO_MAP = useMemo(() => {
         const map: Record<string, string> = {};
@@ -604,12 +628,12 @@ const Shop = () => {
             // Fallback: If expandedCollection is null (intro mode), try to guess or default
             if (!currentCollectionName) {
                 // Heuristic: check where current design exists
-                if (DESIGN_COLLECTIONS['CLASSIC'].includes(currentDesign)) currentCollectionName = 'CLASSIC';
-                else if (DESIGN_COLLECTIONS['VINTAGE'].includes(currentDesign)) currentCollectionName = 'VINTAGE';
+                if (effectiveCollections['CLASSIC'].includes(currentDesign)) currentCollectionName = 'CLASSIC';
+                else if (effectiveCollections['VINTAGE'].includes(currentDesign)) currentCollectionName = 'VINTAGE';
                 else currentCollectionName = 'KIDS';
             }
 
-            const collectionDesigns = DESIGN_COLLECTIONS[currentCollectionName] || [];
+            const collectionDesigns = effectiveCollections[currentCollectionName] || [];
 
             // 2. Find first design in this collection that SUPPORTS the new color
             const compatibleDesign = collectionDesigns.find(d => {
@@ -723,18 +747,18 @@ const Shop = () => {
                             products={products}
                             colorToLogoMap={COLOR_TO_LOGO_MAP}
                             hasUserInteracted={hasUserInteracted}
-                            logoList={frontLogoUrl ? [frontLogoUrl] : DESIGN_COLLECTIONS['KIDS']}
+                            logoList={frontLogoUrl ? [frontLogoUrl] : effectiveCollections['KIDS']}
                             hoodieBackList={useMemo(() => [
-                                ...DESIGN_COLLECTIONS['CLASSIC']
-                            ], [])}
+                                ...effectiveCollections['CLASSIC']
+                            ], [effectiveCollections])}
                             vintageList={useMemo(() => [
-                                ...DESIGN_COLLECTIONS['VINTAGE']
-                            ], [])}
+                                ...effectiveCollections['VINTAGE']
+                            ], [effectiveCollections])}
                             allDesignsList={useMemo(() => [
-                                ...DESIGN_COLLECTIONS['KIDS'],
-                                ...DESIGN_COLLECTIONS['CLASSIC'],
-                                ...DESIGN_COLLECTIONS['VINTAGE']
-                            ], [])}
+                                ...effectiveCollections['KIDS'],
+                                ...effectiveCollections['CLASSIC'],
+                                ...effectiveCollections['VINTAGE']
+                            ], [effectiveCollections])}
                             designReplacements={useMemo(() => ({}), [])}
                             onCycleDesignUpdate={handleCycleDesignUpdate}
                             productAllowedColors={useMemo(() => ({
@@ -898,7 +922,7 @@ const Shop = () => {
                                     exit={{ opacity: 0, y: 10 }}
                                     className="flex justify-start flex-nowrap gap-2 p-2 bg-background/5 backdrop-blur-sm rounded-none border border-white/10 shadow-2xl overflow-x-auto w-full max-w-full custom-scrollbar touch-pan-x"
                                 >
-                                    {DESIGN_COLLECTIONS[expandedCollection]
+                                    {(effectiveCollections[expandedCollection] || [])
                                         .filter(design => {
                                             const filename = URL_TO_FILENAME[design] || design.split('/').pop()?.split('?')[0] || '';
                                             // Use dynamic config for restrictions

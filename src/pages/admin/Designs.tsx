@@ -1,6 +1,6 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, Eye, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { Check, Download, Eye, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -132,9 +132,20 @@ export default function Designs() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Designs</h2>
-          <p className="text-white/60 font-body text-sm mt-1">Manage designs for collections</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Designs</h2>
+            <p className="text-white/60 font-body text-sm mt-1">Manage designs for collections</p>
+          </div>
+          {isSaving ? (
+            <span className="flex items-center gap-2 text-primary text-xs font-display uppercase tracking-widest">
+              <Loader2 className="w-4 h-4 animate-spin" /> Saving…
+            </span>
+          ) : (
+            <span className="flex items-center gap-2 text-emerald-400 text-xs font-display uppercase tracking-widest">
+              <Check className="w-4 h-4" /> All changes saved
+            </span>
+          )}
         </div>
 
         {previewUrl && (
