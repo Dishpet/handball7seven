@@ -192,6 +192,7 @@ const HeroModel = ({ product, color, frontDesignUrl, backDesignUrl, transitionPr
         mat.polygonOffsetFactor = -1;
         mat.polygonOffsetUnits = -1;
         mat.depthWrite = false;
+        mat.side = THREE.FrontSide; // Prevent design bleeding through back
         mat.needsUpdate = true;
         m.material = mat;
 
