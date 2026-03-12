@@ -14,7 +14,9 @@ const PRODUCTS = [
 ];
 
 const CYCLE_INTERVAL = 4500;
-const TRANSITION_MS = 400;
+const GLITCH_OUT_MS = 350;
+const GLITCH_IN_MS = 350;
+const GAP_MS = 80; // brief empty gap between out and in
 const TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 // Texture UV config per product (matching ShopScene exactly)
@@ -331,41 +333,56 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
   }, [productAllowedColors, frontDesigns, backDesigns, colorToLogoMap]);
 
   const [current, setCurrent] = useState<CycleState>(() => pickForProduct(0));
-  const [next, setNext] = useState<CycleState | null>(null);
-  const [transition, setTransition] = useState(0);
+  const [transition, setTransition] = useState(0); // 0 = idle, 0..1 = glitching out, 1..2 = glitching in
   const transitionRef = useRef(0);
-  const isTransitioning = useRef(false);
+  const phaseRef = useRef<'idle' | 'glitch-out' | 'gap' | 'glitch-in'>('idle');
   const nextProductIdx = useRef(1);
-  const sharedRotation = useRef(0); // shared rotation for seamless handoff
+  const sharedRotation = useRef(0);
+  const pendingNext = useRef<CycleState | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const idx = nextProductIdx.current;
       nextProductIdx.current = (idx + 1) % PRODUCTS.length;
-      const nextState = pickForProduct(idx);
-      setNext(nextState);
-      isTransitioning.current = true;
+      pendingNext.current = pickForProduct(idx);
+      phaseRef.current = 'glitch-out';
       transitionRef.current = 0;
-
-      const fadeOut = setTimeout(() => {
-        setCurrent(nextState);
-        setNext(null);
-        isTransitioning.current = false;
-        transitionRef.current = 0;
-        setTransition(0);
-      }, TRANSITION_MS);
-
-      return () => clearTimeout(fadeOut);
     }, CYCLE_INTERVAL);
 
     return () => clearInterval(interval);
   }, [pickForProduct]);
 
-  // Animate transition
+  // Animate transition phases sequentially
   useFrame((_, delta) => {
-    if (isTransitioning.current) {
-      transitionRef.current = Math.min(1, transitionRef.current + delta / (TRANSITION_MS / 1000));
+    if (phaseRef.current === 'glitch-out') {
+      transitionRef.current = Math.min(1, transitionRef.current + delta / (GLITCH_OUT_MS / 1000));
       setTransition(transitionRef.current);
+      if (transitionRef.current >= 1) {
+        // Switch to gap phase
+        phaseRef.current = 'gap';
+        transitionRef.current = 0;
+      }
+    } else if (phaseRef.current === 'gap') {
+      transitionRef.current += delta * 1000;
+      if (transitionRef.current >= GAP_MS) {
+        // Swap model and start glitch-in
+        if (pendingNext.current) {
+          setCurrent(pendingNext.current);
+          pendingNext.current = null;
+        }
+        phaseRef.current = 'glitch-in';
+        transitionRef.current = 0;
+        setTransition(1); // fully glitched at start of glitch-in
+      }
+    } else if (phaseRef.current === 'glitch-in') {
+      transitionRef.current = Math.min(1, transitionRef.current + delta / (GLITCH_IN_MS / 1000));
+      // transition goes from 1 back to 0
+      setTransition(1 - transitionRef.current);
+      if (transitionRef.current >= 1) {
+        phaseRef.current = 'idle';
+        transitionRef.current = 0;
+        setTransition(0);
+      }
     }
   });
 
@@ -381,23 +398,11 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
             color={current.color}
             frontDesignUrl={current.frontDesign || TRANSPARENT_PIXEL}
             backDesignUrl={current.backDesign || TRANSPARENT_PIXEL}
-            transitionProgress={next ? transition : 0}
+            transitionProgress={transition}
             rotationRef={sharedRotation}
             isPrimary={true}
           />
         </Suspense>
-        {next && (
-          <Suspense fallback={null}>
-            <HeroModel
-              product={PRODUCTS[next.productIndex]}
-              color={next.color}
-              frontDesignUrl={next.frontDesign || TRANSPARENT_PIXEL}
-              backDesignUrl={next.backDesign || TRANSPARENT_PIXEL}
-              transitionProgress={1 - transition}
-              rotationRef={sharedRotation}
-            />
-          </Suspense>
-        )}
       </group>
     </>
   );
