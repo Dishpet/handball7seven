@@ -633,7 +633,7 @@ const Shop = () => {
                 else currentCollectionName = 'KIDS';
             }
 
-            const collectionDesigns = DESIGN_COLLECTIONS[currentCollectionName] || [];
+            const collectionDesigns = effectiveCollections[currentCollectionName] || [];
 
             // 2. Find first design in this collection that SUPPORTS the new color
             const compatibleDesign = collectionDesigns.find(d => {
