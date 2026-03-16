@@ -190,10 +190,10 @@ const Shop = () => {
     const effectiveCollections = useMemo(() => {
         const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
         const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
-        const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+        const dbStreet = dbDesignCollections.street?.map(d => d.url).filter(Boolean) || [];
 
         // Register DB URLs in the filename maps so config lookups work
-        [dbClassic, dbVintage, dbKids].flat().forEach(url => {
+        [dbClassic, dbVintage, dbStreet].flat().forEach(url => {
             if (!URL_TO_FILENAME[url]) {
                 const filename = url.split('/').pop()?.split('?')[0] || '';
                 if (filename) {
@@ -206,7 +206,7 @@ const Shop = () => {
         return {
             'CLASSIC': dbClassic.length > 0 ? dbClassic : DESIGN_COLLECTIONS['CLASSIC'],
             'VINTAGE': dbVintage.length > 0 ? dbVintage : DESIGN_COLLECTIONS['VINTAGE'],
-            'KIDS': dbKids.length > 0 ? dbKids : DESIGN_COLLECTIONS['KIDS'],
+            'STREET': dbStreet.length > 0 ? dbStreet : DESIGN_COLLECTIONS['STREET'],
         };
     }, [dbDesignCollections]);
 
