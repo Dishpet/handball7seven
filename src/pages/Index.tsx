@@ -21,6 +21,7 @@ const Index = () => {
         <BestSellers />
         <BrandStory />
         <HandballCulture />
+        <SevenManifesto />
         <LifestyleBanner />
         <Newsletter />
       </main>
