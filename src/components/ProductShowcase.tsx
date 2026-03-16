@@ -81,12 +81,12 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
   const effectiveCollections = useMemo(() => {
     const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
     const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
-    const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+    const dbStreet = dbDesignCollections.street?.map(d => d.url).filter(Boolean) || [];
 
     return {
       'CLASSIC': dbClassic.length > 0 ? dbClassic : DESIGN_COLLECTIONS['CLASSIC'],
       'VINTAGE': dbVintage.length > 0 ? dbVintage : DESIGN_COLLECTIONS['VINTAGE'],
-      'KIDS': dbKids.length > 0 ? dbKids : DESIGN_COLLECTIONS['KIDS'],
+      'STREET': dbStreet.length > 0 ? dbStreet : DESIGN_COLLECTIONS['STREET'],
     };
   }, [dbDesignCollections]);
 
