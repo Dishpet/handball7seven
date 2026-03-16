@@ -28,8 +28,8 @@ const handballElements = [
     icon: (
       <svg viewBox="0 0 64 64" className="w-10 h-10 sm:w-12 sm:h-12" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Red card */}
-        <rect x="16" y="8" width="32" height="48" rx="3" className="fill-red-600" />
-        <rect x="16" y="8" width="32" height="48" rx="3" stroke="currentColor" strokeWidth="1.5" className="text-red-700" />
+        <rect x="16" y="8" width="32" height="48" rx="3" fill="hsl(var(--destructive))" />
+        <rect x="16" y="8" width="32" height="48" rx="3" stroke="hsl(var(--destructive))" strokeWidth="1.5" opacity="0.8" />
       </svg>
     ),
   },
