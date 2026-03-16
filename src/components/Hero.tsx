@@ -13,7 +13,7 @@ const classicDesigns = import.meta.glob('/src/assets/design-collections/classic/
 // @ts-ignore
 const vintageDesigns = import.meta.glob('/src/assets/design-collections/vintage/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
-const kidsDesigns = import.meta.glob('/src/assets/design-collections/kids/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+const streetDesigns = import.meta.glob('/src/assets/design-collections/street/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
 const fallbackLogoDesigns = import.meta.glob('/src/assets/design-collections/logo/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 
@@ -25,7 +25,7 @@ const processDesigns = (globResult: Record<string, unknown>) =>
 const STATIC_COLLECTIONS = {
   classic: processDesigns(classicDesigns),
   vintage: processDesigns(vintageDesigns),
-  kids: processDesigns(kidsDesigns),
+  street: processDesigns(streetDesigns),
 };
 
 const Hero = () => {
@@ -44,11 +44,11 @@ const Hero = () => {
   const effectiveCollections = useMemo(() => {
     const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
     const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
-    const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+    const dbStreet = dbDesignCollections.street?.map(d => d.url).filter(Boolean) || [];
     return {
       classic: dbClassic.length > 0 ? dbClassic : STATIC_COLLECTIONS.classic,
       vintage: dbVintage.length > 0 ? dbVintage : STATIC_COLLECTIONS.vintage,
-      kids: dbKids.length > 0 ? dbKids : STATIC_COLLECTIONS.kids,
+      street: dbStreet.length > 0 ? dbStreet : STATIC_COLLECTIONS.street,
     };
   }, [dbDesignCollections]);
 
@@ -70,7 +70,7 @@ const Hero = () => {
   const allDesigns = useMemo(() => [
     ...effectiveCollections.classic,
     ...effectiveCollections.vintage,
-    ...effectiveCollections.kids,
+    ...effectiveCollections.street,
   ], [effectiveCollections]);
 
   const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : [], [frontLogoUrl]);

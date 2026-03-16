@@ -45,7 +45,7 @@ const Footer = () => {
           <div>
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.shop")}</h4>
             <div className="space-y-3">
-              {[t("col.classic"), t("col.vintage"), t("col.kids")].map(item => (
+              {[t("col.classic"), t("col.vintage"), t("col.street")].map(item => (
                 <Link key={item} to="/shop" className="block text-muted-foreground text-sm hover:text-foreground transition-colors py-0.5">{item}</Link>
               ))}
             </div>

@@ -112,10 +112,10 @@ const fallbackTranslations: Record<string, Record<Lang, string>> = {
   // Collections
   "col.classic": { en: "Classic Collection", de: "Classic Kollektion", hr: "Classic kolekcija" },
   "col.vintage": { en: "Vintage Collection", de: "Vintage Kollektion", hr: "Vintage kolekcija" },
-  "col.kids": { en: "Kids Collection", de: "Kids Kollektion", hr: "Kids kolekcija" },
+  "col.street": { en: "Street Collection", de: "Street Kollektion", hr: "Street kolekcija" },
   "col.classic.desc": { en: "Minimal logo pieces. Premium clean branding in black and dark grey.", de: "Minimale Logo-Teile. Premium-Branding in Schwarz und Dunkelgrau.", hr: "Minimalistički logo komadi. Premium branding u crnoj i tamno sivoj." },
   "col.vintage.desc": { en: "Retro handball culture. Cream, beige, and warm heritage tones.", de: "Retro-Handballkultur. Creme, Beige und warme Heritage-Töne.", hr: "Retro handball kultura. Krem, bež i topli heritage tonovi." },
-  "col.kids.desc": { en: "Fun but premium. Youth handball inspired with playful graphics.", de: "Spaßig aber Premium. Jugend-Handball inspiriert mit verspielten Grafiken.", hr: "Zabavno ali premium. Inspirirano mladim rukometašima sa razigranijom grafikom." },
+  "col.street.desc": { en: "Urban edge meets handball grit. Bold graphics, raw energy, street-ready.", de: "Urbaner Stil trifft Handball-Härte. Kräftige Grafiken, rohe Energie, straßentauglich.", hr: "Urbani stil susreće rukometnu tvrdoću. Odvažna grafika, sirova energija, spremno za ulicu." },
 
   // Shop
   "shop.title": { en: "Shop All", de: "Alle Produkte", hr: "Svi proizvodi" },

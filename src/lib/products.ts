@@ -2,7 +2,7 @@ export type Product = {
   id: string;
   name: string;
   price: number;
-  collection: "classic" | "vintage" | "kids";
+  collection: "classic" | "vintage" | "street";
   badge?: "new" | "bestseller" | "vintage";
   sizes: string[];
   colors: string[];
@@ -35,14 +35,14 @@ export const products: Product[] = [
     image: "/products/vintage-hoodie.jpg",
   },
   {
-    id: "kids-bunny-hoodie",
-    name: "Kids Bunny Hoodie",
-    price: 59.00,
-    collection: "kids",
+    id: "street-raw-hoodie",
+    name: "Street Raw Hoodie",
+    price: 69.00,
+    collection: "street",
     badge: "new",
-    sizes: ["6Y", "8Y", "10Y", "12Y", "14Y"],
-    colors: ["Black"],
-    description: "Playful handball mascot design for the next generation of players. Premium quality, kid-approved graphics.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Dark Grey"],
+    description: "Urban edge meets handball grit. Bold graphics, raw energy, street-ready.",
     image: "/products/kids-bunny-hoodie.jpg",
   },
   {
@@ -78,14 +78,14 @@ export const products: Product[] = [
     image: "/products/classic-joggers.jpg",
   },
   {
-    id: "kids-logo-tee",
-    name: "Kids Logo Tee",
-    price: 35.00,
-    collection: "kids",
+    id: "street-graphic-tee",
+    name: "Street Graphic Tee",
+    price: 39.00,
+    collection: "street",
     badge: "new",
-    sizes: ["6Y", "8Y", "10Y", "12Y", "14Y"],
+    sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "White"],
-    description: "Simple and bold for young handball fans. Premium soft cotton.",
+    description: "Bold street-style graphics rooted in handball culture. Premium soft cotton.",
     image: "/products/kids-logo-tee.jpg",
   },
   {

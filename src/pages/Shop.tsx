@@ -20,7 +20,7 @@ const classicDesigns = import.meta.glob('/src/assets/design-collections/classic/
 // @ts-ignore
 const vintageDesigns = import.meta.glob('/src/assets/design-collections/vintage/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
-const kidsDesigns = import.meta.glob('/src/assets/design-collections/kids/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+const streetDesigns = import.meta.glob('/src/assets/design-collections/street/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
 const frontLogoDesigns = import.meta.glob('/src/assets/design-collections/logo/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 
@@ -49,7 +49,7 @@ const processDesigns = (globResult: Record<string, unknown>) => {
 const DESIGN_COLLECTIONS: Record<string, string[]> = {
     'CLASSIC': processDesigns(classicDesigns),
     'VINTAGE': processDesigns(vintageDesigns),
-    'KIDS': processDesigns(kidsDesigns),
+    'STREET': processDesigns(streetDesigns),
 };
 
 const FRONT_LOGO_DESIGNS: string[] = processDesigns(frontLogoDesigns);
@@ -57,7 +57,7 @@ const FRONT_LOGO_DESIGNS: string[] = processDesigns(frontLogoDesigns);
 const ALL_DESIGNS: string[] = [
     ...DESIGN_COLLECTIONS['CLASSIC'],
     ...DESIGN_COLLECTIONS['VINTAGE'],
-    ...DESIGN_COLLECTIONS['KIDS']
+    ...DESIGN_COLLECTIONS['STREET']
 ];
 
 // Static fallback front logo (used if DB has none)
@@ -190,10 +190,10 @@ const Shop = () => {
     const effectiveCollections = useMemo(() => {
         const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
         const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
-        const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+        const dbStreet = dbDesignCollections.street?.map(d => d.url).filter(Boolean) || [];
 
         // Register DB URLs in the filename maps so config lookups work
-        [dbClassic, dbVintage, dbKids].flat().forEach(url => {
+        [dbClassic, dbVintage, dbStreet].flat().forEach(url => {
             if (!URL_TO_FILENAME[url]) {
                 const filename = url.split('/').pop()?.split('?')[0] || '';
                 if (filename) {
@@ -206,7 +206,7 @@ const Shop = () => {
         return {
             'CLASSIC': dbClassic.length > 0 ? dbClassic : DESIGN_COLLECTIONS['CLASSIC'],
             'VINTAGE': dbVintage.length > 0 ? dbVintage : DESIGN_COLLECTIONS['VINTAGE'],
-            'KIDS': dbKids.length > 0 ? dbKids : DESIGN_COLLECTIONS['KIDS'],
+            'STREET': dbStreet.length > 0 ? dbStreet : DESIGN_COLLECTIONS['STREET'],
         };
     }, [dbDesignCollections]);
 
@@ -243,7 +243,7 @@ const Shop = () => {
     const [isColorPickerOpen, setIsColorPickerOpen] = useState(false); // Kept for potential mobile use
 
     const [isSizePickerOpen, setIsSizePickerOpen] = useState(false);
-    const [expandedCollection, setExpandedCollection] = useState<string>('KIDS');
+    const [expandedCollection, setExpandedCollection] = useState<string>('STREET');
     const [activeTab, setActiveTab] = useState<'details' | 'features' | 'reviews'>('details');
     const [cartCount, setCartCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -647,7 +647,7 @@ const Shop = () => {
                 // Heuristic: check where current design exists
                 if (effectiveCollections['CLASSIC'].includes(currentDesign)) currentCollectionName = 'CLASSIC';
                 else if (effectiveCollections['VINTAGE'].includes(currentDesign)) currentCollectionName = 'VINTAGE';
-                else currentCollectionName = 'KIDS';
+                else currentCollectionName = 'STREET';
             }
 
             const collectionDesigns = effectiveCollections[currentCollectionName] || [];
@@ -764,7 +764,7 @@ const Shop = () => {
                             products={products}
                             colorToLogoMap={COLOR_TO_LOGO_MAP}
                             hasUserInteracted={hasUserInteracted}
-                            logoList={frontLogoUrl ? [frontLogoUrl] : effectiveCollections['KIDS']}
+                            logoList={frontLogoUrl ? [frontLogoUrl] : effectiveCollections['STREET']}
                             hoodieBackList={useMemo(() => [
                                 ...effectiveCollections['CLASSIC']
                             ], [effectiveCollections])}
@@ -772,7 +772,7 @@ const Shop = () => {
                                 ...effectiveCollections['VINTAGE']
                             ], [effectiveCollections])}
                             allDesignsList={useMemo(() => [
-                                ...effectiveCollections['KIDS'],
+                                ...effectiveCollections['STREET'],
                                 ...effectiveCollections['CLASSIC'],
                                 ...effectiveCollections['VINTAGE']
                             ], [effectiveCollections])}
@@ -892,7 +892,7 @@ const Shop = () => {
                                 )}
 
                                 <div className="flex justify-center md:gap-4 bg-black/80 backdrop-blur-md p-1.5 rounded-none shadow-xl border border-white/10 w-fit max-w-[60vw] md:max-w-none overflow-x-auto custom-scrollbar">
-                                {['CLASSIC', 'KIDS', 'VINTAGE']
+                                {['CLASSIC', 'STREET', 'VINTAGE']
                                         .map(name => (
                                             <button
                                                 key={name}

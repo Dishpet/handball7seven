@@ -14,7 +14,7 @@ const classicDesigns = import.meta.glob('/src/assets/design-collections/classic/
 // @ts-ignore
 const vintageDesigns = import.meta.glob('/src/assets/design-collections/vintage/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
-const kidsDesigns = import.meta.glob('/src/assets/design-collections/kids/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
+const streetDesigns = import.meta.glob('/src/assets/design-collections/street/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 // @ts-ignore
 const fallbackLogoDesigns = import.meta.glob('/src/assets/design-collections/logo/*.{png,jpg,jpeg,webp}', { eager: true, query: '?url', import: 'default' });
 
@@ -58,7 +58,7 @@ const processDesigns = (globResult: Record<string, unknown>) => {
 const DESIGN_COLLECTIONS: Record<string, string[]> = {
   'CLASSIC': processDesigns(classicDesigns),
   'VINTAGE': processDesigns(vintageDesigns),
-  'KIDS': processDesigns(kidsDesigns),
+  'STREET': processDesigns(streetDesigns),
 };
 
 interface ProductShowcaseProps {
@@ -81,12 +81,12 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
   const effectiveCollections = useMemo(() => {
     const dbClassic = dbDesignCollections.classic?.map(d => d.url).filter(Boolean) || [];
     const dbVintage = dbDesignCollections.vintage?.map(d => d.url).filter(Boolean) || [];
-    const dbKids = dbDesignCollections.kids?.map(d => d.url).filter(Boolean) || [];
+    const dbStreet = dbDesignCollections.street?.map(d => d.url).filter(Boolean) || [];
 
     return {
       'CLASSIC': dbClassic.length > 0 ? dbClassic : DESIGN_COLLECTIONS['CLASSIC'],
       'VINTAGE': dbVintage.length > 0 ? dbVintage : DESIGN_COLLECTIONS['VINTAGE'],
-      'KIDS': dbKids.length > 0 ? dbKids : DESIGN_COLLECTIONS['KIDS'],
+      'STREET': dbStreet.length > 0 ? dbStreet : DESIGN_COLLECTIONS['STREET'],
     };
   }, [dbDesignCollections]);
 
@@ -98,11 +98,11 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
     return map;
   }, [frontLogoUrl]);
 
-  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : effectiveCollections['KIDS'], [frontLogoUrl, effectiveCollections]);
+  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : effectiveCollections['STREET'], [frontLogoUrl, effectiveCollections]);
   const hoodieBackList = useMemo(() => [...effectiveCollections['CLASSIC']], [effectiveCollections]);
   const vintageList = useMemo(() => [...effectiveCollections['VINTAGE']], [effectiveCollections]);
   const allDesignsList = useMemo(() => [
-    ...effectiveCollections['KIDS'],
+    ...effectiveCollections['STREET'],
     ...effectiveCollections['CLASSIC'],
     ...effectiveCollections['VINTAGE']
   ], [effectiveCollections]);
