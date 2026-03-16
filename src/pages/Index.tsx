@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import FeaturedCollections from "@/components/FeaturedCollections";
 import BestSellers from "@/components/BestSellers";
 import BrandStory from "@/components/BrandStory";
+import HandballCulture from "@/components/HandballCulture";
 import LifestyleBanner from "@/components/LifestyleBanner";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
