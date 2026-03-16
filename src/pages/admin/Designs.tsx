@@ -10,10 +10,10 @@ import {
   useDesignCollections,
 } from "@/hooks/useDesignCollections";
 
-const COLLECTION_ORDER: DesignCollectionKey[] = ["vintage", "kids", "classic", "front_logo"];
+const COLLECTION_ORDER: DesignCollectionKey[] = ["vintage", "street", "classic", "front_logo"];
 const COLLECTION_LABELS: Record<DesignCollectionKey, string> = {
   vintage: "VINTAGE",
-  kids: "KIDS",
+  street: "STREET",
   classic: "CLASSIC",
   front_logo: "FRONT LOGO",
 };

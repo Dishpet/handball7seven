@@ -9,7 +9,7 @@ const FeaturedCollections = () => {
   const collections = [
     { id: "classic", name: t("col.classic"), desc: t("col.classic.desc") },
     { id: "vintage", name: t("col.vintage"), desc: t("col.vintage.desc") },
-    { id: "kids", name: t("col.kids"), desc: t("col.kids.desc") },
+    { id: "street", name: t("col.street"), desc: t("col.street.desc") },
   ];
 
   return (

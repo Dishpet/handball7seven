@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSiteContent, useUpdateSiteContent } from "@/hooks/useSiteContent";
 
-export type DesignCollectionKey = "classic" | "vintage" | "kids" | "front_logo";
+export type DesignCollectionKey = "classic" | "vintage" | "street" | "front_logo";
 
 export interface DesignAsset {
   id: string;
@@ -15,7 +15,7 @@ export type DesignCollectionsValue = Record<DesignCollectionKey, DesignAsset[]>;
 export const EMPTY_DESIGN_COLLECTIONS: DesignCollectionsValue = {
   classic: [],
   vintage: [],
-  kids: [],
+  street: [],
   front_logo: [],
 };
 
@@ -36,7 +36,7 @@ export const normalizeDesignCollections = (value: unknown): DesignCollectionsVal
   return {
     classic: normalizeAssets(raw.classic),
     vintage: normalizeAssets(raw.vintage),
-    kids: normalizeAssets(raw.kids),
+    street: normalizeAssets(raw.street ?? raw.kids),
     front_logo: normalizeAssets(raw.front_logo),
   };
 };
