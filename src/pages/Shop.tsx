@@ -892,7 +892,7 @@ const Shop = () => {
                                 )}
 
                                 <div className="flex justify-center md:gap-4 bg-black/80 backdrop-blur-md p-1.5 rounded-none shadow-xl border border-white/10 w-fit max-w-[60vw] md:max-w-none overflow-x-auto custom-scrollbar">
-                                {['CLASSIC', 'KIDS', 'VINTAGE']
+                                {['CLASSIC', 'STREET', 'VINTAGE']
                                         .map(name => (
                                             <button
                                                 key={name}
