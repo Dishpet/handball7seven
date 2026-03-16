@@ -1,0 +1,1 @@
+UPDATE public.collections SET name = 'Street', slug = 'street', description = 'Urban edge meets handball grit. Bold graphics, raw energy, street-ready.' WHERE slug = 'kids';
