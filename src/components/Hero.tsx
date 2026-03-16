@@ -70,7 +70,7 @@ const Hero = () => {
   const allDesigns = useMemo(() => [
     ...effectiveCollections.classic,
     ...effectiveCollections.vintage,
-    ...effectiveCollections.kids,
+    ...effectiveCollections.street,
   ], [effectiveCollections]);
 
   const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : [], [frontLogoUrl]);

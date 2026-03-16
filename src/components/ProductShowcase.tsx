@@ -98,11 +98,11 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
     return map;
   }, [frontLogoUrl]);
 
-  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : effectiveCollections['KIDS'], [frontLogoUrl, effectiveCollections]);
+  const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : effectiveCollections['STREET'], [frontLogoUrl, effectiveCollections]);
   const hoodieBackList = useMemo(() => [...effectiveCollections['CLASSIC']], [effectiveCollections]);
   const vintageList = useMemo(() => [...effectiveCollections['VINTAGE']], [effectiveCollections]);
   const allDesignsList = useMemo(() => [
-    ...effectiveCollections['KIDS'],
+    ...effectiveCollections['STREET'],
     ...effectiveCollections['CLASSIC'],
     ...effectiveCollections['VINTAGE']
   ], [effectiveCollections]);
