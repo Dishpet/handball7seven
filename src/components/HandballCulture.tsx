@@ -40,8 +40,8 @@ const elements = [
   },
   {
     num: 7,
-    title: "The Hall",
-    lines: ["This game belongs indoors.", "Where noise, sweat and resin live together."],
+    title: "The Pass",
+    lines: ["The game moves faster than any player.", "The ball decides everything."],
     icon: Warehouse,
   },
 ];
