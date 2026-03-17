@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap, Target, Shield, Fence, Swords, Users, Warehouse } from "lucide-react";
+import { Zap, Target, Shield, Fence, Swords, Users, ArrowRightLeft } from "lucide-react";
 
 const elements = [
   {
