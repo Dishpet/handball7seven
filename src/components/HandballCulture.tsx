@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap, Target, Shield, Fence, Swords, Users, ArrowRightLeft } from "lucide-react";
+import { Zap, Target, Shield, Fence, Swords, Users, Send } from "lucide-react";
 
 const elements = [
   {
@@ -42,7 +42,7 @@ const elements = [
     num: 7,
     title: "The Pass",
     lines: ["The game moves faster than any player.", "The ball decides everything."],
-    icon: ArrowRightLeft,
+    icon: Send,
   },
 ];
 
