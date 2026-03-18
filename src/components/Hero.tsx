@@ -83,6 +83,8 @@ const Hero = () => {
     ...effectiveCollections.street,
   ], [effectiveCollections]);
 
+  const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
+
   const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : [], [frontLogoUrl]);
 
   // Filter restricted designs per product (matching ShopScene capCleanList / bottleCleanList logic)
