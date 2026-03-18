@@ -7,6 +7,8 @@ import { useDesignCollections } from '@/hooks/useDesignCollections';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag } from 'lucide-react';
+import { useCollections } from '@/hooks/useCollections';
+import { useCollectionColorMap } from '@/hooks/useStoreCatalog';
 
 // Import all designs
 // @ts-ignore
@@ -70,6 +72,8 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
   const { t } = useI18n();
   const { config: shopConfig } = useShopConfig();
   const { collections: dbDesignCollections } = useDesignCollections();
+  const { data: dbCollections } = useCollections(false);
+  const collectionColorMap = useCollectionColorMap(dbCollections?.map(c => ({ id: c.id, slug: c.slug })));
 
   // Resolve front logo: DB first, then static fallback
   const frontLogoUrl = useMemo(() => {
@@ -109,12 +113,18 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
 
   const designReplacements = useMemo(() => ({}), []);
 
-  const productAllowedColors = useMemo(() => ({
-    tshirt: shopConfig?.tshirt?.allowed_colors,
-    hoodie: shopConfig?.hoodie?.allowed_colors,
-    cap: shopConfig?.cap?.allowed_colors,
-    bottle: shopConfig?.bottle?.allowed_colors
-  }), [shopConfig]);
+  const productAllowedColors = useMemo(() => {
+    const getColColors = (slug: string) => {
+      const cols = collectionColorMap[slug];
+      return cols && cols.length > 0 ? cols.map(c => c.hex) : undefined;
+    };
+    return {
+      tshirt: getColColors('VINTAGE') || getColColors('CLASSIC'),
+      hoodie: getColColors('CLASSIC'),
+      cap: getColColors('STREET') || shopConfig?.cap?.allowed_colors,
+      bottle: shopConfig?.bottle?.allowed_colors
+    };
+  }, [collectionColorMap, shopConfig]);
 
   const productRestrictedDesigns = useMemo(() => ({
     tshirt: shopConfig?.tshirt?.restricted_designs,

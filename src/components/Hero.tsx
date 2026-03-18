@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n";
 import { useShopConfig } from "@/hooks/useShopConfig";
 import { useDesignCollections } from "@/hooks/useDesignCollections";
+import { useCollections } from "@/hooks/useCollections";
+import { useCollectionColorMap } from "@/hooks/useStoreCatalog";
 import logo from "@/assets/logo.png";
 import Hero3DCarousel from "@/components/Hero3DCarousel";
 
@@ -32,6 +34,8 @@ const Hero = () => {
   const { t, getSiteContent } = useI18n();
   const { config: shopConfig } = useShopConfig();
   const { collections: dbDesignCollections } = useDesignCollections();
+  const { data: dbCollections } = useCollections(false);
+  const collectionColorMap = useCollectionColorMap(dbCollections?.map(c => ({ id: c.id, slug: c.slug })));
   const heroContent = getSiteContent("hero") as Record<string, any> | undefined;
   const bgImage = heroContent?.bg_image || "/images/hero-bg.jpg";
 
@@ -52,12 +56,18 @@ const Hero = () => {
     };
   }, [dbDesignCollections]);
 
-  const productAllowedColors = useMemo(() => ({
-    tshirt: shopConfig?.tshirt?.allowed_colors,
-    hoodie: shopConfig?.hoodie?.allowed_colors,
-    cap: shopConfig?.cap?.allowed_colors,
-    bottle: shopConfig?.bottle?.allowed_colors,
-  }), [shopConfig]);
+  const productAllowedColors = useMemo(() => {
+    const getColColors = (slug: string) => {
+      const cols = collectionColorMap[slug];
+      return cols && cols.length > 0 ? cols.map(c => c.hex) : undefined;
+    };
+    return {
+      tshirt: getColColors('VINTAGE') || getColColors('CLASSIC'),
+      hoodie: getColColors('CLASSIC'),
+      cap: getColColors('STREET') || shopConfig?.cap?.allowed_colors,
+      bottle: shopConfig?.bottle?.allowed_colors
+    };
+  }, [collectionColorMap, shopConfig]);
 
   // Build color->logo map (same as ProductShowcase)
   const colorToLogoMap = useMemo(() => {
