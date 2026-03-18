@@ -1040,7 +1040,9 @@ const Shop = () => {
                             <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto shrink-0 justify-center">
 
                                 {/* Size Picker */}
-                                {selectedProduct !== 'cap' && selectedProduct !== 'bottle' && (
+                                {selectedProduct !== 'cap' && selectedProduct !== 'bottle' && (() => {
+                                    const availableSizes = getProductSizes(selectedProduct);
+                                    return availableSizes.length > 0 ? (
                                     <div className="flex-1 sm:flex-none flex flex-col gap-3 min-w-[200px]">
                                         <div className="flex justify-between items-center px-1">
                                             <label className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70 font-display uppercase tracking-widest">Veličina</label>
@@ -1054,13 +1056,9 @@ const Shop = () => {
                                                     onChange={(e) => setSelectedSize(e.target.value)}
                                                     className="w-full h-11 pl-4 pr-10 bg-background rounded-none border border-border shadow-sm font-display uppercase tracking-widest font-bold text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-black/10"
                                                 >
-                                                    <option value="6-8 g.">6-8 g.</option>
-                                                    <option value="8-10 g.">8-10 g.</option>
-                                                    <option value="10-12 g.">10-12 g.</option>
-                                                    <option value="S">S</option>
-                                                    <option value="M">M</option>
-                                                    <option value="L">L</option>
-                                                    <option value="XL">XL</option>
+                                                    {availableSizes.map(size => (
+                                                        <option key={size} value={size}>{size}</option>
+                                                    ))}
                                                 </select>
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                                                     <ChevronDown className="w-5 h-5 text-muted-foreground/70" />
@@ -1068,31 +1066,24 @@ const Shop = () => {
                                             </div>
                                         </div>
 
-                                        {/* Desktop: Circular Buttons */}
+                                        {/* Desktop: Buttons */}
                                         <div className="hidden sm:flex justify-between items-center gap-3 bg-background rounded-none border border-border shadow-sm px-3 py-2">
-                                            {[
-                                                { label: <>6-8<br />g.</>, value: '6-8 g.' },
-                                                { label: <>8-10<br />g.</>, value: '8-10 g.' },
-                                                { label: <>10-12<br />g.</>, value: '10-12 g.' },
-                                                { label: 'S', value: 'S' },
-                                                { label: 'M', value: 'M' },
-                                                { label: 'L', value: 'L' },
-                                                { label: 'XL', value: 'XL' },
-                                            ].map(({ label, value }) => (
+                                            {availableSizes.map(size => (
                                                 <button
-                                                    key={value}
-                                                    onClick={() => setSelectedSize(value)}
-                                                    className={`w-11 h-11 rounded-none font-bold text-xs transition-all duration-300 flex items-center justify-center font-display uppercase tracking-widest leading-tight shrink-0 ${selectedSize === value
+                                                    key={size}
+                                                    onClick={() => setSelectedSize(size)}
+                                                    className={`w-11 h-11 rounded-none font-bold text-xs transition-all duration-300 flex items-center justify-center font-display uppercase tracking-widest leading-tight shrink-0 ${selectedSize === size
                                                         ? 'bg-black text-white shadow-md scale-110'
                                                         : 'text-muted-foreground hover:bg-muted hover:text-black'
                                                         }`}
                                                 >
-                                                    {label}
+                                                    {size.includes(' ') ? <>{size.split(' ')[0]}<br/>{size.split(' ')[1]}</> : size}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
-                                )}
+                                    ) : null;
+                                })()}
 
                                 {/* Quantity Picker */}
                                 <div className="flex-1 sm:flex-none flex flex-col gap-3 min-w-[140px]">
