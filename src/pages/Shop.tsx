@@ -8,7 +8,7 @@ import { useCart } from '@/lib/cart';
 import { useToast } from '@/components/ui/use-toast';
 import { useShopConfig } from '@/hooks/useShopConfig';
 import { useI18n } from '@/lib/i18n';
-import { useDesignCollections } from '@/hooks/useDesignCollections';
+import { useDesignCollections, buildDesignVariantMap } from '@/hooks/useDesignCollections';
 import { useProducts as useDbProducts } from '@/hooks/useProducts';
 import { useStoreColors, useStoreSizes, useCollectionColorMap } from '@/hooks/useStoreCatalog';
 import { useCollections } from '@/hooks/useCollections';
