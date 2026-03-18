@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import { Instagram } from "lucide-react";
+import { Instagram, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -8,6 +8,9 @@ const Footer = () => {
 
   const socials = getSiteContent("socials") as Record<string, string> | undefined;
   const featuresBar = getSiteContent("features_bar") as { items?: { icon: string; label: Record<string, string> }[] } | undefined;
+
+  const whatsappNumber = socials?.whatsapp || "+385955144085";
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}`;
 
   return (
     <footer className="bg-card border-t border-border">
@@ -61,6 +64,9 @@ const Footer = () => {
               ) : (
                 <a href="#" className="text-foreground/40 hover:text-primary transition-colors p-1"><Instagram size={22} /></a>
               )}
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-[#25D366] transition-colors p-1">
+                <MessageCircle size={22} />
+              </a>
             </div>
           </div>
         </div>

@@ -101,9 +101,19 @@ const SECTIONS: { key: string; label: string; fields: FieldConfig[] }[] = [
     label: "Social Media Links",
     fields: [
       { name: "instagram", label: "Instagram URL", type: "text", i18n: false },
+      { name: "whatsapp", label: "WhatsApp Number", type: "text", i18n: false },
       { name: "facebook", label: "Facebook URL", type: "text", i18n: false },
       { name: "tiktok", label: "TikTok URL", type: "text", i18n: false },
       { name: "youtube", label: "YouTube URL", type: "text", i18n: false },
+    ],
+  },
+  {
+    key: "handball_elements",
+    label: "Seven Elements of Handball",
+    fields: [
+      { name: "section_title", label: "Section Title", type: "text", i18n: false },
+      { name: "closing_line_1", label: "Closing Line 1", type: "text", i18n: false },
+      { name: "closing_line_2", label: "Closing Line 2", type: "text", i18n: false },
     ],
   },
   {
