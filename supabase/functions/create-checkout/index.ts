@@ -108,6 +108,28 @@ serve(async (req) => {
       .update({ notes: `stripe_session:${session.id}` })
       .eq("id", order.id);
 
+    // Send order confirmation emails (fire-and-forget)
+    const orderData = {
+      id: order.id,
+      customer_email: userEmail || null,
+      customer_name: null,
+      items: items,
+      total: total,
+      status: "pending",
+      created_at: new Date().toISOString(),
+    };
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${anonKey}`,
+      },
+      body: JSON.stringify({ order: orderData }),
+    }).catch(e => console.error("Email send error:", e));
+
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
