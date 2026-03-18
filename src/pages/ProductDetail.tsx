@@ -103,7 +103,7 @@ const ProductDetail = () => {
               <div className="mb-5 sm:mb-6">
                 <p className="font-display uppercase text-xs tracking-widest mb-3">{t("shop.size")}</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.sizes.map(size => (
+                  {availableSizes.map(size => (
                     <button key={size} onClick={() => setSelectedSize(size)}
                       className={`px-4 py-2.5 border text-xs font-display uppercase tracking-wider transition-all min-w-[44px] min-h-[44px] ${
                         selectedSize === size ? "border-primary text-primary" : "border-border text-muted-foreground hover:border-foreground/30"
