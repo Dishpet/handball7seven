@@ -121,6 +121,11 @@ const SECTIONS: { key: string; label: string; fields: FieldConfig[] }[] = [
     label: "Features Bar (Footer Strip)",
     fields: [],
   },
+  {
+    key: "manifesto",
+    label: "Seven Manifesto",
+    fields: [],
+  },
 ];
 
 type ContentData = Record<string, any>;
