@@ -51,6 +51,8 @@ const ProductDetail = () => {
       name: product.name,
       price: product.price,
       size: selectedSize,
+      color: product.colors?.[0] || undefined,
+      collection: product.collection || undefined,
       quantity,
       image: product.image,
     });
