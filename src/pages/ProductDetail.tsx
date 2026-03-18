@@ -16,6 +16,8 @@ const ProductDetail = () => {
   const { t } = useI18n();
   const { addItem } = useCart();
   const { data: dbProducts } = useProducts();
+  const { data: storeSizes } = useStoreSizes();
+  const { data: storeColors } = useStoreColors();
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
 
@@ -24,13 +26,31 @@ const ProductDetail = () => {
       id: p.slug,
       name: p.name,
       price: Number(p.price),
-      collection: p.collection as any,
       badge: p.badge as any,
       sizes: p.sizes || [],
       colors: p.colors || [],
       description: p.description,
       image: p.image_url,
     })), [dbProducts]);
+
+  // Compute available sizes for this product (intersection of store sizes and product sizes)
+  const product = products.find(p => p.id === id);
+  const availableSizes = useMemo(() => {
+    if (!product || !storeSizes) return product?.sizes || [];
+    const storeNames = storeSizes.map(s => s.name);
+    if (product.sizes.length > 0) {
+      return storeNames.filter(s => product.sizes.includes(s));
+    }
+    return storeNames;
+  }, [product, storeSizes]);
+
+  const availableColors = useMemo(() => {
+    if (!product || !storeColors) return [];
+    if (product.colors.length > 0) {
+      return storeColors.filter(sc => product.colors.includes(sc.name));
+    }
+    return storeColors;
+  }, [product, storeColors]);
 
   const product = products.find(p => p.id === id);
 
