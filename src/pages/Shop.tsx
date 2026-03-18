@@ -8,7 +8,7 @@ import { useCart } from '@/lib/cart';
 import { useToast } from '@/components/ui/use-toast';
 import { useShopConfig } from '@/hooks/useShopConfig';
 import { useI18n } from '@/lib/i18n';
-import { useDesignCollections } from '@/hooks/useDesignCollections';
+import { useDesignCollections, buildDesignVariantMap } from '@/hooks/useDesignCollections';
 import { useProducts as useDbProducts } from '@/hooks/useProducts';
 import { useStoreColors, useStoreSizes, useCollectionColorMap } from '@/hooks/useStoreCatalog';
 import { useCollections } from '@/hooks/useCollections';
@@ -259,6 +259,9 @@ const Shop = () => {
         });
         return map;
     }, [frontLogoUrl]);
+
+    // Build variant map for light/dark design resolution
+    const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
     // State
     const [searchParams, setSearchParams] = useSearchParams();
     const [variationCache, setVariationCache] = useState<Record<string, any[]>>({});
@@ -863,6 +866,7 @@ const Shop = () => {
                             }), [shopConfig])}
                             designColorMap={shopConfig?.design_color_map}
                             urlToFilename={URL_TO_FILENAME}
+                            designVariantMap={designVariantMap}
                         />
 
                     </div>
@@ -1033,7 +1037,13 @@ const Shop = () => {
                                                     }`}
                                             >
                                                 <img
-                                                    src={design}
+                                                    src={(() => {
+                                                        const asset = designVariantMap[design];
+                                                        if (asset?.lightColors?.length && asset.lightUrl && asset.lightColors.some(c => c.toLowerCase() === selectedColor.toLowerCase())) {
+                                                            return asset.lightUrl;
+                                                        }
+                                                        return design;
+                                                    })()}
                                                     alt="Design"
                                                     className="w-full h-full object-contain p-2"
                                                 />

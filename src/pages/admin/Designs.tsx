@@ -1,6 +1,6 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Download, Eye, Loader2, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, Loader2, Plus, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -9,6 +9,8 @@ import {
   DesignCollectionsValue,
   useDesignCollections,
 } from "@/hooks/useDesignCollections";
+import { useStoreColors } from "@/hooks/useStoreCatalog";
+import DesignCard from "@/components/admin/DesignCard";
 
 const COLLECTION_ORDER: DesignCollectionKey[] = ["vintage", "street", "classic", "front_logo"];
 const COLLECTION_LABELS: Record<DesignCollectionKey, string> = {
@@ -22,12 +24,12 @@ const toFolder = (key: DesignCollectionKey) => (key === "front_logo" ? "front-lo
 
 export default function Designs() {
   const { collections, isLoading, saveCollections, isSaving } = useDesignCollections();
+  const { data: storeColors } = useStoreColors();
   const [localCollections, setLocalCollections] = useState<DesignCollectionsValue>(collections);
   const [expandedId, setExpandedId] = useState<DesignCollectionKey>("vintage");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const addInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const replaceInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     setLocalCollections(collections);
@@ -41,35 +43,40 @@ export default function Designs() {
   const uploadToStorage = async (collection: DesignCollectionKey, file: File) => {
     const safeName = file.name.toLowerCase().replace(/[^a-z0-9.-]/g, "-");
     const path = `designs/${toFolder(collection)}/${Date.now()}-${safeName}`;
-
     const { error } = await supabase.storage.from("cms-images").upload(path, file, {
       upsert: false,
       cacheControl: "3600",
     });
     if (error) throw error;
-
     const { data } = supabase.storage.from("cms-images").getPublicUrl(path);
     return { path, url: data.publicUrl };
   };
 
-  const handleCreate = async (collection: DesignCollectionKey, file?: File) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return toast.error("Only image files are allowed");
+  const handleCreate = async (collection: DesignCollectionKey, files: { dark: File; light: File }) => {
+    if (!files.dark.type.startsWith("image/") || !files.light.type.startsWith("image/")) {
+      return toast.error("Only image files are allowed");
+    }
 
-    // Front Logo: only 1 design allowed — replace existing
     if (collection === "front_logo" && localCollections.front_logo.length > 0) {
-      return handleReplace(collection, localCollections.front_logo[0], file);
+      return handleReplace(collection, localCollections.front_logo[0], files);
     }
 
     const opKey = `${collection}:create`;
     setBusyKey(opKey);
     try {
-      const uploaded = await uploadToStorage(collection, file);
+      const [darkUploaded, lightUploaded] = await Promise.all([
+        uploadToStorage(collection, files.dark),
+        uploadToStorage(collection, files.light),
+      ]);
       const item: DesignAsset = {
         id: crypto.randomUUID(),
-        name: file.name,
-        url: uploaded.url,
-        path: uploaded.path,
+        name: files.dark.name,
+        url: darkUploaded.url,
+        path: darkUploaded.path,
+        lightUrl: lightUploaded.url,
+        lightPath: lightUploaded.path,
+        darkColors: [],
+        lightColors: [],
       };
       const next: DesignCollectionsValue = {
         ...localCollections,
@@ -84,20 +91,35 @@ export default function Designs() {
     }
   };
 
-  const handleReplace = async (collection: DesignCollectionKey, item: DesignAsset, file?: File) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return toast.error("Only image files are allowed");
-
+  const handleReplace = async (
+    collection: DesignCollectionKey,
+    item: DesignAsset,
+    files: { dark: File; light: File }
+  ) => {
     const opKey = `${collection}:replace:${item.id}`;
     setBusyKey(opKey);
     try {
-      const uploaded = await uploadToStorage(collection, file);
-      if (item.path) await supabase.storage.from("cms-images").remove([item.path]);
+      const [darkUploaded, lightUploaded] = await Promise.all([
+        uploadToStorage(collection, files.dark),
+        uploadToStorage(collection, files.light),
+      ]);
+      // Remove old files
+      const toRemove = [item.path, item.lightPath].filter(Boolean) as string[];
+      if (toRemove.length) await supabase.storage.from("cms-images").remove(toRemove);
 
       const next: DesignCollectionsValue = {
         ...localCollections,
         [collection]: localCollections[collection].map((d) =>
-          d.id === item.id ? { ...d, name: file.name, url: uploaded.url, path: uploaded.path } : d,
+          d.id === item.id
+            ? {
+                ...d,
+                name: files.dark.name,
+                url: darkUploaded.url,
+                path: darkUploaded.path,
+                lightUrl: lightUploaded.url,
+                lightPath: lightUploaded.path,
+              }
+            : d
         ),
       };
       await persist(next);
@@ -113,7 +135,8 @@ export default function Designs() {
     const opKey = `${collection}:delete:${item.id}`;
     setBusyKey(opKey);
     try {
-      if (item.path) await supabase.storage.from("cms-images").remove([item.path]);
+      const toRemove = [item.path, item.lightPath].filter(Boolean) as string[];
+      if (toRemove.length) await supabase.storage.from("cms-images").remove(toRemove);
       const next: DesignCollectionsValue = {
         ...localCollections,
         [collection]: localCollections[collection].filter((d) => d.id !== item.id),
@@ -127,14 +150,66 @@ export default function Designs() {
     }
   };
 
+  const handleUpdateColors = async (
+    collection: DesignCollectionKey,
+    designId: string,
+    darkColors: string[],
+    lightColors: string[]
+  ) => {
+    const next: DesignCollectionsValue = {
+      ...localCollections,
+      [collection]: localCollections[collection].map((d) =>
+        d.id === designId ? { ...d, darkColors, lightColors } : d
+      ),
+    };
+    await persist(next);
+  };
+
+  const handleReplaceSingleImage = async (
+    collection: DesignCollectionKey,
+    item: DesignAsset,
+    variant: "dark" | "light",
+    file: File
+  ) => {
+    if (!file.type.startsWith("image/")) return toast.error("Only image files are allowed");
+    const opKey = `${collection}:replace-${variant}:${item.id}`;
+    setBusyKey(opKey);
+    try {
+      const uploaded = await uploadToStorage(collection, file);
+      const oldPath = variant === "dark" ? item.path : item.lightPath;
+      if (oldPath) await supabase.storage.from("cms-images").remove([oldPath]);
+
+      const updates =
+        variant === "dark"
+          ? { url: uploaded.url, path: uploaded.path, name: file.name }
+          : { lightUrl: uploaded.url, lightPath: uploaded.path };
+
+      const next: DesignCollectionsValue = {
+        ...localCollections,
+        [collection]: localCollections[collection].map((d) =>
+          d.id === item.id ? { ...d, ...updates } : d
+        ),
+      };
+      await persist(next);
+      toast.success(`${variant === "dark" ? "Dark" : "Light"} version replaced`);
+    } catch (e: any) {
+      toast.error(e.message || "Replace failed");
+    } finally {
+      setBusyKey(null);
+    }
+  };
+
   const isBusy = (k: string) => busyKey === k || isSaving;
+  const allColors = storeColors || [];
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Designs</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">
+              Designs
+            </h2>
             <p className="text-white/60 font-body text-sm mt-1">Manage designs for collections</p>
           </div>
           {isSaving ? (
@@ -149,7 +224,10 @@ export default function Designs() {
         </div>
 
         {previewUrl && (
-          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setPreviewUrl(null)}>
+          <div
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setPreviewUrl(null)}
+          >
             <img src={previewUrl} alt="Design preview" className="max-w-full max-h-[85vh] object-contain" />
           </div>
         )}
@@ -165,35 +243,31 @@ export default function Designs() {
                 <div key={collectionKey} className="bg-black border border-white/10">
                   <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 border-b border-white/10">
                     <button
-                      onClick={() => setExpandedId(expandedId === collectionKey ? "vintage" : collectionKey)}
+                      onClick={() =>
+                        setExpandedId(expandedId === collectionKey ? "vintage" : collectionKey)
+                      }
                       className="flex items-center gap-3"
                     >
-                      <h3 className="text-base sm:text-lg font-display uppercase tracking-widest text-primary font-bold">{COLLECTION_LABELS[collectionKey]}</h3>
+                      <h3 className="text-base sm:text-lg font-display uppercase tracking-widest text-primary font-bold">
+                        {COLLECTION_LABELS[collectionKey]}
+                      </h3>
                       <span className="text-white/40 text-xs font-body">
-                        {collectionKey === "front_logo" ? (designs.length > 0 ? "1 (max 1)" : "0 (max 1)") : `${designs.length}`}
+                        {collectionKey === "front_logo"
+                          ? designs.length > 0
+                            ? "1 (max 1)"
+                            : "0 (max 1)"
+                          : `${designs.length}`}
                       </span>
                     </button>
 
                     <div className="flex items-center gap-2">
-                      <input
-                        ref={(el) => (addInputRefs.current[collectionKey] = el)}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          void handleCreate(collectionKey, file);
-                          e.currentTarget.value = "";
-                        }}
+                      <AddDesignButton
+                        collectionKey={collectionKey}
+                        designs={designs}
+                        isBusy={isBusy(createKey)}
+                        addInputRef={(el) => (addInputRefs.current[collectionKey] = el)}
+                        onAdd={(files) => handleCreate(collectionKey, files)}
                       />
-                      <button
-                        onClick={() => addInputRefs.current[collectionKey]?.click()}
-                        disabled={isBusy(createKey)}
-                        className="flex items-center gap-2 px-3 py-2 bg-primary text-black text-xs font-display uppercase tracking-widest font-bold disabled:opacity-60 min-h-[40px]"
-                      >
-                        {isBusy(createKey) ? <Loader2 className="w-3 h-3 animate-spin" /> : collectionKey === "front_logo" && designs.length > 0 ? <Pencil className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                        {collectionKey === "front_logo" && designs.length > 0 ? "Replace" : "Add"}
-                      </button>
                     </div>
                   </div>
 
@@ -202,52 +276,24 @@ export default function Designs() {
                       {designs.length === 0 ? (
                         <p className="text-white/40 text-sm font-body">No designs yet.</p>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                          {designs.map((design) => {
-                            const replaceKey = `${collectionKey}:replace:${design.id}`;
-                            const deleteKey = `${collectionKey}:delete:${design.id}`;
-                            const inputRefKey = `${collectionKey}:${design.id}`;
-                            return (
-                              <div key={design.id} className="border border-white/10 bg-white/5 p-2 space-y-2">
-                                <button onClick={() => setPreviewUrl(design.url)} className="w-full aspect-square overflow-hidden bg-black/40">
-                                  <img src={design.url} alt={design.name} className="w-full h-full object-contain" />
-                                </button>
-                                <p className="text-[10px] text-white/60 truncate font-body">{design.name}</p>
-
-                                <div className="grid grid-cols-4 gap-1 [&_button]:min-w-[36px] [&_button]:min-h-[36px] [&_button]:flex [&_button]:items-center [&_button]:justify-center">
-                                  <button onClick={() => setPreviewUrl(design.url)} className="p-1 text-white/70 hover:text-white"><Eye className="w-3 h-3" /></button>
-                                  <button onClick={() => window.open(design.url, "_blank")} className="p-1 text-white/70 hover:text-white"><Download className="w-3 h-3" /></button>
-
-                                  <input
-                                    ref={(el) => (replaceInputRefs.current[inputRefKey] = el)}
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      void handleReplace(collectionKey, design, file);
-                                      e.currentTarget.value = "";
-                                    }}
-                                  />
-                                  <button
-                                    onClick={() => replaceInputRefs.current[inputRefKey]?.click()}
-                                    disabled={isBusy(replaceKey)}
-                                    className="p-1 text-white/70 hover:text-white disabled:opacity-60"
-                                  >
-                                    {isBusy(replaceKey) ? <Loader2 className="w-3 h-3 animate-spin" /> : <Pencil className="w-3 h-3" />}
-                                  </button>
-
-                                  <button
-                                    onClick={() => void handleDelete(collectionKey, design)}
-                                    disabled={isBusy(deleteKey)}
-                                    className="p-1 text-destructive/70 hover:text-destructive disabled:opacity-60"
-                                  >
-                                    {isBusy(deleteKey) ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {designs.map((design) => (
+                            <DesignCard
+                              key={design.id}
+                              design={design}
+                              collectionKey={collectionKey}
+                              allColors={allColors}
+                              isBusy={(k) => isBusy(k)}
+                              onPreview={setPreviewUrl}
+                              onDelete={() => handleDelete(collectionKey, design)}
+                              onUpdateColors={(darkColors, lightColors) =>
+                                handleUpdateColors(collectionKey, design.id, darkColors, lightColors)
+                              }
+                              onReplaceSingleImage={(variant, file) =>
+                                handleReplaceSingleImage(collectionKey, design, variant, file)
+                              }
+                            />
+                          ))}
                         </div>
                       )}
                     </div>
@@ -259,5 +305,85 @@ export default function Designs() {
         )}
       </div>
     </AdminLayout>
+  );
+}
+
+/** Button that opens a two-file picker (dark + light) */
+function AddDesignButton({
+  collectionKey,
+  designs,
+  isBusy,
+  addInputRef,
+  onAdd,
+}: {
+  collectionKey: DesignCollectionKey;
+  designs: DesignAsset[];
+  isBusy: boolean;
+  addInputRef: (el: HTMLInputElement | null) => void;
+  onAdd: (files: { dark: File; light: File }) => void;
+}) {
+  const [step, setStep] = useState<null | "dark" | "light">(null);
+  const [darkFile, setDarkFile] = useState<File | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleClick = () => {
+    setStep("dark");
+    setDarkFile(null);
+    setTimeout(() => inputRef.current?.click(), 50);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.currentTarget.value = "";
+    if (!file) {
+      setStep(null);
+      return;
+    }
+
+    if (step === "dark") {
+      setDarkFile(file);
+      setStep("light");
+      toast.info("Now select the LIGHT version of this design");
+      setTimeout(() => inputRef.current?.click(), 100);
+    } else if (step === "light" && darkFile) {
+      onAdd({ dark: darkFile, light: file });
+      setStep(null);
+      setDarkFile(null);
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={(el) => {
+          inputRef.current = el;
+          addInputRef(el);
+        }}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <button
+        onClick={handleClick}
+        disabled={isBusy}
+        className="flex items-center gap-2 px-3 py-2 bg-primary text-black text-xs font-display uppercase tracking-widest font-bold disabled:opacity-60 min-h-[40px]"
+      >
+        {isBusy ? (
+          <Loader2 className="w-3 h-3 animate-spin" />
+        ) : collectionKey === "front_logo" && designs.length > 0 ? (
+          <Pencil className="w-3 h-3" />
+        ) : (
+          <Plus className="w-3 h-3" />
+        )}
+        {step === "light"
+          ? "Select Light…"
+          : step === "dark"
+          ? "Select Dark…"
+          : collectionKey === "front_logo" && designs.length > 0
+          ? "Replace"
+          : "Add"}
+      </button>
+    </>
   );
 }

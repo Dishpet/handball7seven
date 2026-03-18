@@ -296,6 +296,7 @@ export interface HeroCarouselConfig {
   frontDesigns?: Record<string, string[]>; // per product id
   backDesigns?: Record<string, string[]>;  // per product id
   colorToLogoMap?: Record<string, string>;
+  designVariantMap?: Record<string, { url: string; lightUrl?: string; darkColors?: string[]; lightColors?: string[] }>;
 }
 
 interface CycleState {
@@ -305,7 +306,18 @@ interface CycleState {
   backDesign: string;
 }
 
-const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap }: HeroCarouselConfig) => {
+const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap, designVariantMap }: HeroCarouselConfig) => {
+  const resolveVariant = useCallback((url: string, color: string): string => {
+    if (!url || !designVariantMap) return url;
+    const asset = designVariantMap[url];
+    if (!asset) return url;
+    const hex = color.toLowerCase();
+    if (asset.lightColors?.length && asset.lightUrl && asset.lightColors.some(c => c.toLowerCase() === hex)) {
+      return asset.lightUrl;
+    }
+    return asset.url || url;
+  }, [designVariantMap]);
+
   const pickForProduct = useCallback((productIdx: number): CycleState => {
     const product = PRODUCTS[productIdx];
     const pid = product.id;
@@ -327,10 +339,14 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
 
     // Pick back design
     const bList = backDesigns?.[pid] || [];
-    const backDesign = bList.length > 0 ? bList[Math.floor(Math.random() * bList.length)] : '';
+    let backDesign = bList.length > 0 ? bList[Math.floor(Math.random() * bList.length)] : '';
+
+    // Resolve light/dark variants based on the picked color
+    frontDesign = resolveVariant(frontDesign, color);
+    backDesign = resolveVariant(backDesign, color);
 
     return { productIndex: productIdx, color, frontDesign, backDesign };
-  }, [productAllowedColors, frontDesigns, backDesigns, colorToLogoMap]);
+  }, [productAllowedColors, frontDesigns, backDesigns, colorToLogoMap, resolveVariant]);
 
   const [current, setCurrent] = useState<CycleState>(() => pickForProduct(0));
   const [transition, setTransition] = useState(0); // 0 = idle, 0..1 = glitching out, 1..2 = glitching in
@@ -408,7 +424,7 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
   );
 };
 
-const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap }: HeroCarouselConfig) => {
+const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap, designVariantMap }: HeroCarouselConfig) => {
   return (
     <div className="w-full h-full">
       <Canvas
@@ -423,6 +439,7 @@ const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, color
             frontDesigns={frontDesigns}
             backDesigns={backDesigns}
             colorToLogoMap={colorToLogoMap}
+            designVariantMap={designVariantMap}
           />
         </Suspense>
       </Canvas>

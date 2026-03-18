@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShopScene } from '@/components/3d/ShopScene';
 import { useShopConfig } from '@/hooks/useShopConfig';
-import { useDesignCollections } from '@/hooks/useDesignCollections';
+import { useDesignCollections, buildDesignVariantMap } from '@/hooks/useDesignCollections';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag } from 'lucide-react';
@@ -113,6 +113,8 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
 
   const designReplacements = useMemo(() => ({}), []);
 
+  const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
+
   const productAllowedColors = useMemo(() => {
     const getColColors = (slug: string) => {
       const cols = collectionColorMap[slug];
@@ -158,6 +160,7 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
           productRestrictedDesigns={productRestrictedDesigns}
           designColorMap={shopConfig?.design_color_map}
           urlToFilename={URL_TO_FILENAME}
+          designVariantMap={designVariantMap}
         />
       </div>
 

@@ -225,6 +225,8 @@ interface ProductModelProps {
     activeColorsRef?: React.MutableRefObject<Record<string, string>>;
     onDesignsUpdate?: (designs: { front: string; back: string }) => void;
     designReplacements?: Record<string, string>;
+    /** Map from design URL → DesignAsset for light/dark variant resolution */
+    designVariantMap?: Record<string, { url: string; lightUrl?: string; darkColors?: string[]; lightColors?: string[] }>;
 }
 
 // Helper for product type detection (using includes for multi-line labels)
@@ -267,7 +269,8 @@ const ProductModel = ({
     productId,
     activeColorsRef,
     onDesignsUpdate,
-    designReplacements
+    designReplacements,
+    designVariantMap
 }: ProductModelProps & { isLoaded?: boolean; onLoadComplete?: () => void }) => {
     const groupRef = useRef<THREE.Group>(null);
     const [hovered, setHovered] = useState(false);
@@ -893,8 +896,25 @@ const ProductModel = ({
     const backUrl = shouldHideDesigns ? null :
         ((isCustomizing && hasUserInteracted && designs?.back) ? designs.back : backCycleUrl);
 
-    const safeFrontUrl = frontUrl || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-    const safeBackUrl = backUrl || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+    // Resolve light/dark variant based on current color
+    const resolveVariantUrl = (url: string | null): string | null => {
+        if (!url || !designVariantMap) return url;
+        const asset = designVariantMap[url];
+        if (!asset) return url;
+        const currentHex = (isCustomizing && hasUserInteracted && color)
+            ? color.toLowerCase()
+            : ('#' + targetColorRef.current.getHexString()).toLowerCase();
+        // Check if current color needs light version
+        if (asset.lightColors?.length && asset.lightUrl) {
+            if (asset.lightColors.some(c => c.toLowerCase() === currentHex)) {
+                return asset.lightUrl;
+            }
+        }
+        return asset.url || url;
+    };
+
+    const safeFrontUrl = resolveVariantUrl(frontUrl) || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+    const safeBackUrl = resolveVariantUrl(backUrl) || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
     // Track previous resolved designs to detect changes (FrontUrl/BackUrl)
     // This covers BOTH manual selection AND auto-sync changes (e.g. Logo color swap)
@@ -1772,6 +1792,8 @@ interface ShopSceneProps {
         cap?: string[];
         bottle?: string[];
     };
+    /** Map from design URL → DesignAsset for light/dark variant resolution */
+    designVariantMap?: Record<string, { url: string; lightUrl?: string; darkColors?: string[]; lightColors?: string[] }>;
 }
 
 export const ShopScene = ({
@@ -1796,7 +1818,8 @@ export const ShopScene = ({
     onCycleDesignUpdate,
     designReplacements,
     productAllowedColors,
-    productRestrictedDesigns
+    productRestrictedDesigns,
+    designVariantMap
 }: ShopSceneProps) => {
 
 
@@ -2185,6 +2208,7 @@ export const ShopScene = ({
                                                 activeColorsRef={activeColorsRef}
                                                 onDesignsUpdate={onCycleDesignUpdate}
                                                 designReplacements={designReplacements}
+                                                designVariantMap={designVariantMap}
                                             />
                                         );
                                     })()}
@@ -2230,6 +2254,7 @@ export const ShopScene = ({
                                                 activeColorsRef={activeColorsRef}
                                                 onDesignsUpdate={onCycleDesignUpdate}
                                                 designReplacements={designReplacements}
+                                                designVariantMap={designVariantMap}
                                                 textYOffset={-0.5}
                                             />
                                         );
@@ -2278,6 +2303,7 @@ export const ShopScene = ({
                                                 activeColorsRef={activeColorsRef}
                                                 onDesignsUpdate={onCycleDesignUpdate}
                                                 designReplacements={designReplacements}
+                                                designVariantMap={designVariantMap}
                                             />
                                         );
                                     })()}
@@ -2324,6 +2350,7 @@ export const ShopScene = ({
                                                 activeColorsRef={activeColorsRef}
                                                 onDesignsUpdate={onCycleDesignUpdate}
                                                 designReplacements={designReplacements}
+                                                designVariantMap={designVariantMap}
                                             />
                                         );
                                     })()}

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n";
 import { useShopConfig } from "@/hooks/useShopConfig";
-import { useDesignCollections } from "@/hooks/useDesignCollections";
+import { useDesignCollections, buildDesignVariantMap } from "@/hooks/useDesignCollections";
 import { useCollections } from "@/hooks/useCollections";
 import { useCollectionColorMap } from "@/hooks/useStoreCatalog";
 import logo from "@/assets/logo.png";
@@ -82,6 +82,8 @@ const Hero = () => {
     ...effectiveCollections.vintage,
     ...effectiveCollections.street,
   ], [effectiveCollections]);
+
+  const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
 
   const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : [], [frontLogoUrl]);
 
@@ -168,6 +170,7 @@ const Hero = () => {
             frontDesigns={frontDesigns}
             backDesigns={backDesigns}
             colorToLogoMap={colorToLogoMap}
+            designVariantMap={designVariantMap}
           />
         </motion.div>
       </div>
