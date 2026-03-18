@@ -1818,7 +1818,8 @@ export const ShopScene = ({
     onCycleDesignUpdate,
     designReplacements,
     productAllowedColors,
-    productRestrictedDesigns
+    productRestrictedDesigns,
+    designVariantMap
 }: ShopSceneProps) => {
 
 
