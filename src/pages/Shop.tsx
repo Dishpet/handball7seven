@@ -406,11 +406,17 @@ const Shop = () => {
     // Auto-update color when design or collection changes and current color is not available
     useEffect(() => {
         const currentDesignUrl = designs[activeZone];
-        if (!currentDesignUrl) return;
 
-        let availableColors = getDesignColorsFromConfig(currentDesignUrl);
+        // Start with design-level color restrictions (if a design is selected)
+        let availableColors = currentDesignUrl
+            ? getDesignColorsFromConfig(currentDesignUrl)
+            : [...SHARED_COLORS];
 
-        // Also intersect with collection colors
+        // Intersect with product-level colors
+        const productColors = getProductColors(selectedProduct);
+        availableColors = availableColors.filter(c => productColors.some(pc => pc.hex === c.hex));
+
+        // Intersect with collection colors
         const collectionColors = collectionColorMap[expandedCollection];
         if (collectionColors && collectionColors.length > 0) {
             const collectionHexes = collectionColors.map(c => c.hex);
@@ -421,7 +427,7 @@ const Shop = () => {
         if (availableColors.length > 0 && !availableColors.some(c => c.hex === selectedColor)) {
             setSelectedColor(availableColors[0].hex);
         }
-    }, [designs, activeZone, shopConfig, expandedCollection, collectionColorMap]);
+    }, [designs, activeZone, shopConfig, expandedCollection, collectionColorMap, selectedProduct, selectedColor, SHARED_COLORS, getProductColors]);
 
 
     // DB products are now reactive via useMemo - no need for static init
