@@ -126,6 +126,26 @@ const SECTIONS: { key: string; label: string; fields: FieldConfig[] }[] = [
     label: "Seven Manifesto",
     fields: [],
   },
+  {
+    key: "page_shipping",
+    label: "📦 Shipping & Returns Page",
+    fields: [],
+  },
+  {
+    key: "page_faq",
+    label: "❓ FAQ Page",
+    fields: [],
+  },
+  {
+    key: "page_privacy",
+    label: "🔒 Privacy Policy Page",
+    fields: [],
+  },
+  {
+    key: "page_terms",
+    label: "📋 Terms of Use Page",
+    fields: [],
+  },
 ];
 
 type ContentData = Record<string, any>;
