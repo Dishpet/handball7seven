@@ -70,8 +70,7 @@ const ProductDetail = () => {
       name: product.name,
       price: product.price,
       size: selectedSize,
-      color: product.colors?.[0] || undefined,
-      color: availableColors?.[0]?.name || undefined,
+      color: availableColors?.[0]?.name || product.colors?.[0] || undefined,
       quantity,
       image: product.image,
     });
