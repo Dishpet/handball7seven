@@ -17,14 +17,14 @@ const Footer = () => {
       {/* Features Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 border-b border-border">
         {[
-          { icon: "📦", label: t("features.shipping") },
-          { icon: "💎", label: t("features.quality") },
-          { icon: "🔒", label: t("features.payments") },
-          { icon: "🤝", label: t("features.team") },
+          { icon: "💥", label: "Foul — No easy plays." },
+          { icon: "⏱", label: "2 Minutes — Take a moment." },
+          { icon: "🟨", label: "Yellow Card — Limited pieces." },
+          { icon: "🟥", label: "Red Card — When it's gone, it's gone." },
         ].map((f, i) => (
           <div key={i} className="flex items-center justify-center gap-2 py-4 px-2 sm:px-3 border-r border-border last:border-r-0 text-[10px] sm:text-xs font-display uppercase tracking-wider sm:tracking-widest text-foreground/60">
             <span>{featuresBar?.items?.[i]?.icon || f.icon}</span>
-            <span className="text-center leading-tight">{f.label}</span>
+            <span className="text-center leading-tight">{featuresBar?.items?.[i]?.label || f.label}</span>
           </div>
         ))}
       </div>
