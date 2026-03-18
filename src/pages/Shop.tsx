@@ -866,6 +866,7 @@ const Shop = () => {
                             }), [shopConfig])}
                             designColorMap={shopConfig?.design_color_map}
                             urlToFilename={URL_TO_FILENAME}
+                            designVariantMap={designVariantMap}
                         />
 
                     </div>
