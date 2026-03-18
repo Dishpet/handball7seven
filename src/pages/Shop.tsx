@@ -406,8 +406,16 @@ const Shop = () => {
         }
     }, [searchParams]);
 
+    // Keep a ref of selectedColor so the auto-correction effect can read it
+    // without including it as a dependency (which would cause loops).
+    const selectedColorRef = useRef(selectedColor);
+    selectedColorRef.current = selectedColor;
+
     // Auto-update color when design or collection changes and current color is not available
     useEffect(() => {
+        // Guard: don't run until store data has loaded to avoid premature resets
+        if (!storeColors || storeColors.length === 0) return;
+
         const currentDesignUrl = designs[activeZone];
 
         // Start with design-level color restrictions (if a design is selected)
@@ -427,11 +435,12 @@ const Shop = () => {
         }
 
         // If current color is not in available colors, switch to first available
-        if (availableColors.length > 0 && !availableColors.some(c => c.hex === selectedColor)) {
+        const current = selectedColorRef.current;
+        if (availableColors.length > 0 && !availableColors.some(c => c.hex === current)) {
             setSelectedColor(availableColors[0].hex);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [designs, activeZone, shopConfig, expandedCollection, collectionColorMap, selectedProduct, SHARED_COLORS, getProductColors]);
+    }, [designs, activeZone, shopConfig, expandedCollection, collectionColorMap, selectedProduct, storeColors]);
 
 
     // DB products are now reactive via useMemo - no need for static init
