@@ -296,6 +296,7 @@ export interface HeroCarouselConfig {
   frontDesigns?: Record<string, string[]>; // per product id
   backDesigns?: Record<string, string[]>;  // per product id
   colorToLogoMap?: Record<string, string>;
+  designVariantMap?: Record<string, { url: string; lightUrl?: string; darkColors?: string[]; lightColors?: string[] }>;
 }
 
 interface CycleState {
