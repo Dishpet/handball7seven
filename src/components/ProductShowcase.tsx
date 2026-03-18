@@ -7,6 +7,8 @@ import { useDesignCollections } from '@/hooks/useDesignCollections';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag } from 'lucide-react';
+import { useCollections } from '@/hooks/useCollections';
+import { useCollectionColorMap } from '@/hooks/useStoreCatalog';
 
 // Import all designs
 // @ts-ignore
