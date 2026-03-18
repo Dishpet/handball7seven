@@ -29,6 +29,7 @@ import Content from "./pages/admin/Content";
 import Settings from "./pages/admin/Settings";
 import Orders from "./pages/admin/Orders";
 import AdminUsers from "./pages/admin/Users";
+import StoreSettings from "./pages/admin/StoreSettings";
 import { RequireAdmin } from "@/components/admin/RequireAdmin";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const App = () => (
                 <Route path="/admin/content" element={<RequireAdmin><Content /></RequireAdmin>} />
                 <Route path="/admin/users" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
                 <Route path="/admin/settings" element={<RequireAdmin><Settings /></RequireAdmin>} />
+                <Route path="/admin/store-settings" element={<RequireAdmin><StoreSettings /></RequireAdmin>} />
                 <Route path="/admin/orders" element={<RequireAdmin><Orders /></RequireAdmin>} />
 
                 <Route path="*" element={<NotFound />} />

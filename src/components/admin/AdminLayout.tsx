@@ -13,6 +13,7 @@ const navItems = [
   { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
   { name: "Designs", path: "/admin/designs", icon: Palette },
   { name: "Content", path: "/admin/content", icon: FileText },
+  { name: "Store", path: "/admin/store-settings", icon: Settings },
   { name: "Users", path: "/admin/users", icon: Users },
   { name: "Settings", path: "/admin/settings", icon: Settings },
 ];

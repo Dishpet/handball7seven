@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      collection_colors: {
+        Row: {
+          collection_id: string
+          color_id: string
+          id: string
+        }
+        Insert: {
+          collection_id: string
+          color_id: string
+          id?: string
+        }
+        Update: {
+          collection_id?: string
+          color_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_colors_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_colors_color_id_fkey"
+            columns: ["color_id"]
+            isOneToOne: false
+            referencedRelation: "store_colors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collection_sizes: {
+        Row: {
+          collection_id: string
+          id: string
+          size_id: string
+        }
+        Insert: {
+          collection_id: string
+          id?: string
+          size_id: string
+        }
+        Update: {
+          collection_id?: string
+          id?: string
+          size_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_sizes_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_sizes_size_id_fkey"
+            columns: ["size_id"]
+            isOneToOne: false
+            referencedRelation: "store_sizes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collections: {
         Row: {
           created_at: string
@@ -194,6 +260,27 @@ export type Database = {
         }
         Relationships: []
       }
+      store_colors: {
+        Row: {
+          hex: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          hex?: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          hex?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       store_settings: {
         Row: {
           id: string
@@ -212,6 +299,24 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      store_sizes: {
+        Row: {
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          name?: string
+          sort_order?: number
         }
         Relationships: []
       }
