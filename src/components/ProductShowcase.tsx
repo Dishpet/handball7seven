@@ -160,6 +160,7 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
           productRestrictedDesigns={productRestrictedDesigns}
           designColorMap={shopConfig?.design_color_map}
           urlToFilename={URL_TO_FILENAME}
+          designVariantMap={designVariantMap}
         />
       </div>
 
