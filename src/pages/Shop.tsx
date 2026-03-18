@@ -392,7 +392,8 @@ const Shop = () => {
                 const decodedColor = decodeURIComponent(colorParam);
                 // Validate color format (# followed by 3 or 6 hex digits)
                 if (/^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(decodedColor)) {
-                    setSelectedColor(decodedColor.toLowerCase());
+                    // Keep original case to match store color values exactly
+                    setSelectedColor(decodedColor);
                 }
             }
 
