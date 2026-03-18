@@ -27,7 +27,7 @@ const ScrollReveal = ({
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: [startOffset, endOffset],
+    offset: [startOffset as any, endOffset as any],
   });
 
   const clampedStart = Math.min(delay, 0.5);
