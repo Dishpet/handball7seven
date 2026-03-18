@@ -23,7 +23,7 @@ const Footer = () => {
           { icon: "🟥", label: "When it's gone, it's gone.", title: "Red Card" },
         ].map((f, i) => (
           <div key={i} className="flex flex-col items-center justify-center gap-1 py-4 px-2 sm:px-3 border-r border-border last:border-r-0 text-center">
-            <span className="text-lg">{featuresBar?.items?.[i]?.icon || f.icon}</span>
+            <span className="text-lg">{f.icon}</span>
             <span className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-foreground/80">{f.title}</span>
             <span className="text-[9px] sm:text-[10px] text-foreground/50 leading-tight">{f.label}</span>
           </div>
