@@ -8,7 +8,7 @@ import { useCart } from '@/lib/cart';
 import { useToast } from '@/components/ui/use-toast';
 import { useShopConfig } from '@/hooks/useShopConfig';
 import { useI18n } from '@/lib/i18n';
-import { useDesignCollections, buildDesignVariantMap } from '@/hooks/useDesignCollections';
+import { useDesignCollections, buildDesignVariantMap, resolveDesignVariant } from '@/hooks/useDesignCollections';
 import { useProducts as useDbProducts } from '@/hooks/useProducts';
 import { useStoreColors, useStoreSizes, useCollectionColorMap } from '@/hooks/useStoreCatalog';
 import { useCollections } from '@/hooks/useCollections';
@@ -221,11 +221,15 @@ const Shop = () => {
         return merged;
     }, [dbProducts]);
 
-    // Resolve front logo: DB first, then static fallback
-    const frontLogoUrl = useMemo(() => {
-        const dbLogo = dbDesignCollections.front_logo?.[0]?.url;
-        return dbLogo || STATIC_FRONT_LOGO;
+    // Resolve front logo asset (full DesignAsset for variant resolution)
+    const frontLogoAsset = useMemo(() => {
+        return dbDesignCollections.front_logo?.[0] || null;
     }, [dbDesignCollections]);
+
+    // Default front logo URL (dark variant)
+    const frontLogoUrl = useMemo(() => {
+        return frontLogoAsset?.url || STATIC_FRONT_LOGO;
+    }, [frontLogoAsset]);
 
     // Build effective design collections: DB designs take priority, fallback to static
     const effectiveCollections = useMemo(() => {
@@ -251,14 +255,20 @@ const Shop = () => {
         };
     }, [dbDesignCollections]);
 
-    // Build color-to-logo map dynamically from DB front logo
+    // Build color-to-logo map with dark/light variant resolution
     const COLOR_TO_LOGO_MAP = useMemo(() => {
         const map: Record<string, string> = {};
-        ['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'].forEach(color => {
-            map[color] = frontLogoUrl;
+        const allColorHexes = storeColors?.map(c => c.hex) || ['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'];
+        
+        allColorHexes.forEach(color => {
+            if (frontLogoAsset) {
+                map[color] = resolveDesignVariant(frontLogoAsset, color);
+            } else {
+                map[color] = frontLogoUrl;
+            }
         });
         return map;
-    }, [frontLogoUrl]);
+    }, [frontLogoAsset, frontLogoUrl, storeColors]);
 
     // Build variant map for light/dark design resolution
     const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
@@ -512,12 +522,15 @@ const Shop = () => {
     // Sync Hoodie/T-shirt Front Logo with Color (and when DB logo changes)
     useEffect(() => {
         if (selectedProduct === 'hoodie' || selectedProduct === 'tshirt') {
+            const resolvedLogo = frontLogoAsset
+                ? resolveDesignVariant(frontLogoAsset, selectedColor)
+                : frontLogoUrl;
             setDesigns(prev => ({
                 ...prev,
-                front: frontLogoUrl
+                front: resolvedLogo
             }));
         }
-    }, [selectedProduct, selectedColor, frontLogoUrl]);
+    }, [selectedProduct, selectedColor, frontLogoAsset, frontLogoUrl]);
 
     // Sync viewMode and isCustomizing with URL params for Back button support
     useEffect(() => {

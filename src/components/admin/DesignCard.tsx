@@ -169,7 +169,7 @@ export default function DesignCard({
       </div>
 
       {/* Color assignment */}
-      {collectionKey !== "front_logo" && allColors.length > 0 && (
+      {allColors.length > 0 && (
         <div className="space-y-2 border-t border-white/10 pt-2">
           <p className="text-[10px] text-white/50 font-display uppercase tracking-widest">
             Color variant mapping
