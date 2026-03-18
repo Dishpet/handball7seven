@@ -2254,6 +2254,7 @@ export const ShopScene = ({
                                                 activeColorsRef={activeColorsRef}
                                                 onDesignsUpdate={onCycleDesignUpdate}
                                                 designReplacements={designReplacements}
+                                                designVariantMap={designVariantMap}
                                                 textYOffset={-0.5}
                                             />
                                         );
