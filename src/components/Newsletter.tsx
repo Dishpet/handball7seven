@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const Newsletter = () => {
   const { t } = useI18n();
@@ -17,12 +17,7 @@ const Newsletter = () => {
 
   return (
     <section className="px-5 md:px-12 lg:px-20 py-12 md:py-24 bg-card">
-      <motion.div
-        className="max-w-xl mx-auto text-center"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-      >
+      <ScrollReveal className="max-w-xl mx-auto text-center">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4">
           {t("newsletter.title")}
         </h2>
@@ -38,7 +33,7 @@ const Newsletter = () => {
           />
           <button type="submit" className="btn-primary whitespace-nowrap min-h-[48px]">{t("newsletter.button")}</button>
         </form>
-      </motion.div>
+      </ScrollReveal>
     </section>
   );
 };

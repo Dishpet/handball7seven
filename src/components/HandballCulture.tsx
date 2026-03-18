@@ -1,7 +1,8 @@
-import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Zap, Target, Shield, Fence, Swords, Users, Send } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import ScrollReveal from "@/components/ScrollReveal";
 import ScrollCharReveal from "@/components/ScrollCharReveal";
 
 const defaultElements = [
@@ -32,88 +33,70 @@ const HandballCulture = () => {
     ? cmsData.elements.map((el, i) => ({ ...el, icon: icons[i] }))
     : defaultElements;
 
-  // Split into first 6 and the 7th
   const firstSix = elements.slice(0, 6);
   const seventh = elements[6];
 
   return (
     <section className="px-5 md:px-12 lg:px-20 py-16 md:py-28">
-      <motion.div
-        className="text-center mb-12 md:mb-20"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-      >
-        <h2 className="text-xl sm:text-2xl md:text-4xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4">
-          {sectionTitle}
-        </h2>
-      </motion.div>
+      <ScrollReveal>
+        <div className="text-center mb-12 md:mb-20">
+          <h2 className="text-xl sm:text-2xl md:text-4xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4">
+            {sectionTitle}
+          </h2>
+        </div>
+      </ScrollReveal>
 
       <div className="max-w-5xl mx-auto">
-        {/* First 6 cards in 3-col grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
           {firstSix.map((el, i) => {
             const Icon = el.icon;
             return (
-              <motion.div
-                key={i}
-                className="group relative border border-border p-6 sm:p-8 hover:border-primary/40 transition-all duration-500"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.6 }}
-              >
-                <div className="absolute inset-0 bg-primary/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex flex-col gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="font-display text-3xl md:text-4xl text-primary/20 leading-none">
-                      {i + 1}
-                    </span>
-                    <Icon className="w-6 h-6 text-primary transition-transform duration-500 group-hover:scale-110" strokeWidth={1.8} />
-                  </div>
-                  <h3 className="font-display uppercase text-sm sm:text-base tracking-wider">
-                    {el.title}
-                  </h3>
-                  <div className="space-y-1">
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{el.line1}</p>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{el.line2}</p>
+              <ScrollReveal key={i} delay={i * 0.05}>
+                <div className="group relative border border-border p-6 sm:p-8 hover:border-primary/40 transition-all duration-500 h-full">
+                  <div className="absolute inset-0 bg-primary/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative z-10 flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="font-display text-3xl md:text-4xl text-primary/20 leading-none">
+                        {i + 1}
+                      </span>
+                      <Icon className="w-6 h-6 text-primary transition-transform duration-500 group-hover:scale-110" strokeWidth={1.8} />
+                    </div>
+                    <h3 className="font-display uppercase text-sm sm:text-base tracking-wider">{el.title}</h3>
+                    <div className="space-y-1">
+                      <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{el.line1}</p>
+                      <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{el.line2}</p>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
+              </ScrollReveal>
             );
           })}
         </div>
 
-        {/* 7th card centered */}
         {seventh && (() => {
           const Icon = seventh.icon;
           return (
             <div className="flex justify-center mt-5 md:mt-7">
-              <motion.div
-                className="group relative border border-border p-6 sm:p-8 hover:border-primary/40 transition-all duration-500 w-full sm:w-1/2 lg:w-1/3"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.48, duration: 0.6 }}
-              >
-                <div className="absolute inset-0 bg-primary/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex flex-col gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="font-display text-3xl md:text-4xl text-primary/20 leading-none">7</span>
-                    <Icon className="w-6 h-6 text-primary transition-transform duration-500 group-hover:scale-110" strokeWidth={1.8} />
-                  </div>
-                  <h3 className="font-display uppercase text-sm sm:text-base tracking-wider">{seventh.title}</h3>
-                  <div className="space-y-1">
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{seventh.line1}</p>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{seventh.line2}</p>
+              <ScrollReveal delay={0.3} className="w-full sm:w-1/2 lg:w-1/3">
+                <div className="group relative border border-border p-6 sm:p-8 hover:border-primary/40 transition-all duration-500">
+                  <div className="absolute inset-0 bg-primary/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative z-10 flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="font-display text-3xl md:text-4xl text-primary/20 leading-none">7</span>
+                      <Icon className="w-6 h-6 text-primary transition-transform duration-500 group-hover:scale-110" strokeWidth={1.8} />
+                    </div>
+                    <h3 className="font-display uppercase text-sm sm:text-base tracking-wider">{seventh.title}</h3>
+                    <div className="space-y-1">
+                      <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{seventh.line1}</p>
+                      <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{seventh.line2}</p>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
+              </ScrollReveal>
             </div>
           );
         })()}
 
-        {/* Closing lines with per-character animation */}
         <div className="text-center pt-8 md:pt-14 space-y-1">
           <ScrollCharReveal
             text={closingLine1}

@@ -6,6 +6,7 @@ import ProductShowcase from "@/components/ProductShowcase";
 import { useCollections } from "@/hooks/useCollections";
 import { useI18n } from "@/lib/i18n";
 import collectionsImg from "@/assets/collections-banner.png";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const Collections = () => {
   const { t } = useI18n();
@@ -42,30 +43,20 @@ const Collections = () => {
         <div className="px-5 md:px-12 lg:px-20 py-10 md:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
             {(collections ?? []).map((col, i) => (
-              <motion.div
-                key={col.slug}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.6 }}
-                className="text-left border border-border p-5 sm:p-6 md:p-8 hover:border-primary/30 transition-all duration-300 active:bg-muted/30"
-              >
-                <h3 className="font-display uppercase tracking-wider text-base sm:text-lg mb-2">{col.name}</h3>
-                <p className="text-muted-foreground text-sm">{col.description}</p>
-              </motion.div>
+              <ScrollReveal key={col.slug} delay={i * 0.1}>
+                <div className="text-left border border-border p-5 sm:p-6 md:p-8 hover:border-primary/30 transition-all duration-300 active:bg-muted/30">
+                  <h3 className="font-display uppercase tracking-wider text-base sm:text-lg mb-2">{col.name}</h3>
+                  <p className="text-muted-foreground text-sm">{col.description}</p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
 
         {/* 3D Product Showcase */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
+        <ScrollReveal>
           <ProductShowcase height="h-[50vh] sm:h-[65vh] md:h-[80vh]" />
-        </motion.div>
+        </ScrollReveal>
       </main>
       <Footer />
     </div>

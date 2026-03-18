@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n";
 import { Instagram, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo.png";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const Footer = () => {
   const { t, getSiteContent } = useI18n();
@@ -33,18 +33,13 @@ const Footer = () => {
               ? (typeof cms.label === "object" ? (cms.label as any).hr || d.label : cms.label)
               : d.label;
             return (
-              <motion.div
-                key={i}
-                className="flex flex-col items-center justify-center gap-1 py-4 px-2 sm:px-3 border-r border-border last:border-r-0 text-center"
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-              >
-                <span className="text-lg">{icon}</span>
-                <span className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-foreground/80">{title}</span>
-                <span className="text-[9px] sm:text-[10px] text-foreground/50 leading-tight">{label}</span>
-              </motion.div>
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <div className="flex flex-col items-center justify-center gap-1 py-4 px-2 sm:px-3 text-center">
+                  <span className="text-lg">{icon}</span>
+                  <span className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-foreground/80">{title}</span>
+                  <span className="text-[9px] sm:text-[10px] text-foreground/50 leading-tight">{label}</span>
+                </div>
+              </ScrollReveal>
             );
           });
         })()}
@@ -52,51 +47,30 @@ const Footer = () => {
 
       <div className="px-5 md:px-12 lg:px-20 py-12 md:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-          <motion.div
-            className="col-span-2 md:col-span-1"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <ScrollReveal className="col-span-2 md:col-span-1">
             <img src={logo} alt="Handball Seven" className="h-10 md:h-12 mb-4" />
             <p className="text-muted-foreground text-sm leading-relaxed">{t("footer.tagline")}</p>
-          </motion.div>
+          </ScrollReveal>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-          >
+          <ScrollReveal delay={0.1}>
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.support")}</h4>
             <div className="space-y-3">
               {[t("footer.shipping"), t("footer.faq"), t("footer.privacy"), t("footer.terms")].map(item => (
                 <p key={item} className="text-muted-foreground text-sm hover:text-foreground transition-colors cursor-pointer py-0.5">{item}</p>
               ))}
             </div>
-          </motion.div>
+          </ScrollReveal>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
+          <ScrollReveal delay={0.2}>
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.shop")}</h4>
             <div className="space-y-3">
               {[t("col.classic"), t("col.vintage"), t("col.street")].map(item => (
                 <Link key={item} to="/shop" className="block text-muted-foreground text-sm hover:text-foreground transition-colors py-0.5">{item}</Link>
               ))}
             </div>
-          </motion.div>
+          </ScrollReveal>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
+          <ScrollReveal delay={0.3}>
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.connect")}</h4>
             <div className="flex gap-4">
               {socials?.instagram ? (
@@ -110,18 +84,12 @@ const Footer = () => {
                 <MessageCircle size={22} />
               </a>
             </div>
-          </motion.div>
+          </ScrollReveal>
         </div>
 
-        <motion.div
-          className="border-t border-border mt-10 md:mt-12 pt-6 text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
+        <ScrollReveal delay={0.2} className="border-t border-border mt-10 md:mt-12 pt-6 text-center">
           <p className="text-muted-foreground text-xs">© 2025 Handball Seven. {t("footer.rights")}</p>
-        </motion.div>
+        </ScrollReveal>
       </div>
     </footer>
   );
