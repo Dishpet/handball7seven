@@ -55,8 +55,13 @@ const Footer = () => {
           <ScrollReveal delay={0.1}>
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.support")}</h4>
             <div className="space-y-3">
-              {[t("footer.shipping"), t("footer.faq"), t("footer.privacy"), t("footer.terms")].map(item => (
-                <p key={item} className="text-muted-foreground text-sm hover:text-foreground transition-colors cursor-pointer py-0.5">{item}</p>
+              {[
+                { label: t("footer.shipping"), to: "/shipping" },
+                { label: t("footer.faq"), to: "/faq" },
+                { label: t("footer.privacy"), to: "/privacy" },
+                { label: t("footer.terms"), to: "/terms" },
+              ].map(item => (
+                <Link key={item.to} to={item.to} className="block text-muted-foreground text-sm hover:text-foreground transition-colors py-0.5">{item.label}</Link>
               ))}
             </div>
           </ScrollReveal>

@@ -126,6 +126,26 @@ const SECTIONS: { key: string; label: string; fields: FieldConfig[] }[] = [
     label: "Seven Manifesto",
     fields: [],
   },
+  {
+    key: "page_shipping",
+    label: "📦 Shipping & Returns Page",
+    fields: [],
+  },
+  {
+    key: "page_faq",
+    label: "❓ FAQ Page",
+    fields: [],
+  },
+  {
+    key: "page_privacy",
+    label: "🔒 Privacy Policy Page",
+    fields: [],
+  },
+  {
+    key: "page_terms",
+    label: "📋 Terms of Use Page",
+    fields: [],
+  },
 ];
 
 type ContentData = Record<string, any>;
@@ -372,6 +392,90 @@ export default function Content() {
     });
   };
 
+  // Support page helpers
+  const SUPPORT_PAGES = ["page_shipping", "page_faq", "page_privacy", "page_terms"];
+
+  const getSupportSections = (pageKey: string) => {
+    const page = contentMap[pageKey];
+    return page?.sections || [];
+  };
+
+  const getSupportFaq = (pageKey: string) => {
+    const page = contentMap[pageKey];
+    return page?.faq_items || [];
+  };
+
+  const updateSupportPageTitle = (pageKey: string, value: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const existing = typeof page.title === "object" ? page.title : {};
+      page.title = { ...existing, hr: value };
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const updateSupportSection = (pageKey: string, index: number, field: "title" | "content", value: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const sections = [...(page.sections || [])];
+      const existing = typeof sections[index]?.[field] === "object" ? sections[index][field] : {};
+      sections[index] = { ...sections[index], [field]: { ...existing, hr: value } };
+      page.sections = sections;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const addSupportSection = (pageKey: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const sections = [...(page.sections || [])];
+      sections.push({ title: { hr: "" }, content: { hr: "" } });
+      page.sections = sections;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const removeSupportSection = (pageKey: string, index: number) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const sections = [...(page.sections || [])];
+      sections.splice(index, 1);
+      page.sections = sections;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const updateSupportFaq = (pageKey: string, index: number, field: "question" | "answer", value: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const items = [...(page.faq_items || [])];
+      const existing = typeof items[index]?.[field] === "object" ? items[index][field] : {};
+      items[index] = { ...items[index], [field]: { ...existing, hr: value } };
+      page.faq_items = items;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const addSupportFaq = (pageKey: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const items = [...(page.faq_items || [])];
+      items.push({ question: { hr: "" }, answer: { hr: "" } });
+      page.faq_items = items;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const removeSupportFaq = (pageKey: string, index: number) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const items = [...(page.faq_items || [])];
+      items.splice(index, 1);
+      page.faq_items = items;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
   const collectI18nTexts = (sectionKey: string): Record<string, string> => {
     const section = contentMap[sectionKey];
     if (!section) return {};
@@ -394,6 +498,25 @@ export default function Content() {
           texts[`item_${idx}_label`] = item.label.hr;
         }
       });
+    }
+
+    // Support pages: collect title, sections, and FAQ items
+    if (SUPPORT_PAGES.includes(sectionKey)) {
+      if (typeof section.title === "object" && section.title?.hr) {
+        texts["page_title"] = section.title.hr;
+      }
+      if (Array.isArray(section.sections)) {
+        section.sections.forEach((s: any, idx: number) => {
+          if (typeof s.title === "object" && s.title?.hr) texts[`sec_${idx}_title`] = s.title.hr;
+          if (typeof s.content === "object" && s.content?.hr) texts[`sec_${idx}_content`] = s.content.hr;
+        });
+      }
+      if (Array.isArray(section.faq_items)) {
+        section.faq_items.forEach((f: any, idx: number) => {
+          if (typeof f.question === "object" && f.question?.hr) texts[`faq_${idx}_question`] = f.question.hr;
+          if (typeof f.answer === "object" && f.answer?.hr) texts[`faq_${idx}_answer`] = f.answer.hr;
+        });
+      }
     }
 
     return texts;
@@ -434,6 +557,25 @@ export default function Content() {
             if (section.items && section.items[idx]) {
               const existing = typeof section.items[idx].label === "object" ? section.items[idx].label : {};
               section.items[idx] = { ...section.items[idx], label: { ...existing, en: trans.en, de: trans.de } };
+            }
+          } else if (fieldName === "page_title") {
+            const existing = typeof section.title === "object" ? section.title : {};
+            section.title = { ...existing, en: trans.en, de: trans.de };
+          } else if (fieldName.startsWith("sec_")) {
+            const parts = fieldName.split("_");
+            const idx = parseInt(parts[1]);
+            const subField = parts[2]; // "title" or "content"
+            if (section.sections?.[idx]) {
+              const existing = typeof section.sections[idx][subField] === "object" ? section.sections[idx][subField] : {};
+              section.sections[idx] = { ...section.sections[idx], [subField]: { ...existing, en: trans.en, de: trans.de } };
+            }
+          } else if (fieldName.startsWith("faq_")) {
+            const parts = fieldName.split("_");
+            const idx = parseInt(parts[1]);
+            const subField = parts[2]; // "question" or "answer"
+            if (section.faq_items?.[idx]) {
+              const existing = typeof section.faq_items[idx][subField] === "object" ? section.faq_items[idx][subField] : {};
+              section.faq_items[idx] = { ...section.faq_items[idx], [subField]: { ...existing, en: trans.en, de: trans.de } };
             }
           } else {
             const existing = typeof section[fieldName] === "object" ? section[fieldName] : {};
@@ -638,6 +780,105 @@ export default function Content() {
                               </div>
                             </div>
                           ))}
+                        </div>
+                      )}
+
+                      {SUPPORT_PAGES.includes(section.key) && (
+                        <div className="space-y-5">
+                          {/* Page Title */}
+                          <div>
+                            <label className="block text-white/50 text-xs font-display uppercase tracking-widest mb-2">
+                              Page Title <span className="ml-2 text-primary/60">(HR — auto-translates)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={(() => { const t = contentMap[section.key]?.title; return typeof t === "object" ? t?.hr || "" : t || ""; })()}
+                              onChange={(e) => updateSupportPageTitle(section.key, e.target.value)}
+                              className="w-full bg-white/5 border border-white/10 text-white p-3 focus:outline-none focus:border-primary transition-colors font-body text-sm"
+                            />
+                          </div>
+
+                          {/* Sections */}
+                          {getSupportSections(section.key).length > 0 && (
+                            <div className="space-y-4">
+                              <p className="text-white/40 text-xs font-display uppercase tracking-widest">Sections</p>
+                              {getSupportSections(section.key).map((s: any, idx: number) => (
+                                <div key={idx} className="border border-white/10 p-4 space-y-3 relative">
+                                  <button
+                                    onClick={() => removeSupportSection(section.key, idx)}
+                                    className="absolute top-2 right-2 text-white/30 hover:text-destructive transition-colors"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                  <div>
+                                    <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Section Title (HR)</label>
+                                    <input
+                                      type="text"
+                                      value={typeof s.title === "object" ? s.title?.hr || "" : s.title || ""}
+                                      onChange={(e) => updateSupportSection(section.key, idx, "title", e.target.value)}
+                                      className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors font-body text-sm"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Content (HR)</label>
+                                    <textarea
+                                      rows={4}
+                                      value={typeof s.content === "object" ? s.content?.hr || "" : s.content || ""}
+                                      onChange={(e) => updateSupportSection(section.key, idx, "content", e.target.value)}
+                                      className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors resize-none font-body text-sm"
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <button
+                            onClick={() => addSupportSection(section.key)}
+                            className="px-4 py-2 border border-dashed border-white/20 text-white/50 text-xs font-display uppercase tracking-widest hover:bg-white/5 transition-colors w-full"
+                          >
+                            + Add Section
+                          </button>
+
+                          {/* FAQ Items */}
+                          {(section.key === "page_faq" || getSupportFaq(section.key).length > 0) && (
+                            <div className="space-y-4">
+                              <p className="text-white/40 text-xs font-display uppercase tracking-widest">FAQ Items</p>
+                              {getSupportFaq(section.key).map((f: any, idx: number) => (
+                                <div key={idx} className="border border-white/10 p-4 space-y-3 relative">
+                                  <button
+                                    onClick={() => removeSupportFaq(section.key, idx)}
+                                    className="absolute top-2 right-2 text-white/30 hover:text-destructive transition-colors"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                  <div>
+                                    <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Question (HR)</label>
+                                    <input
+                                      type="text"
+                                      value={typeof f.question === "object" ? f.question?.hr || "" : f.question || ""}
+                                      onChange={(e) => updateSupportFaq(section.key, idx, "question", e.target.value)}
+                                      className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors font-body text-sm"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Answer (HR)</label>
+                                    <textarea
+                                      rows={3}
+                                      value={typeof f.answer === "object" ? f.answer?.hr || "" : f.answer || ""}
+                                      onChange={(e) => updateSupportFaq(section.key, idx, "answer", e.target.value)}
+                                      className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors resize-none font-body text-sm"
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => addSupportFaq(section.key)}
+                                className="px-4 py-2 border border-dashed border-white/20 text-white/50 text-xs font-display uppercase tracking-widest hover:bg-white/5 transition-colors w-full"
+                              >
+                                + Add FAQ Item
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
