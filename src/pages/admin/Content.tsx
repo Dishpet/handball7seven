@@ -555,6 +555,39 @@ export default function Content() {
                         </div>
                       )}
 
+                      {section.key === "manifesto" && (
+                        <div className="space-y-3">
+                          <p className="text-white/40 text-xs font-display uppercase tracking-widest">Manifesto lines (text + style per line)</p>
+                          {getManifestoLines().map((line: any, idx: number) => (
+                            <div key={idx} className="flex gap-3 items-start">
+                              <div className="w-24">
+                                <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Style</label>
+                                <select
+                                  value={line.style || "normal"}
+                                  onChange={(e) => updateManifestoLine(idx, "style", e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 text-white p-2 text-xs focus:outline-none focus:border-primary transition-colors"
+                                >
+                                  <option value="hero">Hero</option>
+                                  <option value="brand">Brand</option>
+                                  <option value="accent">Accent</option>
+                                  <option value="stat">Stat</option>
+                                  <option value="normal">Normal</option>
+                                </select>
+                              </div>
+                              <div className="flex-1">
+                                <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Text</label>
+                                <input
+                                  type="text"
+                                  value={line.text || ""}
+                                  onChange={(e) => updateManifestoLine(idx, "text", e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors font-body text-sm"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
                       {section.key === "handball_elements" && (
                         <div className="space-y-4">
                           <p className="text-white/40 text-xs font-display uppercase tracking-widest">7 Elements (title + 2 lines each)</p>

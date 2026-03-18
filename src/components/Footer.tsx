@@ -16,18 +16,30 @@ const Footer = () => {
     <footer className="bg-card border-t border-border">
       {/* Features Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 border-b border-border">
-        {[
-          { icon: "💥", label: "No easy plays.", title: "Foul" },
-          { icon: "✌️", label: "Take a moment.", title: "2 Minutes" },
-          { icon: "🟨", label: "Limited pieces.", title: "Yellow Card" },
-          { icon: "🟥", label: "When it's gone, it's gone.", title: "Red Card" },
-        ].map((f, i) => (
-          <div key={i} className="flex flex-col items-center justify-center gap-1 py-4 px-2 sm:px-3 border-r border-border last:border-r-0 text-center">
-            <span className="text-lg">{f.icon}</span>
-            <span className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-foreground/80">{f.title}</span>
-            <span className="text-[9px] sm:text-[10px] text-foreground/50 leading-tight">{f.label}</span>
-          </div>
-        ))}
+        {(() => {
+          const defaults = [
+            { icon: "💥", title: "Foul", label: "No easy plays." },
+            { icon: "✌️", title: "2 Minutes", label: "Take a moment." },
+            { icon: "🟨", title: "Yellow Card", label: "Limited pieces." },
+            { icon: "🟥", title: "Red Card", label: "When it's gone, it's gone." },
+          ];
+          const cmsItems = featuresBar?.items as { icon?: string; title?: string; label?: string | Record<string, string> }[] | undefined;
+          return defaults.map((d, i) => {
+            const cms = cmsItems?.[i];
+            const icon = cms?.icon || d.icon;
+            const title = cms?.title || d.title;
+            const label = cms?.label
+              ? (typeof cms.label === "object" ? (cms.label as any).hr || d.label : cms.label)
+              : d.label;
+            return (
+              <div key={i} className="flex flex-col items-center justify-center gap-1 py-4 px-2 sm:px-3 border-r border-border last:border-r-0 text-center">
+                <span className="text-lg">{icon}</span>
+                <span className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-foreground/80">{title}</span>
+                <span className="text-[9px] sm:text-[10px] text-foreground/50 leading-tight">{label}</span>
+              </div>
+            );
+          });
+        })()}
       </div>
 
       <div className="px-5 md:px-12 lg:px-20 py-12 md:py-16">
