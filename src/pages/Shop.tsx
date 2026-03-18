@@ -444,6 +444,28 @@ const Shop = () => {
     }, [designs, activeZone, shopConfig, expandedCollection, collectionColorMap, selectedProduct, storeColors]);
 
 
+    // When switching collections, auto-select the first available design in that collection
+    useEffect(() => {
+        if (viewMode !== 'customizing') return;
+        const collDesigns = effectiveCollections[expandedCollection] || [];
+        // Filter out restricted designs for current product
+        const restricted = shopConfig?.[selectedProduct as keyof typeof shopConfig];
+        const restrictedList = (restricted && typeof restricted === 'object' && 'restricted_designs' in restricted)
+            ? (restricted as any).restricted_designs || []
+            : [];
+        const available = collDesigns.filter(d => {
+            const filename = d.split('/').pop()?.split('?')[0] || '';
+            return !restrictedList.includes(filename);
+        });
+        if (available.length > 0) {
+            const firstDesign = available[0];
+            const zone = (selectedProduct === 'hoodie' || selectedProduct === 'tshirt') ? 'back' : 'front';
+            setDesigns(prev => ({ ...prev, [zone]: firstDesign }));
+            setHasUserInteracted(true);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [expandedCollection]);
+
     // DB products are now reactive via useMemo - no need for static init
 
     // Reset defaults when product changes
