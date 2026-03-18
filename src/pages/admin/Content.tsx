@@ -316,6 +316,40 @@ export default function Content() {
     });
   };
 
+  const getManifestoLines = () => {
+    const m = contentMap["manifesto"];
+    if (!m?.lines || !Array.isArray(m.lines)) {
+      return [
+        { text: "Seven is not just a number.", style: "hero" },
+        { text: "Seven is the game.", style: "hero" },
+        { text: "7 days in a week.", style: "stat" },
+        { text: "7 players on the court.", style: "stat" },
+        { text: "7 positions in handball.", style: "stat" },
+        { text: "The game was built around seven.", style: "accent" },
+        { text: "So is this brand.", style: "accent" },
+        { text: "From the wings to the line.", style: "normal" },
+        { text: "From the backcourt to the goal.", style: "normal" },
+        { text: "Every player has a role.", style: "normal" },
+        { text: "Every role has a story.", style: "normal" },
+        { text: "This is not just apparel.", style: "accent" },
+        { text: "This is the culture of the game.", style: "accent" },
+        { text: "Seven players. One court. One perfect game.", style: "hero" },
+        { text: "Handball Seven.", style: "brand" },
+      ];
+    }
+    return m.lines;
+  };
+
+  const updateManifestoLine = (index: number, field: "text" | "style", value: string) => {
+    setContentMap((prev) => {
+      const m = { ...(prev["manifesto"] || {}) };
+      const lines = [...(m.lines || getManifestoLines())];
+      lines[index] = { ...lines[index], [field]: value };
+      m.lines = lines;
+      return { ...prev, manifesto: m };
+    });
+  };
+
   const updateFeatureItem = (index: number, field: "icon" | "label", value: string) => {
     setContentMap((prev) => {
       const fb = { ...(prev["features_bar"] || {}) };
