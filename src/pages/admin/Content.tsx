@@ -515,6 +515,46 @@ export default function Content() {
                           ))}
                         </div>
                       )}
+
+                      {section.key === "handball_elements" && (
+                        <div className="space-y-4">
+                          <p className="text-white/40 text-xs font-display uppercase tracking-widest">7 Elements (title + 2 lines each)</p>
+                          {getHandballElements().map((el: any, idx: number) => (
+                            <div key={idx} className="border border-white/10 p-4 space-y-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-primary/40 font-display text-lg font-bold">{idx + 1}</span>
+                              </div>
+                              <div>
+                                <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Title</label>
+                                <input
+                                  type="text"
+                                  value={el.title || ""}
+                                  onChange={(e) => updateHandballElement(idx, "title", e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors font-body text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Line 1</label>
+                                <input
+                                  type="text"
+                                  value={el.line1 || ""}
+                                  onChange={(e) => updateHandballElement(idx, "line1", e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors font-body text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-white/50 text-[10px] font-display uppercase tracking-widest mb-1">Line 2</label>
+                                <input
+                                  type="text"
+                                  value={el.line2 || ""}
+                                  onChange={(e) => updateHandballElement(idx, "line2", e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 text-white p-2 focus:outline-none focus:border-primary transition-colors font-body text-sm"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
