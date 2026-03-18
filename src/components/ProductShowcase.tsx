@@ -72,6 +72,8 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
   const { t } = useI18n();
   const { config: shopConfig } = useShopConfig();
   const { collections: dbDesignCollections } = useDesignCollections();
+  const { data: dbCollections } = useCollections(false);
+  const collectionColorMap = useCollectionColorMap(dbCollections?.map(c => ({ id: c.id, slug: c.slug })));
 
   // Resolve front logo: DB first, then static fallback
   const frontLogoUrl = useMemo(() => {
