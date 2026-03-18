@@ -92,6 +92,47 @@ export function useDeleteStoreColor() {
   });
 }
 
+// ── All collection colors (bulk fetch for filtering) ──
+export function useAllCollectionColors() {
+  const { data: storeColors } = useStoreColors();
+  return useQuery({
+    queryKey: ['all_collection_colors'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('collection_colors').select('collection_id, color_id');
+      if (error) throw error;
+      return data as { collection_id: string; color_id: string }[];
+    },
+  });
+}
+
+/**
+ * Returns a function that, given a collection slug, returns the allowed StoreColor[] for that collection.
+ * Uses the intersection of collection_colors table and store_colors.
+ * If a collection has no color constraints set, returns all store colors (no restriction).
+ */
+export function useCollectionColorMap(collections?: { id: string; slug: string }[]) {
+  const { data: storeColors } = useStoreColors();
+  const { data: allColColors } = useAllCollectionColors();
+
+  return useMemo(() => {
+    const map: Record<string, StoreColor[]> = {};
+    if (!storeColors || !allColColors || !collections) return map;
+
+    for (const col of collections) {
+      const colorIds = allColColors
+        .filter(cc => cc.collection_id === col.id)
+        .map(cc => cc.color_id);
+      if (colorIds.length > 0) {
+        map[col.slug.toUpperCase()] = storeColors.filter(sc => colorIds.includes(sc.id));
+      } else {
+        // No restriction = all colors allowed
+        map[col.slug.toUpperCase()] = storeColors;
+      }
+    }
+    return map;
+  }, [storeColors, allColColors, collections]);
+}
+
 // ── Collection ↔ Size/Color mapping ──
 export function useCollectionSizes(collectionId?: string) {
   return useQuery({
