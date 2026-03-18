@@ -392,6 +392,90 @@ export default function Content() {
     });
   };
 
+  // Support page helpers
+  const SUPPORT_PAGES = ["page_shipping", "page_faq", "page_privacy", "page_terms"];
+
+  const getSupportSections = (pageKey: string) => {
+    const page = contentMap[pageKey];
+    return page?.sections || [];
+  };
+
+  const getSupportFaq = (pageKey: string) => {
+    const page = contentMap[pageKey];
+    return page?.faq_items || [];
+  };
+
+  const updateSupportPageTitle = (pageKey: string, value: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const existing = typeof page.title === "object" ? page.title : {};
+      page.title = { ...existing, hr: value };
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const updateSupportSection = (pageKey: string, index: number, field: "title" | "content", value: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const sections = [...(page.sections || [])];
+      const existing = typeof sections[index]?.[field] === "object" ? sections[index][field] : {};
+      sections[index] = { ...sections[index], [field]: { ...existing, hr: value } };
+      page.sections = sections;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const addSupportSection = (pageKey: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const sections = [...(page.sections || [])];
+      sections.push({ title: { hr: "" }, content: { hr: "" } });
+      page.sections = sections;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const removeSupportSection = (pageKey: string, index: number) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const sections = [...(page.sections || [])];
+      sections.splice(index, 1);
+      page.sections = sections;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const updateSupportFaq = (pageKey: string, index: number, field: "question" | "answer", value: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const items = [...(page.faq_items || [])];
+      const existing = typeof items[index]?.[field] === "object" ? items[index][field] : {};
+      items[index] = { ...items[index], [field]: { ...existing, hr: value } };
+      page.faq_items = items;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const addSupportFaq = (pageKey: string) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const items = [...(page.faq_items || [])];
+      items.push({ question: { hr: "" }, answer: { hr: "" } });
+      page.faq_items = items;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
+  const removeSupportFaq = (pageKey: string, index: number) => {
+    setContentMap((prev) => {
+      const page = { ...(prev[pageKey] || {}) };
+      const items = [...(page.faq_items || [])];
+      items.splice(index, 1);
+      page.faq_items = items;
+      return { ...prev, [pageKey]: page };
+    });
+  };
+
   const collectI18nTexts = (sectionKey: string): Record<string, string> => {
     const section = contentMap[sectionKey];
     if (!section) return {};
