@@ -522,12 +522,15 @@ const Shop = () => {
     // Sync Hoodie/T-shirt Front Logo with Color (and when DB logo changes)
     useEffect(() => {
         if (selectedProduct === 'hoodie' || selectedProduct === 'tshirt') {
+            const resolvedLogo = frontLogoAsset
+                ? resolveDesignVariant(frontLogoAsset, selectedColor)
+                : frontLogoUrl;
             setDesigns(prev => ({
                 ...prev,
-                front: frontLogoUrl
+                front: resolvedLogo
             }));
         }
-    }, [selectedProduct, selectedColor, frontLogoUrl]);
+    }, [selectedProduct, selectedColor, frontLogoAsset, frontLogoUrl]);
 
     // Sync viewMode and isCustomizing with URL params for Back button support
     useEffect(() => {
