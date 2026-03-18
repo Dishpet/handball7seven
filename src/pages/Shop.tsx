@@ -10,6 +10,7 @@ import { useShopConfig } from '@/hooks/useShopConfig';
 import { useI18n } from '@/lib/i18n';
 import { useDesignCollections } from '@/hooks/useDesignCollections';
 import { useProducts as useDbProducts } from '@/hooks/useProducts';
+import { useStoreColors, useStoreSizes } from '@/hooks/useStoreCatalog';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';

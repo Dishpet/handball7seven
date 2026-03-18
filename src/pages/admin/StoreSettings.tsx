@@ -216,6 +216,8 @@ function CollectionConfig({ collection }: { collection: DbCollection }) {
 
 function CollectionsSection() {
   const { data: collections, isLoading } = useCollections(false);
+  // Filter out "front-logo" / "front_logo" collection — it has separate logic
+  const filtered = collections?.filter(c => !c.slug.includes('front-logo') && !c.slug.includes('front_logo') && !c.slug.includes('frontlogo'));
 
   return (
     <div className="bg-black border border-white/10 p-4 sm:p-6 space-y-4">
@@ -223,7 +225,7 @@ function CollectionsSection() {
       <p className="text-white/50 text-sm">Configure which sizes and colors are available for each collection.</p>
       {isLoading ? <p className="text-white/50 text-sm">Loading...</p> : (
         <div className="space-y-2">
-          {collections?.map(c => <CollectionConfig key={c.id} collection={c} />)}
+          {filtered?.map(c => <CollectionConfig key={c.id} collection={c} />)}
         </div>
       )}
     </div>
