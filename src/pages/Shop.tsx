@@ -259,6 +259,9 @@ const Shop = () => {
         });
         return map;
     }, [frontLogoUrl]);
+
+    // Build variant map for light/dark design resolution
+    const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
     // State
     const [searchParams, setSearchParams] = useSearchParams();
     const [variationCache, setVariationCache] = useState<Record<string, any[]>>({});
