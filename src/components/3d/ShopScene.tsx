@@ -1842,7 +1842,8 @@ export const ShopScene = ({
     designReplacements,
     productAllowedColors,
     productRestrictedDesigns,
-    designVariantMap
+    designVariantMap,
+    gradientColors
 }: ShopSceneProps) => {
 
 
