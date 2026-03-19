@@ -17,7 +17,8 @@ const Footer = () => {
   return (
     <footer className="bg-card border-t border-border">
       {/* Features Bar */}
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4">
+      <div className="border-b border-border">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4">
         {(() => {
           const defaults = [
             { icon: "💥", title: "Foul", label: "No easy plays." },
