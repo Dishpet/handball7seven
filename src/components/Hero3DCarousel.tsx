@@ -456,7 +456,7 @@ const HeroCarouselScene = ({ productAllowedColors, frontDesigns, backDesigns, co
   );
 };
 
-const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap, designVariantMap }: HeroCarouselConfig) => {
+const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, colorToLogoMap, designVariantMap, designColorMap, urlToFilename }: HeroCarouselConfig) => {
   return (
     <div className="w-full h-full">
       <Canvas
@@ -472,6 +472,8 @@ const Hero3DCarousel = ({ productAllowedColors, frontDesigns, backDesigns, color
             backDesigns={backDesigns}
             colorToLogoMap={colorToLogoMap}
             designVariantMap={designVariantMap}
+            designColorMap={designColorMap}
+            urlToFilename={urlToFilename}
           />
         </Suspense>
       </Canvas>
