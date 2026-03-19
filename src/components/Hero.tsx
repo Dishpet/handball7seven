@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n";
 import { useShopConfig } from "@/hooks/useShopConfig";
-import { useDesignCollections, buildDesignVariantMap } from "@/hooks/useDesignCollections";
+import { useDesignCollections, buildDesignVariantMap, resolveDesignVariant } from "@/hooks/useDesignCollections";
 import { useCollections } from "@/hooks/useCollections";
 import { useCollectionColorMap } from "@/hooks/useStoreCatalog";
 import logo from "@/assets/logo.png";
