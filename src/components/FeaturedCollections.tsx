@@ -10,8 +10,8 @@ const FeaturedCollections = () => {
   const { t } = useI18n();
 
   const collections = [
-    { id: "classic", name: t("col.classic"), desc: t("col.classic.desc"), image: classicImg },
     { id: "vintage", name: t("col.vintage"), desc: t("col.vintage.desc"), image: vintageImg },
+    { id: "classic", name: t("col.classic"), desc: t("col.classic.desc"), image: classicImg },
     { id: "street", name: t("col.street"), desc: t("col.street.desc"), image: streetImg },
   ];
 
