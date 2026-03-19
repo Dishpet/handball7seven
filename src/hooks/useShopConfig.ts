@@ -5,28 +5,28 @@ const WP_API_URL = '/api'; // Uses proxy in dev and prod
 // Default fallback configuration (matches PHP defaults)
 const DEFAULT_CONFIG: ShopConfig = {
     tshirt: {
-        allowed_colors: ['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'],
+        allowed_colors: ['#111111', '#F0F0F0', '#808080', '#C8AD7F', '#1C2E4A', '#008080', '#00BCD4', '#2196F3', '#9C27B0', '#E91E63', '#98FF98'],
         default_zone: 'back',
         locked_zone: 'front',
         restricted_designs: [],
         has_front_back: true
     },
     hoodie: {
-        allowed_colors: ['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'],
+        allowed_colors: ['#111111', '#F0F0F0', '#808080', '#C8AD7F', '#1C2E4A', '#008080', '#00BCD4', '#2196F3', '#9C27B0', '#E91E63', '#98FF98'],
         default_zone: 'back',
         locked_zone: 'front',
         restricted_designs: [],
         has_front_back: true
     },
     cap: {
-        allowed_colors: ['#231f20'],
+        allowed_colors: ['#111111', '#F0F0F0', '#808080', '#C8AD7F'],
         default_zone: 'front',
         locked_zone: null,
         restricted_designs: ['street-5.png'],
         has_front_back: false
     },
     bottle: {
-        allowed_colors: ['#231f20', '#ffffff'],
+        allowed_colors: ['#111111', '#F0F0F0'],
         default_zone: 'front',
         locked_zone: null,
         restricted_designs: [],
