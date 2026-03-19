@@ -35,7 +35,7 @@ const fallbackTranslations: Record<string, Record<Lang, string>> = {
 
   // Sections
   "featured.title": { en: "Collections", de: "Kollektionen", hr: "Kolekcije" },
-  "bestsellers.title": { en: "Best Sellers", de: "Bestseller", hr: "Najprodavanije" },
+  "bestsellers.title": { en: "Products", de: "Produkte", hr: "Proizvodi" },
   "brand.title": { en: "Born from the Toughest Game", de: "Geboren aus dem härtesten Spiel", hr: "Rođeno iz najtvrđe igre" },
   "brand.text": {
     en: "Handball Seven is the first lifestyle handball brand. Built for the stubborn — the players, the fans, and everyone who lives the game beyond the court. We are inspired by handball culture, resilience, resin-stained hands, taped fingers, and the everyday identity of those who breathe this sport.",
