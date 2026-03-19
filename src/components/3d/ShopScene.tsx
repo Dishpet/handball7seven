@@ -2164,9 +2164,8 @@ export const ShopScene = ({
                     </div>
                 </div>
             </div>
-            <Canvas shadows camera={{ position: [0, 0, 10], fov: 35 }}>
+            <Canvas shadows camera={{ position: [0, 0, 10], fov: 35 }} gl={{ alpha: true }} style={{ background: 'transparent' }}>
                 <CameraHandler isFullscreen={isFullscreen} />
-                <GradientBackground />
                 <Suspense fallback={null}>
                     <ambientLight intensity={0.8} />
                     <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
