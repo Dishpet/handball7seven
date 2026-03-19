@@ -113,11 +113,11 @@ const Hero = () => {
   }), [logoList, capFilteredDesigns, bottleFilteredDesigns]);
 
   const backDesigns = useMemo(() => ({
-    tshirt: effectiveCollections.vintage,
-    hoodie: effectiveCollections.classic,
+    tshirt: allDesigns,
+    hoodie: allDesigns,
     cap: [] as string[],
     bottle: [] as string[],
-  }), [effectiveCollections]);
+  }), [allDesigns]);
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-start overflow-hidden">
