@@ -1995,15 +1995,15 @@ export const ShopScene = ({
         } else if (mode === 'showcase') {
             // Intro Scene: Linear Display
             if (isMobile) {
-                // Mobile Showcase - Compact 2x2 Grid that fits screen
+                // Mobile Showcase - Compact 2x2 Grid, zoomed in to fill frame
                 if (productId === 'tshirt') {
-                    pos = [-0.8, 1.5, -2]; scale = 3.0; // Top Left
+                    pos = [-0.8, 1.5, 0]; scale = 3.4; // Top Left
                 } else if (productId === 'hoodie') {
-                    pos = [0.8, -1.2, -1]; scale = 2.8; // Bottom Right
+                    pos = [0.8, -1.2, 1]; scale = 3.2; // Bottom Right
                 } else if (productId === 'bottle') {
-                    pos = [-0.8, -1.2, 0]; scale = 6.5; // Bottom Left (Raised)
+                    pos = [-0.8, -1.2, 2]; scale = 7.2; // Bottom Left
                 } else if (productId === 'cap') {
-                    pos = [1.0, 2.6, -2]; scale = 0.58; // Top Right (Left/Up adjustment)
+                    pos = [1.0, 2.6, 0]; scale = 0.65; // Top Right
                 }
             } else {
                 // Desktop Showcase - Linear but slightly tighter to center
