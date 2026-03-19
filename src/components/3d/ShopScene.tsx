@@ -1815,6 +1815,8 @@ interface ShopSceneProps {
     };
     /** Map from design URL → DesignAsset for light/dark variant resolution */
     designVariantMap?: Record<string, { url: string; lightUrl?: string; darkColors?: string[]; lightColors?: string[] }>;
+    /** Custom gradient colors for the 3D background */
+    gradientColors?: { top: string; mid: string; bottom: string };
 }
 
 export const ShopScene = ({
