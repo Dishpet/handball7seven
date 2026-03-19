@@ -294,6 +294,13 @@ const ProductModel = ({
     const designIndexRef = useRef(currentDesignIndex);
     useEffect(() => { designIndexRef.current = currentDesignIndex; }, [currentDesignIndex]);
 
+    // Separate back design index for independent cycling
+    const [currentBackDesignIndex, setCurrentBackDesignIndex] = useState(() =>
+        enableDesignCycle ? Math.floor(Math.random() * (cycleDesignsBack?.length || 0)) : 0
+    );
+    const backDesignIndexRef = useRef(currentBackDesignIndex);
+    useEffect(() => { backDesignIndexRef.current = currentBackDesignIndex; }, [currentBackDesignIndex]);
+
 
     // Single source of truth for cycling state
     // Cycle continues in customizing mode until user interacts
