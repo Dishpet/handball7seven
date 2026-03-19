@@ -99,6 +99,8 @@ export default function Settings() {
               </div>
             </div>
 
+            <LogoManagement />
+
             <div className="md:col-span-2 bg-black border border-white/10 p-6">
               <h3 className="text-xl font-display uppercase tracking-widest font-bold text-white mb-4 border-b border-white/10 pb-4">Backend Status</h3>
               <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 p-4">
