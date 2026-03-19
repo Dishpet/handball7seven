@@ -2169,7 +2169,7 @@ export const ShopScene = ({
             </div>
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 35 }}>
                 <CameraHandler isFullscreen={isFullscreen} />
-                <GradientBackground />
+                <GradientBackground colorTop={gradientColors?.top} colorMid={gradientColors?.mid} colorBottom={gradientColors?.bottom} />
                 <Suspense fallback={null}>
                     <ambientLight intensity={0.8} />
                     <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
