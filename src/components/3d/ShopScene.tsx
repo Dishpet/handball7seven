@@ -1230,7 +1230,11 @@ const ProductModel = ({
 
                         // Check designColorMap (legacy config-based mapping)
                         const mapped = designColorMap?.[filename];
-                        if (mapped && mapped.length > 0) {
+                        if (mapped) {
+                            // Explicit empty array means this design is not allowed on any color
+                            if (mapped.length === 0) {
+                                continue;
+                            }
                             if (mapped.some(mc => mc.toLowerCase() === newColorLower)) {
                                 compatibleBackDesigns.push(i);
                             }

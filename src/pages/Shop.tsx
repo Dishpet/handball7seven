@@ -905,7 +905,41 @@ const Shop = () => {
                                 cap: shopConfig?.cap?.restricted_designs,
                                 bottle: shopConfig?.bottle?.restricted_designs
                             }), [shopConfig])}
-                            designColorMap={shopConfig?.design_color_map}
+                            designColorMap={useMemo(() => {
+                                const normalizeHex = (hex: string) => hex.toLowerCase();
+                                const merged: Record<string, string[]> = {};
+
+                                // Start with dashboard-defined overrides (if any)
+                                Object.entries(shopConfig?.design_color_map || {}).forEach(([filename, colors]) => {
+                                    merged[filename] = Array.isArray(colors) ? colors.map(normalizeHex) : [];
+                                });
+
+                                // Enforce collection color constraints for showcase cycling
+                                const applyCollectionConstraint = (collectionKey: 'CLASSIC' | 'VINTAGE' | 'STREET') => {
+                                    const allowedByCollection = (collectionColorMap[collectionKey] || []).map(c => normalizeHex(c.hex));
+                                    if (allowedByCollection.length === 0) return;
+
+                                    (effectiveCollections[collectionKey] || []).forEach((url) => {
+                                        const filename = URL_TO_FILENAME[url] || url.split('/').pop()?.split('?')[0] || '';
+                                        if (!filename) return;
+
+                                        if (Object.prototype.hasOwnProperty.call(merged, filename)) {
+                                            const existing = merged[filename] || [];
+                                            merged[filename] = existing.length === 0
+                                                ? []
+                                                : existing.filter(c => allowedByCollection.includes(normalizeHex(c)));
+                                        } else {
+                                            merged[filename] = [...allowedByCollection];
+                                        }
+                                    });
+                                };
+
+                                applyCollectionConstraint('CLASSIC');
+                                applyCollectionConstraint('VINTAGE');
+                                applyCollectionConstraint('STREET');
+
+                                return merged;
+                            }, [shopConfig, collectionColorMap, effectiveCollections])}
                             urlToFilename={URL_TO_FILENAME}
                             designVariantMap={designVariantMap}
                         />
