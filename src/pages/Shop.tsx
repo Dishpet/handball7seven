@@ -882,27 +882,23 @@ const Shop = () => {
                             designReplacements={useMemo(() => ({}), [])}
                             onCycleDesignUpdate={handleCycleDesignUpdate}
                             productAllowedColors={useMemo(() => {
-                                // Build per-product allowed colors intersecting product-level + collection-level constraints
-                                const getColors = (productSlug: string, collectionSlug: string) => {
-                                    // Product-level colors
-                                    const prodColors = getProductColors(productSlug);
-                                    let hexes = prodColors.map(c => c.hex);
+                                // Per-product allowed colors must come from dashboard shop config
+                                const getConfiguredColors = (productSlug: string) => {
+                                    const configured = getAllowedColors(productSlug)?.filter(Boolean);
+                                    if (configured && configured.length > 0) return configured;
 
-                                    // Collection-level colors
-                                    const cols = collectionColorMap[collectionSlug];
-                                    if (cols && cols.length > 0) {
-                                        const colHexes = cols.map(c => c.hex);
-                                        hexes = hexes.filter(h => colHexes.includes(h));
-                                    }
-                                    return hexes.length > 0 ? hexes : undefined;
+                                    // Fallback only if config missing
+                                    const fallback = getProductColors(productSlug).map(c => c.hex);
+                                    return fallback.length > 0 ? fallback : undefined;
                                 };
+
                                 return {
-                                    tshirt: getColors('tshirt', 'VINTAGE') || getColors('tshirt', 'CLASSIC'),
-                                    hoodie: getColors('hoodie', 'CLASSIC'),
-                                    cap: getColors('cap', 'STREET') || shopConfig?.cap?.allowed_colors,
-                                    bottle: getColors('bottle', 'STREET') || ['#231f20', '#ffffff']
+                                    tshirt: getConfiguredColors('tshirt'),
+                                    hoodie: getConfiguredColors('hoodie'),
+                                    cap: getConfiguredColors('cap'),
+                                    bottle: getConfiguredColors('bottle') || ['#111111', '#F0F0F0']
                                 };
-                            }, [collectionColorMap, shopConfig, getProductColors])}
+                            }, [getAllowedColors, getProductColors])}
                             productRestrictedDesigns={useMemo(() => ({
                                 tshirt: shopConfig?.tshirt?.restricted_designs,
                                 hoodie: shopConfig?.hoodie?.restricted_designs,
