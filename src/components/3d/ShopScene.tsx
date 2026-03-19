@@ -5,16 +5,16 @@ import { useGLTF, useTexture, Text, Environment, Float, OrbitControls } from '@r
 import * as THREE from 'three';
 
 // 3D gradient background rendered as a full-screen quad behind the scene
-const GradientBackground = () => {
+const GradientBackground = ({ colorTop, colorMid, colorBottom }: { colorTop?: string; colorMid?: string; colorBottom?: string }) => {
   const mesh = useRef<THREE.Mesh>(null);
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
       depthWrite: false,
       depthTest: false,
       uniforms: {
-        uColorTop: { value: new THREE.Color('#4a4a4a') },
-        uColorMid: { value: new THREE.Color('#3a3a3a') },
-        uColorBottom: { value: new THREE.Color('#2e2e2e') },
+        uColorTop: { value: new THREE.Color(colorTop || '#4a4a4a') },
+        uColorMid: { value: new THREE.Color(colorMid || '#3a3a3a') },
+        uColorBottom: { value: new THREE.Color(colorBottom || '#2e2e2e') },
       },
       vertexShader: `
         varying vec2 vUv;
