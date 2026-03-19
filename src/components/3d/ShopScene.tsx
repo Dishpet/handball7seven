@@ -1224,7 +1224,7 @@ const ProductModel = ({
 
                 // 2. Check Back Design Constraint
                 if (cycleDesignsBack) {
-                    const url = cycleDesignsBack[nextIndex % cycleDesignsBack.length];
+                    const url = cycleDesignsBack[nextBackIndex % cycleDesignsBack.length];
                     if (url) {
                         const filename = urlToFilename?.[url] || url.split('/').pop()?.split('?')[0] || '';
                         const mapped = designColorMap?.[filename];
