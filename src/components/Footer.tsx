@@ -47,13 +47,13 @@ const Footer = () => {
       </div>
 
       <div className="px-5 md:px-12 lg:px-20 py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-          <ScrollReveal className="col-span-2 md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 text-center md:text-left">
+          <ScrollReveal className="flex flex-col items-center md:items-start">
             <img src={logo} alt="Handball Seven" className="h-10 md:h-12 mb-4" />
             <p className="text-muted-foreground text-sm leading-relaxed">{t("footer.tagline")}</p>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.1}>
+          <ScrollReveal delay={0.1} className="flex flex-col items-center md:items-start">
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.support")}</h4>
             <div className="space-y-3">
               {[
@@ -67,7 +67,7 @@ const Footer = () => {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.2}>
+          <ScrollReveal delay={0.2} className="flex flex-col items-center md:items-start">
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.shop")}</h4>
             <div className="space-y-3">
               {[t("col.classic"), t("col.vintage"), t("col.street")].map(item => (
@@ -76,7 +76,7 @@ const Footer = () => {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.3}>
+          <ScrollReveal delay={0.3} className="flex flex-col items-center md:items-start">
             <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.connect")}</h4>
             <div className="flex gap-4">
               {socials?.instagram ? (
