@@ -57,37 +57,31 @@ const Hero = () => {
   }, [dbDesignCollections]);
 
   const productAllowedColors = useMemo(() => {
-    const getColColors = (slug: string) => {
-      const cols = collectionColorMap[slug];
-      return cols && cols.length > 0 ? cols.map(c => c.hex) : undefined;
-    };
-    // For hero showcase: use ALL colors across all collections
-    const allColors = [...new Set(
-      Object.values(collectionColorMap).flat().map(c => c.hex)
-    )];
-    const allOrFallback = allColors.length > 0 ? allColors : undefined;
     return {
-      tshirt: allOrFallback || getColColors('VINTAGE') || getColColors('CLASSIC'),
-      hoodie: allOrFallback || getColColors('CLASSIC'),
-      cap: allOrFallback || getColColors('STREET') || shopConfig?.cap?.allowed_colors,
-      bottle: allOrFallback || shopConfig?.bottle?.allowed_colors
+      tshirt: shopConfig?.tshirt?.allowed_colors,
+      hoodie: shopConfig?.hoodie?.allowed_colors,
+      cap: shopConfig?.cap?.allowed_colors,
+      bottle: shopConfig?.bottle?.allowed_colors
     };
-  }, [collectionColorMap, shopConfig]);
+  }, [shopConfig]);
 
-  // Build color->logo map with per-color variant resolution
+  // Build colorToLogoMap covering ALL product colors (union)
+  const allProductColors = useMemo(() => {
+    const set = new Set<string>();
+    [shopConfig?.tshirt, shopConfig?.hoodie, shopConfig?.cap, shopConfig?.bottle].forEach(pc => {
+      pc?.allowed_colors?.forEach((c: string) => set.add(c));
+    });
+    return [...set];
+  }, [shopConfig]);
+
   const frontLogoAsset = dbDesignCollections.front_logo?.[0] || null;
   const colorToLogoMap = useMemo(() => {
     const map: Record<string, string> = {};
-    // Use all store colors so every cycling color gets a logo
-    const allColors = [...new Set(
-      Object.values(collectionColorMap).flat().map(c => c.hex)
-    )];
-    const colors = allColors.length > 0 ? allColors : (shopConfig?.hoodie?.allowed_colors || []);
-    colors.forEach((c: string) => {
+    allProductColors.forEach((c: string) => {
       map[c] = frontLogoAsset ? resolveDesignVariant(frontLogoAsset, c) : frontLogoUrl;
     });
     return map;
-  }, [collectionColorMap, shopConfig, frontLogoUrl, frontLogoAsset]);
+  }, [allProductColors, frontLogoUrl, frontLogoAsset]);
 
   // Build per-product design lists (with restriction filtering like ShopScene)
   const allDesigns = useMemo(() => [
