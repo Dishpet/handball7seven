@@ -860,7 +860,7 @@ const ProductModel = ({
     const [colorMatchedFrontDesign, setColorMatchedFrontDesign] = useState<string | null>(null);
 
     // Helper to check if product is hoodie or t-shirt (using includes for label matching)
-    const isHoodieOrTshirt = label && (label.includes('duksica') || label.includes('majica'));
+    const isHoodieOrTshirt = productId === 'hoodie' || productId === 'tshirt' || (label && (label.toLowerCase().includes('hoodie') || label.toLowerCase().includes('tee') || label.includes('duksica') || label.includes('majica')));
 
     // Initialize color-matched design on mount (for showcase mode initial load)
     useEffect(() => {
