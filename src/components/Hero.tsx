@@ -78,12 +78,16 @@ const Hero = () => {
   const frontLogoAsset = dbDesignCollections.front_logo?.[0] || null;
   const colorToLogoMap = useMemo(() => {
     const map: Record<string, string> = {};
-    const colors = shopConfig?.hoodie?.allowed_colors || [];
+    // Use all store colors so every cycling color gets a logo
+    const allColors = [...new Set(
+      Object.values(collectionColorMap).flat().map(c => c.hex)
+    )];
+    const colors = allColors.length > 0 ? allColors : (shopConfig?.hoodie?.allowed_colors || []);
     colors.forEach((c: string) => {
       map[c] = frontLogoAsset ? resolveDesignVariant(frontLogoAsset, c) : frontLogoUrl;
     });
     return map;
-  }, [shopConfig, frontLogoUrl, frontLogoAsset]);
+  }, [collectionColorMap, shopConfig, frontLogoUrl, frontLogoAsset]);
 
   // Build per-product design lists (with restriction filtering like ShopScene)
   const allDesigns = useMemo(() => [
