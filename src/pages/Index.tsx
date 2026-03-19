@@ -12,7 +12,7 @@ import CartDrawer from "@/components/CartDrawer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
       <CartDrawer />
       <main>
