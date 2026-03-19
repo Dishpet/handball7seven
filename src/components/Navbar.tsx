@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useI18n, Lang } from "@/lib/i18n";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/hooks/useAuth";
-import logo from "@/assets/logo.png";
+import { useSiteLogo } from "@/hooks/useSiteLogo";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
