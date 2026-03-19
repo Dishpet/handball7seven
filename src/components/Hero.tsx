@@ -220,6 +220,8 @@ const Hero = () => {
             backDesigns={backDesigns}
             colorToLogoMap={colorToLogoMap}
             designVariantMap={designVariantMap}
+            designColorMap={designColorMap}
+            urlToFilename={URL_TO_FILENAME}
           />
         </motion.div>
       </div>
