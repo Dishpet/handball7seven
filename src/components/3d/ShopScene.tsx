@@ -1179,101 +1179,74 @@ const ProductModel = ({
         if (!isCycling) return;
 
         const runCycle = () => {
-            // Determine random next index for front
+            // Determine random next front index
             const len = cycleDesignsFront?.length || 1;
             let nextIndex = Math.floor(Math.random() * len);
-
-            // Ensure we don't pick the same index if possible
             const currentIndex = designIndexRef.current;
             if (len > 1 && nextIndex === currentIndex % len) {
                 nextIndex = (nextIndex + 1) % len;
             }
-
-            // Determine random next index for back (independent)
-            const backLen = cycleDesignsBack?.length || 1;
-            let nextBackIndex = Math.floor(Math.random() * backLen);
-            const currentBackIdx = backDesignIndexRef.current;
-            if (backLen > 1 && nextBackIndex === currentBackIdx % backLen) {
-                nextBackIndex = (nextBackIndex + 1) % backLen;
-            }
-
-            // Change design indices
             setCurrentDesignIndex(nextIndex);
-            setCurrentBackDesignIndex(nextBackIndex);
 
             if (enableColorCycle) {
-                // Universal Color Validation Logic
-                // Use the PRE-CALCULATED random nextIndex for validation
+                // 1. Pick color FIRST from all allowed colors (no design constraints)
+                let allowedColors = [...(allowedCycleColors || AUTO_CYCLE_COLORS)];
 
-                // Use allowedCycleColors if provided, otherwise default to full palette
-                let validColorsSet = new Set(allowedCycleColors || AUTO_CYCLE_COLORS);
-
-                // 1. Check Front Design Constraint (if not overridden by Color->Logo map)
-                if (cycleDesignsFront && !colorToLogoMap) {
-                    const url = cycleDesignsFront[nextIndex % cycleDesignsFront.length];
-                    if (url) {
-                        const filename = urlToFilename?.[url] || url.split('/').pop()?.split('?')[0] || '';
-                        const mapped = designColorMap?.[filename];
-                        if (mapped && mapped.length > 0) {
-                            // Intersect
-                            const currentList = Array.from(validColorsSet);
-                            validColorsSet = new Set(mapped.filter(c => currentList.includes(c)));
-                        }
-                    }
-                }
-
-                // 2. Check Back Design Constraint
-                if (cycleDesignsBack) {
-                    const url = cycleDesignsBack[nextBackIndex % cycleDesignsBack.length];
-                    if (url) {
-                        const filename = urlToFilename?.[url] || url.split('/').pop()?.split('?')[0] || '';
-                        const mapped = designColorMap?.[filename];
-                        if (mapped && mapped.length > 0) {
-                            // Intersect
-                            const currentList = Array.from(validColorsSet);
-                            validColorsSet = new Set(mapped.filter(c => currentList.includes(c)));
-                        }
-                    }
-                }
-
-                // 3. Check Color->Logo Map Constraint (Hoodie Front)
+                // Intersect with colorToLogoMap keys if present (hoodie/tshirt)
                 if (colorToLogoMap) {
                     const keys = Object.keys(colorToLogoMap);
                     if (keys.length > 0) {
-                        const currentList = Array.from(validColorsSet);
-                        validColorsSet = new Set(keys.filter(c => currentList.includes(c)));
+                        allowedColors = allowedColors.filter(c => keys.includes(c));
                     }
                 }
 
-                let allowedColors = Array.from(validColorsSet);
-                // Fallback to avoid crash if intersection is empty
                 if (allowedColors.length === 0) {
-                    allowedColors = AUTO_CYCLE_COLORS;
+                    allowedColors = [...(allowedCycleColors || AUTO_CYCLE_COLORS)];
                 }
 
-                // Filtering based on GLOBAL Active Colors (prevent collisions)
+                // Try to avoid colors already used by other products
                 if (activeColorsRef && productId) {
                     const currentlyUsedColors = Object.values(activeColorsRef.current);
-                    // Filter allowedColors to remove those already in use (except by self, though self is about to change)
                     const availableUnique = allowedColors.filter(c => !currentlyUsedColors.includes(c));
-
-                    // If we have unique options, use them. Otherwise fallback to allowedColors (better to duplicate than crash)
                     if (availableUnique.length > 0) {
                         allowedColors = availableUnique;
                     }
                 }
 
-                // Pick a new random color from Allowed List
+                // Guarantee different color from current
                 const currentColorHex = '#' + targetColorRef.current.getHexString();
-
-                // Filter out current color to GUARANTEE different color
                 const differentColors = allowedColors.filter(c => c.toLowerCase() !== currentColorHex.toLowerCase());
-
-                // Use filtered list if we have options, otherwise allow same color (only 1 color available)
                 const colorPool = differentColors.length > 0 ? differentColors : allowedColors;
                 let newColor = colorPool[Math.floor(Math.random() * colorPool.length)];
 
-                // Update the global ref with my new color
+                // 2. Pick back design compatible with chosen color
+                if (cycleDesignsBack && cycleDesignsBack.length > 0) {
+                    // Filter back designs to those compatible with the new color
+                    let compatibleBackDesigns: number[] = [];
+                    for (let i = 0; i < cycleDesignsBack.length; i++) {
+                        const url = cycleDesignsBack[i];
+                        const filename = urlToFilename?.[url] || url.split('/').pop()?.split('?')[0] || '';
+                        const mapped = designColorMap?.[filename];
+                        // Compatible if no color map exists for this design, or color is in the map
+                        if (!mapped || mapped.length === 0 || mapped.some(mc => mc.toLowerCase() === newColor.toLowerCase())) {
+                            compatibleBackDesigns.push(i);
+                        }
+                    }
+                    // Fallback: if no compatible designs, allow all
+                    if (compatibleBackDesigns.length === 0) {
+                        compatibleBackDesigns = Array.from({ length: cycleDesignsBack.length }, (_, i) => i);
+                    }
+                    // Pick random from compatible, avoid same as current
+                    let nextBackIndex = compatibleBackDesigns[Math.floor(Math.random() * compatibleBackDesigns.length)];
+                    const currentBackIdx = backDesignIndexRef.current;
+                    if (compatibleBackDesigns.length > 1 && nextBackIndex === currentBackIdx) {
+                        const others = compatibleBackDesigns.filter(i => i !== currentBackIdx);
+                        nextBackIndex = others[Math.floor(Math.random() * others.length)];
+                    }
+                    setCurrentBackDesignIndex(nextBackIndex);
+                }
+
+                // Update global ref
                 if (activeColorsRef && productId) {
                     activeColorsRef.current[productId] = newColor;
                 }
@@ -1302,6 +1275,15 @@ const ProductModel = ({
                         setColorMatchedFrontDesign(null);
                     }
                 }
+            } else {
+                // No color cycle — still pick a random back design
+                const backLen = cycleDesignsBack?.length || 1;
+                let nextBackIndex = Math.floor(Math.random() * backLen);
+                const currentBackIdx = backDesignIndexRef.current;
+                if (backLen > 1 && nextBackIndex === currentBackIdx % backLen) {
+                    nextBackIndex = (nextBackIndex + 1) % backLen;
+                }
+                setCurrentBackDesignIndex(nextBackIndex);
             }
 
             // Trigger DESIGN glitch transition (Always)
