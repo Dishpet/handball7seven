@@ -19,7 +19,7 @@ const Hero = () => {
         />
 
         {/* Gradient overlay: bottom to top (hidden on mobile where text is below) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[60%] md:h-full bg-gradient-to-t from-background via-background/60 to-transparent" />
 
         {/* Text content — overlaid at bottom on desktop */}
         <div className="hidden md:flex absolute inset-0 items-end">
