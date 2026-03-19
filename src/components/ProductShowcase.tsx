@@ -94,13 +94,14 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
     };
   }, [dbDesignCollections]);
 
+  const frontLogoAsset = dbDesignCollections.front_logo?.[0] || null;
   const COLOR_TO_LOGO_MAP = useMemo(() => {
     const map: Record<string, string> = {};
     ['#231f20', '#d1d5db', '#00ab98', '#00aeef', '#387bbf', '#8358a4', '#ffffff', '#e78fab', '#a1d7c0'].forEach(color => {
-      map[color] = frontLogoUrl;
+      map[color] = frontLogoAsset ? resolveDesignVariant(frontLogoAsset, color) : frontLogoUrl;
     });
     return map;
-  }, [frontLogoUrl]);
+  }, [frontLogoUrl, frontLogoAsset]);
 
   const logoList = useMemo(() => frontLogoUrl ? [frontLogoUrl] : effectiveCollections['STREET'], [frontLogoUrl, effectiveCollections]);
   const hoodieBackList = useMemo(() => [...effectiveCollections['CLASSIC']], [effectiveCollections]);
