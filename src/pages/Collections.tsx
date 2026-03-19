@@ -32,17 +32,12 @@ const Collections = () => {
             <div className="absolute bottom-0 left-0 right-0 h-[60%] md:h-[80%] bg-gradient-to-t from-background via-background/60 to-transparent" />
 
             {/* Collection names overlaid at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 px-5 md:px-12 lg:px-20 pb-8 sm:pb-12 md:pb-16 lg:pb-20">
-              <motion.div
-                className="flex justify-between items-end max-w-4xl"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              >
+            <div className="absolute bottom-0 left-0 right-0 pb-8 sm:pb-12 md:pb-16 lg:pb-20">
+              <div className="grid grid-cols-3 px-5 md:px-12 lg:px-20 gap-4 sm:gap-6">
                 {COLLECTION_NAMES.map((name, i) => (
                   <motion.span
                     key={name}
-                    className="font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] text-lg sm:text-2xl md:text-4xl lg:text-5xl text-foreground"
+                    className="font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] text-lg sm:text-2xl md:text-4xl lg:text-5xl text-foreground text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 + i * 0.15 }}
@@ -50,7 +45,7 @@ const Collections = () => {
                     {name}
                   </motion.span>
                 ))}
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
