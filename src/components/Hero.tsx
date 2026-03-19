@@ -9,7 +9,7 @@ const Hero = () => {
   const bgImage = heroContent?.bg_image || "/images/hero-bg.jpg";
 
   return (
-    <section className="relative w-full">
+    <section className="relative w-full pt-[60px] md:pt-[72px]">
       {/* Image container — preserves natural aspect ratio */}
       <div className="relative w-full">
         <img
@@ -18,14 +18,14 @@ const Hero = () => {
           className="w-full h-auto block"
         />
 
-        {/* Gradient overlay: bottom to top */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        {/* Gradient overlay: bottom to top (hidden on mobile where text is below) */}
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
 
-        {/* Text content — positioned at the bottom of the image */}
-        <div className="absolute inset-0 flex items-end">
-          <div className="px-5 md:px-12 lg:px-20 pb-10 sm:pb-14 md:pb-20 lg:pb-24 max-w-2xl text-left">
+        {/* Text content — overlaid at bottom on desktop */}
+        <div className="hidden md:flex absolute inset-0 items-end">
+          <div className="px-12 lg:px-20 pb-14 md:pb-20 lg:pb-24 max-w-2xl text-left">
             <motion.p
-              className="text-foreground/70 text-xs sm:text-sm md:text-base font-body tracking-wide mb-2"
+              className="text-foreground/70 text-sm md:text-base font-body tracking-wide mb-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -33,7 +33,7 @@ const Hero = () => {
               {t("hero.subtitle")}
             </motion.p>
             <motion.h1
-              className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-display uppercase tracking-wider leading-[0.95] text-foreground"
+              className="text-4xl md:text-6xl lg:text-7xl font-display uppercase tracking-wider leading-[0.95] text-foreground"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
@@ -41,7 +41,7 @@ const Hero = () => {
               {t("hero.slogan")}
             </motion.h1>
             <motion.div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10"
+              className="flex flex-row gap-4 mt-10"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
@@ -51,6 +51,35 @@ const Hero = () => {
             </motion.div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile: text & buttons below the image */}
+      <div className="md:hidden px-5 py-8 text-left">
+        <motion.p
+          className="text-foreground/70 text-xs font-body tracking-wide mb-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          {t("hero.subtitle")}
+        </motion.p>
+        <motion.h1
+          className="text-3xl font-display uppercase tracking-wider leading-[0.95] text-foreground"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          {t("hero.slogan")}
+        </motion.h1>
+        <motion.div
+          className="flex flex-col gap-3 mt-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+        >
+          <Link to="/shop" className="btn-primary text-center">{t("hero.shop")}</Link>
+          <Link to="/collections" className="btn-outline text-center">{t("hero.explore")}</Link>
+        </motion.div>
       </div>
     </section>
   );
