@@ -201,6 +201,7 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
           urlToFilename={URL_TO_FILENAME}
           designVariantMap={designVariantMap}
           gradientColors={{ top: '#0d0d0d', mid: '#2e2e2e', bottom: '#0d0d0d' }}
+        />
       </div>
 
       {/* Visit Shop Button Overlay */}
