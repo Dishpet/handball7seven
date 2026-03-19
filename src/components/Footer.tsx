@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { Instagram, MessageCircle } from "lucide-react";
-import logo from "@/assets/logo.png";
+import { useSiteLogo } from "@/hooks/useSiteLogo";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const Footer = () => {
