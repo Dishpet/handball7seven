@@ -139,6 +139,41 @@ const ProductShowcase = ({ height = 'h-[70vh] md:h-[80vh]', showButton = true }:
   const designReplacements = useMemo(() => ({}), []);
   const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
 
+  // Build designColorMap with collection color constraints (same logic as Shop.tsx)
+  const designColorMap = useMemo(() => {
+    const normalizeHex = (hex: string) => hex.toLowerCase();
+    const merged: Record<string, string[]> = {};
+
+    // Start with dashboard-defined overrides
+    Object.entries(shopConfig?.design_color_map || {}).forEach(([filename, colors]) => {
+      merged[filename] = Array.isArray(colors) ? colors.map(normalizeHex) : [];
+    });
+
+    // Enforce collection color constraints
+    const applyCollectionConstraint = (collectionKey: 'CLASSIC' | 'VINTAGE' | 'STREET') => {
+      const allowedByCollection = (collectionColorMap[collectionKey] || []).map(c => normalizeHex(c.hex));
+      if (allowedByCollection.length === 0) return;
+
+      (effectiveCollections[collectionKey] || []).forEach((url: string) => {
+        const filename = URL_TO_FILENAME[url] || url.split('/').pop()?.split('?')[0] || '';
+        if (!filename) return;
+
+        if (Object.prototype.hasOwnProperty.call(merged, filename)) {
+          const existing = merged[filename] || [];
+          merged[filename] = existing.length === 0 ? [] : existing.filter(c => allowedByCollection.includes(normalizeHex(c)));
+        } else {
+          merged[filename] = [...allowedByCollection];
+        }
+      });
+    };
+
+    applyCollectionConstraint('CLASSIC');
+    applyCollectionConstraint('VINTAGE');
+    applyCollectionConstraint('STREET');
+
+    return merged;
+  }, [shopConfig, collectionColorMap, effectiveCollections]);
+
   // No-op: products are not clickable in showcase mode
   const handleSelectProduct = () => {};
 
