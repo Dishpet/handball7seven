@@ -5,8 +5,10 @@ import CartDrawer from "@/components/CartDrawer";
 import ProductShowcase from "@/components/ProductShowcase";
 import { useCollections } from "@/hooks/useCollections";
 import { useI18n } from "@/lib/i18n";
-import collectionsImg from "@/assets/collections-banner.png";
+import collectionsHero from "@/assets/collections-hero.webp";
 import ScrollReveal from "@/components/ScrollReveal";
+
+const COLLECTION_NAMES = ["Vintage", "Classic", "Street"];
 
 const Collections = () => {
   const { t } = useI18n();
@@ -16,28 +18,42 @@ const Collections = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <CartDrawer />
-      <main className="pt-20">
-        <div className="relative h-[30vh] sm:h-[40vh] md:h-[50vh] overflow-hidden">
-          <motion.img
-            src={collectionsImg}
-            alt="Collections"
-            className="w-full h-full object-cover"
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1.2 }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 px-5 md:px-12 lg:px-20 pb-6 sm:pb-10">
-            <motion.h1
-              className="text-2xl sm:text-3xl md:text-5xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em]"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-            >
-              {t("featured.title")}
-            </motion.h1>
+      <main>
+        {/* Hero — full-width image like homepage */}
+        <section className="relative w-full pt-[60px] md:pt-[72px]">
+          <div className="relative w-full">
+            <img
+              src={collectionsHero}
+              alt="Collections"
+              className="w-full h-auto block"
+            />
+
+            {/* Gradient overlay — same proportions as homepage hero */}
+            <div className="absolute bottom-0 left-0 right-0 h-[60%] md:h-[80%] bg-gradient-to-t from-background via-background/60 to-transparent" />
+
+            {/* Collection names overlaid at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 md:px-12 lg:px-20 pb-8 sm:pb-12 md:pb-16 lg:pb-20">
+              <motion.div
+                className="flex justify-between items-end max-w-4xl"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+              >
+                {COLLECTION_NAMES.map((name, i) => (
+                  <motion.span
+                    key={name}
+                    className="font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] text-lg sm:text-2xl md:text-4xl lg:text-5xl text-foreground"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 + i * 0.15 }}
+                  >
+                    {name}
+                  </motion.span>
+                ))}
+              </motion.div>
+            </div>
           </div>
-        </div>
+        </section>
 
         {/* Collection Cards */}
         <div className="px-5 md:px-12 lg:px-20 py-10 md:py-16">
