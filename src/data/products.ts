@@ -24,7 +24,7 @@ export const SHARED_COLORS: ProductColor[] = [
 export const INITIAL_PRODUCTS: Record<string, Product> = {
   'hoodie': {
     id: 'hoodie',
-    name: 'H7 Hoodie',
+    name: 'Seven Hoodie',
     price: 55.00,
     description: 'Premium heavy cotton hoodie with modern fit.',
     colors: SHARED_COLORS,
@@ -34,7 +34,7 @@ export const INITIAL_PRODUCTS: Record<string, Product> = {
   },
   'tshirt': {
     id: 'tshirt',
-    name: 'H7 Tee',
+    name: 'Court Tee',
     price: 35.00,
     description: '100% organic cotton classic t-shirt.',
     colors: SHARED_COLORS,
@@ -44,7 +44,7 @@ export const INITIAL_PRODUCTS: Record<string, Product> = {
   },
   'cap': {
     id: 'cap',
-    name: 'H7 Cap',
+    name: 'Court Cap',
     price: 25.00,
     description: 'Classic snapback cap with embroidered logo option.',
     colors: [
@@ -57,7 +57,7 @@ export const INITIAL_PRODUCTS: Record<string, Product> = {
   },
   'bottle': {
     id: 'bottle',
-    name: 'H7 Bottle',
+    name: 'Pregame Bottle',
     price: 20.00,
     description: 'Insulated stainless steel water bottle.',
     colors: [

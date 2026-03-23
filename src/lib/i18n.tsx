@@ -110,7 +110,7 @@ const fallbackTranslations: Record<string, Record<Lang, string>> = {
   "features.team": { en: "Join the Team", de: "Tritt dem Team bei", hr: "Pridruži se timu" },
 
   // Collections
-  "col.classic": { en: "Classic Collection", de: "Classic Kollektion", hr: "Classic kolekcija" },
+  "col.classic": { en: "Original Collection", de: "Original Kollektion", hr: "Original kolekcija" },
   "col.vintage": { en: "Vintage Collection", de: "Vintage Kollektion", hr: "Vintage kolekcija" },
   "col.street": { en: "Street Collection", de: "Street Kollektion", hr: "Street kolekcija" },
   "col.classic.desc": { en: "Minimal logo pieces. Premium clean branding in black and dark grey.", de: "Minimale Logo-Teile. Premium-Branding in Schwarz und Dunkelgrau.", hr: "Minimalistički logo komadi. Premium branding u crnoj i tamno sivoj." },

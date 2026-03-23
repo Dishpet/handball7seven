@@ -104,7 +104,7 @@ const FALLBACK_COLORS = [
 const INITIAL_PRODUCTS = {
     tshirt: {
         id: 'tshirt-001',
-        name: 'Court Classic Tee',
+        name: 'Court Tee',
         price: 25.00,
         description: 'Premium cotton tee with your choice of design. Made for the court and the street.',
         colors: FALLBACK_COLORS,
@@ -116,7 +116,7 @@ const INITIAL_PRODUCTS = {
     },
     hoodie: {
         id: 'hoodie-001',
-        name: 'Court Classic Hoodie',
+        name: 'Seven Hoodie',
         price: 45.00,
         description: 'Premium heavyweight hoodie. Built for the stubborn, designed for the court.',
         colors: FALLBACK_COLORS,
@@ -128,7 +128,7 @@ const INITIAL_PRODUCTS = {
     },
     cap: {
         id: 'cap-001',
-        name: 'Court Classic Cap',
+        name: 'Court Cap',
         price: 20.00,
         description: 'Structured cap with Handball Seven branding. One size fits all.',
         colors: FALLBACK_COLORS,
@@ -140,7 +140,7 @@ const INITIAL_PRODUCTS = {
     },
     bottle: {
         id: 'bottle-001',
-        name: 'Court Thermal Bottle',
+        name: 'Pregame Bottle',
         price: 20.00,
         description: 'Premium stainless steel thermal bottle. Keeps hot 12h, cold 24h.',
         colors: [

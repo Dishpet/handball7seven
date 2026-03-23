@@ -2,7 +2,7 @@ export type Product = {
   id: string;
   name: string;
   price: number;
-  collection?: "classic" | "vintage" | "street";
+  collection?: "original" | "vintage" | "street";
   badge?: "new" | "bestseller" | "vintage";
   sizes: string[];
   colors: string[];
@@ -13,10 +13,10 @@ export type Product = {
 // Static fallback — components should prefer useProducts() from hooks
 export const products: Product[] = [
   {
-    id: "classic-logo-hoodie",
-    name: "Classic Logo Hoodie",
+    id: "original-logo-hoodie",
+    name: "Original Logo Hoodie",
     price: 79.00,
-    collection: "classic",
+    collection: "original",
     badge: "bestseller",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black"],
@@ -46,10 +46,10 @@ export const products: Product[] = [
     image: "/products/kids-bunny-hoodie.jpg",
   },
   {
-    id: "classic-tee",
-    name: "Classic Logo Tee",
+    id: "original-tee",
+    name: "Original Logo Tee",
     price: 45.00,
-    collection: "classic",
+    collection: "original",
     badge: "bestseller",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Dark Grey"],
@@ -68,10 +68,10 @@ export const products: Product[] = [
     image: "/products/vintage-crewneck.jpg",
   },
   {
-    id: "classic-joggers",
-    name: "Classic Joggers",
+    id: "original-joggers",
+    name: "Original Joggers",
     price: 69.00,
-    collection: "classic",
+    collection: "original",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Dark Grey"],
     description: "Tapered fit joggers with subtle branding. From the court to the street.",
