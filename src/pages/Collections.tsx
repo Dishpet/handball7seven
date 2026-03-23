@@ -8,7 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import collectionsHero from "@/assets/collections-hero.webp";
 import ScrollReveal from "@/components/ScrollReveal";
 
-const COLLECTION_NAMES = ["Vintage", "Classic", "Street"];
+const COLLECTION_NAMES = ["Vintage", "Original", "Street"];
 
 const Collections = () => {
   const { t } = useI18n();

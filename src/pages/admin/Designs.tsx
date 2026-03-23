@@ -16,7 +16,7 @@ const COLLECTION_ORDER: DesignCollectionKey[] = ["vintage", "street", "classic",
 const COLLECTION_LABELS: Record<DesignCollectionKey, string> = {
   vintage: "VINTAGE",
   street: "STREET",
-  classic: "CLASSIC",
+  classic: "ORIGINAL",
   front_logo: "FRONT LOGO",
 };
 
