@@ -1,22 +1,7 @@
-import { useI18n } from "@/lib/i18n";
-import ProductShowcase from "@/components/ProductShowcase";
-import ScrollReveal from "@/components/ScrollReveal";
+import HomeProductsShowcase from "@/components/HomeProductsShowcase";
 
 const BestSellers = () => {
-  const { t } = useI18n();
-
-  return (
-    <section className="bg-background">
-      <div className="px-5 md:px-12 lg:px-20 pt-12 md:pt-24 pb-4 text-inherit">
-        <ScrollReveal>
-          <h2 className="text-center text-xl sm:text-2xl md:text-4xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-4">
-            {t("bestsellers.title")}
-          </h2>
-        </ScrollReveal>
-      </div>
-      <ProductShowcase height="h-[75vh] sm:h-[85vh] md:h-[85vh]" />
-    </section>);
-
+  return <HomeProductsShowcase />;
 };
 
 export default BestSellers;
