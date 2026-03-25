@@ -896,8 +896,11 @@ const ProductModel = ({
     const isManualDesignALogo = manualFront && colorToLogoMap && Object.values(colorToLogoMap).includes(manualFront);
 
     // Force strict front logo usage for hoodies and t-shirts, otherwise respect manual front
+    // Fallback chain for hoodie/tshirt: strictColorSync → colorMatchedFront → manual front → designs prop
     const frontUrl = shouldHideDesigns ? null :
-        (isHoodieOrTshirt ? strictColorSyncFront : (manualFront || frontCycleUrl));
+        (isHoodieOrTshirt
+            ? (strictColorSyncFront || colorMatchedFrontDesign || manualFront || designs?.front || null)
+            : (manualFront || frontCycleUrl));
 
     const backUrl = shouldHideDesigns ? null :
         ((isCustomizing && hasUserInteracted && designs?.back) ? designs.back : backCycleUrl);
