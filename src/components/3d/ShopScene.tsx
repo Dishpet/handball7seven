@@ -895,11 +895,10 @@ const ProductModel = ({
     const manualFront = (isCustomizing && hasUserInteracted && designs?.front) ? designs.front : null;
     const isManualDesignALogo = manualFront && colorToLogoMap && Object.values(colorToLogoMap).includes(manualFront);
 
+    // Force strict front logo usage for hoodies and t-shirts, otherwise respect manual front
     const frontUrl = shouldHideDesigns ? null :
-        ((manualFront && !isManualDesignALogo) ? manualFront : (strictColorSyncFront || manualFront || colorMatchedFrontDesign || frontCycleUrl));
+        (isHoodieOrTshirt ? strictColorSyncFront : (manualFront || frontCycleUrl));
 
-    // Resolve Back URL: Custom Back OR Cycle
-    // Update: If customizing but NOT active (background), show NO design.
     const backUrl = shouldHideDesigns ? null :
         ((isCustomizing && hasUserInteracted && designs?.back) ? designs.back : backCycleUrl);
 
