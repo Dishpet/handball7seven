@@ -862,14 +862,34 @@ const ProductModel = ({
     // Helper to check if product is hoodie or t-shirt (using includes for label matching)
     const isHoodieOrTshirt = productId === 'hoodie' || productId === 'tshirt' || (label && (label.toLowerCase().includes('hoodie') || label.toLowerCase().includes('tee') || label.includes('duksica') || label.includes('majica')));
 
-    // Initialize color-matched design on mount (for showcase mode initial load)
-    useEffect(() => {
-        if (isHoodieOrTshirt && colorToLogoMap) {
-            const currentColorHex = '#' + targetColorRef.current.getHexString();
-            const logo = colorToLogoMap[currentColorHex];
-            if (logo) setColorMatchedFrontDesign(logo);
+    // Helper: find logo from colorToLogoMap with case-insensitive hex matching
+    const findLogoForColor = useCallback((hexColor: string, logoMap: Record<string, string> | undefined): string | null => {
+        if (!logoMap) return null;
+        // Direct match first
+        if (logoMap[hexColor]) return logoMap[hexColor];
+        // Case-insensitive match
+        const lower = hexColor.toLowerCase();
+        for (const [key, value] of Object.entries(logoMap)) {
+            if (key.toLowerCase() === lower) return value;
         }
-    }, []); // Empty deps = run once on mount
+        // THREE.js getHexString can differ from original — try all map entries
+        return null;
+    }, []);
+
+    // Initialize color-matched design on mount AND when colorToLogoMap becomes available
+    useEffect(() => {
+        if (isHoodieOrTshirt && colorToLogoMap && Object.keys(colorToLogoMap).length > 0) {
+            const currentColorHex = '#' + targetColorRef.current.getHexString();
+            const logo = findLogoForColor(currentColorHex, colorToLogoMap);
+            if (logo) {
+                setColorMatchedFrontDesign(logo);
+            } else {
+                // Fallback: use the first available logo from the map
+                const firstLogo = Object.values(colorToLogoMap)[0];
+                if (firstLogo) setColorMatchedFrontDesign(firstLogo);
+            }
+        }
+    }, [colorToLogoMap, isHoodieOrTshirt, findLogoForColor]);
 
     // Sync pairing on color changes (cycle or manual selection)
     useEffect(() => {
@@ -877,12 +897,12 @@ const ProductModel = ({
             const colorToUse = isCustomizing && hasUserInteracted && color
                 ? color
                 : '#' + targetColorRef.current.getHexString();
-            const logo = colorToLogoMap[colorToUse];
+            const logo = findLogoForColor(colorToUse, colorToLogoMap);
             if (logo && logo !== colorMatchedFrontDesign) {
                 setColorMatchedFrontDesign(logo);
             }
         }
-    }, [isCustomizing, hasUserInteracted, label, color, colorToLogoMap, colorMatchedFrontDesign, isHoodieOrTshirt]);
+    }, [isCustomizing, hasUserInteracted, label, color, colorToLogoMap, colorMatchedFrontDesign, isHoodieOrTshirt, findLogoForColor]);
 
     // Resolve Front URL: Strict pairing for Hoodie AND T-Shirt
     // Also use this logic if NOT customizing (showcase) but auto-cycling, to ensure match.
