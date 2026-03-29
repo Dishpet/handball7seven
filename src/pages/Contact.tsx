@@ -5,15 +5,28 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const { t } = useI18n();
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Message sent! We'll get back to you soon.");
-    setForm({ name: "", email: "", message: "" });
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-contact-email", {
+        body: { name: form.name, email: form.email, message: form.message },
+      });
+      if (error) throw error;
+      toast.success("Message sent! We'll get back to you soon.");
+      setForm({ name: "", email: "", message: "" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send message. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -75,7 +88,9 @@ const Contact = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn-primary w-full text-center min-h-[48px]">{t("contact.send")}</button>
+            <button type="submit" disabled={submitting} className="btn-primary w-full text-center min-h-[48px] disabled:opacity-50">
+              {submitting ? "Sending..." : t("contact.send")}
+            </button>
           </motion.form>
         </div>
       </main>

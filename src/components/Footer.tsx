@@ -81,7 +81,10 @@ const Footer = () => {
 
             <ScrollReveal delay={0.3} className="flex flex-col items-center">
               <h4 className="text-xs tracking-[0.2em] mb-4">{t("footer.connect")}</h4>
-              <div className="flex gap-4">
+              <a href="mailto:info@handball7seven.com" className="text-muted-foreground text-sm hover:text-foreground transition-colors py-0.5 block mb-3">
+                info@handball7seven.com
+              </a>
+              <div className="flex gap-4 justify-center">
                 {socials?.instagram ? (
                   <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-primary transition-colors p-1">
                     <Instagram size={22} />
