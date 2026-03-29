@@ -13,11 +13,12 @@ interface OrderItem {
   size?: string;
   color?: string;
   collection?: string;
+  design?: string;
   quantity?: number;
   image?: string;
 }
 
-function buildItemRows(items: OrderItem[]): string {
+function buildItemRows(items: OrderItem[], isAdmin: boolean): string {
   return items.map(item => `
     <tr>
       <td style="padding:12px 8px;border-bottom:1px solid #eee;">
@@ -32,6 +33,7 @@ function buildItemRows(items: OrderItem[]): string {
             item.collection ? `Collection: ${item.collection}` : '',
           ].filter(Boolean).join(' · ')}
         </span>
+        ${isAdmin && item.design ? `<br/><span style="color:#888;font-size:11px;">Design: <a href="${item.design}" style="color:#d4a24e;">View Design</a></span>` : ''}
       </td>
       <td style="padding:12px 8px;border-bottom:1px solid #eee;text-align:center;">${item.quantity ?? 1}</td>
       <td style="padding:12px 8px;border-bottom:1px solid #eee;text-align:right;">€${((item.price ?? 0) * (item.quantity ?? 1)).toFixed(2)}</td>
@@ -45,7 +47,7 @@ function buildEmailHTML(order: any, isAdmin: boolean): string {
     ? `New Order Received #${order.id.slice(0, 8)}`
     : `Order Confirmation #${order.id.slice(0, 8)}`;
   const intro = isAdmin
-    ? `A new order has been placed${order.customer_email ? ` by ${order.customer_name || order.customer_email}` : ' by a guest'}.`
+    ? `A new order has been placed by ${order.customer_name || order.customer_email || 'a customer'}.`
     : `Thank you for your order! Here are the details of your purchase.`;
 
   return `
@@ -63,11 +65,12 @@ function buildEmailHTML(order: any, isAdmin: boolean): string {
       <h2 style="color:#000;font-size:20px;margin:0 0 8px;">${heading}</h2>
       <p style="color:#666;font-size:14px;line-height:1.6;margin:0 0 24px;">${intro}</p>
 
-      ${isAdmin && order.customer_email ? `
+      ${isAdmin ? `
       <div style="background:#f9f9f9;padding:16px;margin-bottom:24px;border-left:3px solid #d4a24e;">
         <p style="margin:0;font-size:13px;color:#666;">
           <strong>Customer:</strong> ${order.customer_name || 'N/A'}<br/>
-          <strong>Email:</strong> ${order.customer_email}<br/>
+          <strong>Email:</strong> ${order.customer_email || 'N/A'}<br/>
+          <strong>Phone:</strong> ${order.customer_phone || 'N/A'}<br/>
           <strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}
         </p>
       </div>
@@ -84,7 +87,7 @@ function buildEmailHTML(order: any, isAdmin: boolean): string {
           </tr>
         </thead>
         <tbody>
-          ${buildItemRows(items)}
+          ${buildItemRows(items, isAdmin)}
         </tbody>
         <tfoot>
           <tr>
@@ -132,7 +135,7 @@ serve(async (req) => {
 
     const results: string[] = [];
 
-    // Send customer email if we have their email
+    // Send customer email
     if (order.customer_email) {
       const customerHtml = buildEmailHTML(order, false);
       try {
