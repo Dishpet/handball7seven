@@ -1,17 +1,28 @@
 import { X, Plus, Minus, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice } = useCart();
   const { t } = useI18n();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [checkingOut, setCheckingOut] = useState(false);
 
   const handleCheckout = async () => {
+    if (!user) {
+      setIsOpen(false);
+      toast.info("Please sign in or create an account before checkout.");
+      navigate("/auth");
+      return;
+    }
+
     setCheckingOut(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
@@ -67,7 +78,10 @@ const CartDrawer = () => {
                       <img src={item.image} alt={item.name} className="w-16 h-16 sm:w-20 sm:h-20 object-cover bg-muted shrink-0" />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-display uppercase text-xs sm:text-sm tracking-wider truncate">{item.name}</h3>
-                        <p className="text-muted-foreground text-xs mt-1">{t("shop.size")}: {item.size}</p>
+                        <p className="text-muted-foreground text-xs mt-1">
+                          {t("shop.size")}: {item.size}
+                          {item.color && ` · ${item.color}`}
+                        </p>
                         <div className="flex items-center gap-3 mt-2">
                           <button 
                             onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} 
@@ -107,7 +121,7 @@ const CartDrawer = () => {
                   disabled={checkingOut}
                   className="btn-primary w-full text-center min-h-[48px] flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {checkingOut ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : "Checkout"}
+                  {checkingOut ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : user ? "Checkout" : "Sign In to Checkout"}
                 </button>
               </div>
             )}
