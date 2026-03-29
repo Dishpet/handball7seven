@@ -29,9 +29,12 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Try to get authenticated user (optional — supports guest checkout)
+    // Require authenticated user
     let userEmail: string | undefined;
     let userId: string | undefined;
+    let userName: string | undefined;
+    let userPhone: string | undefined;
+
     const authHeader = req.headers.get("Authorization");
     if (authHeader) {
       const token = authHeader.replace("Bearer ", "");
@@ -39,19 +42,36 @@ serve(async (req) => {
       if (data.user) {
         userEmail = data.user.email;
         userId = data.user.id;
+
+        // Fetch profile for name and phone
+        const serviceClient = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        );
+        const { data: profile } = await serviceClient
+          .from("profiles")
+          .select("full_name, phone")
+          .eq("id", data.user.id)
+          .single();
+        if (profile) {
+          userName = profile.full_name || undefined;
+          userPhone = profile.phone || undefined;
+        }
       }
     }
 
-    // Find or create Stripe customer if we have an email
+    if (!userId || !userEmail) {
+      throw new Error("You must be signed in to checkout");
+    }
+
+    // Find or create Stripe customer
     let customerId: string | undefined;
-    if (userEmail) {
-      const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
-      if (customers.data.length > 0) {
-        customerId = customers.data[0].id;
-      }
+    const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
     }
 
-    // Build line items from cart using price_data for dynamic products
+    // Build line items
     const lineItems = items.map((item: any) => ({
       price_data: {
         currency: "eur",
@@ -61,6 +81,8 @@ serve(async (req) => {
           metadata: {
             product_id: item.id,
             size: item.size,
+            color: item.color || '',
+            design: item.design || '',
           },
         },
         unit_amount: Math.round(item.price * 100),
@@ -79,11 +101,13 @@ serve(async (req) => {
     const { data: order, error: orderError } = await serviceClient
       .from("orders")
       .insert({
-        user_id: userId || null,
-        customer_email: userEmail || null,
+        user_id: userId,
+        customer_email: userEmail,
+        customer_name: userName || null,
         items: items,
         total: total,
         status: "pending",
+        notes: userPhone ? `phone:${userPhone}` : '',
       })
       .select("id")
       .single();
@@ -103,16 +127,18 @@ serve(async (req) => {
     });
 
     // Update order with stripe session id
+    const currentNotes = userPhone ? `phone:${userPhone} | stripe_session:${session.id}` : `stripe_session:${session.id}`;
     await serviceClient
       .from("orders")
-      .update({ notes: `stripe_session:${session.id}` })
+      .update({ notes: currentNotes })
       .eq("id", order.id);
 
     // Send order confirmation emails (fire-and-forget)
     const orderData = {
       id: order.id,
-      customer_email: userEmail || null,
-      customer_name: null,
+      customer_email: userEmail,
+      customer_name: userName || null,
+      customer_phone: userPhone || null,
       items: items,
       total: total,
       status: "pending",
