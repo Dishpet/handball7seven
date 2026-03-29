@@ -37,7 +37,7 @@ export default function Auth() {
       if (error) setError(error.message);
       else navigate('/');
     } else {
-      const { error } = await signUp(email, password, fullName);
+      const { error } = await signUp(email, password, fullName, phone);
       if (error) setError(error.message);
       else setMessage('Check your email to confirm your account.');
     }
