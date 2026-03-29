@@ -665,6 +665,8 @@ const Shop = () => {
             name: product.name,
             price: Number(displayPrice),
             size: selectedSize,
+            color: selectedColor,
+            design: designs.back || designs.front || undefined,
             quantity: quantity,
             image: mainImage
         });
