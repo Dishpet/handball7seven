@@ -14,14 +14,14 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    console.log("SUPABASE_URL set:", !!supabaseUrl, "SUPABASE_ANON_KEY set:", !!supabaseAnonKey);
-    
-    const supabaseClient = createClient(
-      supabaseUrl ?? "",
-      supabaseAnonKey ?? ""
-    );
+    console.log("[checkout] start");
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+
+    console.log("[checkout] env check - url:", !!supabaseUrl, "anon:", !!supabaseAnonKey, "service:", !!supabaseServiceKey, "stripe:", !!stripeKey);
 
     const { items } = await req.json();
 
@@ -29,9 +29,10 @@ serve(async (req) => {
       throw new Error("No items provided");
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
+    console.log("[checkout] items:", items.length);
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Require authenticated user
     let userEmail: string | undefined;
@@ -47,11 +48,10 @@ serve(async (req) => {
         userEmail = data.user.email;
         userId = data.user.id;
 
+        console.log("[checkout] user authenticated:", userId);
+
         // Fetch profile for name and phone
-        const serviceClient = createClient(
-          Deno.env.get("SUPABASE_URL") ?? "",
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-        );
+        const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
         const { data: profile } = await serviceClient
           .from("profiles")
           .select("full_name, phone")
@@ -75,6 +75,8 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
+    console.log("[checkout] stripe customer:", customerId || "new");
+
     // Build line items
     const lineItems = items.map((item: any) => ({
       price_data: {
@@ -95,11 +97,7 @@ serve(async (req) => {
     }));
 
     // Create order in database
-    const serviceClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
+    const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
     const total = items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
 
     const { data: order, error: orderError } = await serviceClient
@@ -118,6 +116,8 @@ serve(async (req) => {
 
     if (orderError) throw orderError;
 
+    console.log("[checkout] order created:", order.id);
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : userEmail,
@@ -129,6 +129,8 @@ serve(async (req) => {
         order_id: order.id,
       },
     });
+
+    console.log("[checkout] stripe session created:", session.id);
 
     // Update order with stripe session id
     const currentNotes = userPhone ? `phone:${userPhone} | stripe_session:${session.id}` : `stripe_session:${session.id}`;
@@ -149,13 +151,11 @@ serve(async (req) => {
       created_at: new Date().toISOString(),
     };
 
-    const emailUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const emailKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    fetch(`${emailUrl}/functions/v1/send-order-email`, {
+    fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${emailKey}`,
+        "Authorization": `Bearer ${supabaseAnonKey}`,
       },
       body: JSON.stringify({ order: orderData }),
     }).catch(e => console.error("Email send error:", e));
@@ -165,6 +165,7 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
+    console.error("[checkout] error:", error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
