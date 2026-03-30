@@ -13,12 +13,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-  );
-
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    console.log("SUPABASE_URL set:", !!supabaseUrl, "SUPABASE_ANON_KEY set:", !!supabaseAnonKey);
+    
+    const supabaseClient = createClient(
+      supabaseUrl ?? "",
+      supabaseAnonKey ?? ""
+    );
+
     const { items } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
