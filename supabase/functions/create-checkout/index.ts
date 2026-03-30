@@ -151,11 +151,11 @@ serve(async (req) => {
 
     const emailUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const emailKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+    fetch(`${emailUrl}/functions/v1/send-order-email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${anonKey}`,
+        "Authorization": `Bearer ${emailKey}`,
       },
       body: JSON.stringify({ order: orderData }),
     }).catch(e => console.error("Email send error:", e));
