@@ -149,8 +149,8 @@ serve(async (req) => {
       created_at: new Date().toISOString(),
     };
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const emailUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const emailKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
       method: "POST",
       headers: {
