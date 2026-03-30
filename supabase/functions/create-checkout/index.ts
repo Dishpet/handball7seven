@@ -118,13 +118,16 @@ serve(async (req) => {
 
     console.log("[checkout] order created:", order.id);
 
+    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, '') || "https://handball7seven.com";
+    console.log("[checkout] origin:", origin);
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : userEmail,
       line_items: lineItems,
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/checkout/success?order_id=${order.id}`,
-      cancel_url: `${req.headers.get("origin")}/checkout/canceled`,
+      success_url: `${origin}/checkout/success?order_id=${order.id}`,
+      cancel_url: `${origin}/checkout/canceled`,
       metadata: {
         order_id: order.id,
       },
