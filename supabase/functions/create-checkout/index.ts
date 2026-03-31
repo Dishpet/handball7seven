@@ -99,17 +99,31 @@ serve(async (req) => {
     // Create order in database
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
     const total = items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
+    const totalWithShipping = total + (shippingCost || 0);
+
+    const shippingAddress = shipping ? {
+      fullName: shipping.fullName,
+      phone: shipping.phone,
+      address: shipping.address,
+      city: shipping.city,
+      postalCode: shipping.postalCode,
+      country: shipping.country,
+    } : {};
 
     const { data: order, error: orderError } = await serviceClient
       .from("orders")
       .insert({
         user_id: userId,
         customer_email: userEmail,
-        customer_name: userName || null,
+        customer_name: shipping?.fullName || userName || null,
         items: items,
-        total: total,
+        total: totalWithShipping,
         status: "pending",
-        notes: userPhone ? `phone:${userPhone}` : '',
+        shipping_address: shippingAddress,
+        notes: [
+          shipping?.phone ? `phone:${shipping.phone}` : (userPhone ? `phone:${userPhone}` : ''),
+          shippingCost !== undefined ? `shipping:€${shippingCost}` : '',
+        ].filter(Boolean).join(' | '),
       })
       .select("id")
       .single();
