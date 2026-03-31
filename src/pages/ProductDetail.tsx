@@ -26,7 +26,8 @@ const ProductDetail = () => {
 
   const shippingCroatia = Number(settings?.shipping_rate_croatia) || 0;
   const shippingIntl = Number(settings?.shipping_rate_international) || 0;
-  const freeThreshold = Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdCroatia = Number(settings?.free_shipping_threshold_croatia) || Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdIntl = Number(settings?.free_shipping_threshold_international) || Number(settings?.free_shipping_threshold) || 0;
 
   const products = useMemo(() =>
     (dbProducts ?? []).map(p => ({
