@@ -148,7 +148,7 @@ const ProductDetail = () => {
                     <p>🌍 International: {shippingIntl > 0 ? `€${shippingIntl.toFixed(2)}` : 'FREE'}
                       {freeThresholdIntl > 0 && <span className="text-primary"> · Free above €{freeThresholdIntl.toFixed(0)}</span>}
                     </p>
-                </div>
+                  </div>
               </div>
             </motion.div>
           </div>
