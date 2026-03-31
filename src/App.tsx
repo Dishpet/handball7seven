@@ -65,6 +65,7 @@ const App = () => (
                 <Route path="/faq" element={<Faq />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/unsubscribe" element={<Unsubscribe />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<RequireAdmin><Dashboard /></RequireAdmin>} />

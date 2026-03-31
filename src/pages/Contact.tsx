@@ -16,10 +16,24 @@ const Contact = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const submissionId = crypto.randomUUID();
+
+      // Send admin notification via existing edge function
       const { error } = await supabase.functions.invoke("send-contact-email", {
         body: { name: form.name, email: form.email, message: form.message },
       });
-      if (error) throw error;
+      if (error) console.warn("Admin notification failed:", error);
+
+      // Send confirmation to the user via transactional email
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "contact-confirmation",
+          recipientEmail: form.email,
+          idempotencyKey: `contact-confirm-${submissionId}`,
+          templateData: { name: form.name },
+        },
+      });
+
       toast.success("Message sent! We'll get back to you soon.");
       setForm({ name: "", email: "", message: "" });
     } catch (err: any) {
