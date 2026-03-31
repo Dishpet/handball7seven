@@ -662,12 +662,13 @@ const Shop = () => {
             : designs.front;
 
         addItem({
-            id: product.id + '-' + btoa(JSON.stringify({ c: selectedColor, d: designs, z: selectedSize })),
-            name: product.name,
+            id: product.id + '-' + btoa(JSON.stringify({ c: selectedColor, d: designs, z: selectedSize, st: selectedProduct === 'tshirt' ? selectedStyle : undefined })),
+            name: product.name + (selectedProduct === 'tshirt' ? ` (${selectedStyle})` : ''),
             price: Number(displayPrice),
             size: selectedSize,
             color: selectedColor,
             design: designs.back || designs.front || undefined,
+            style: selectedProduct === 'tshirt' ? selectedStyle : undefined,
             quantity: quantity,
             image: mainImage
         });
