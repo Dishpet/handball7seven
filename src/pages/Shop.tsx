@@ -1273,7 +1273,12 @@ const Shop = () => {
                                     </Button>
                                 ) : (
                                     <button
-                                        onClick={handleAddToCart}
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleAddToCart();
+                                        }}
                                         className="w-full h-[58px] sm:h-[64px] rounded-none relative group/active"
                                         style={{
                                             background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
