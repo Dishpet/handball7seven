@@ -260,6 +260,36 @@ export type Database = {
         }
         Relationships: []
       }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          product_slug: string
+          rating: number
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_slug: string
+          rating: number
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_slug?: string
+          rating?: number
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           badge: string | null
