@@ -1262,7 +1262,7 @@ const Shop = () => {
                             </div>
 
                             {/* Add to Cart Button */}
-                            <div className="flex-1 w-full sm:min-w-[320px] group/btn">
+                            <div className="flex-1 min-w-0 group/btn">
                                 {activeProductData.stockStatus === 'outofstock' ? (
                                     <Button
                                         size="lg"
