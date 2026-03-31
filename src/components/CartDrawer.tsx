@@ -110,15 +110,18 @@ const CartDrawer = () => {
               ) : (
                 <div className="space-y-5 sm:space-y-6">
                   {/* Free shipping progress */}
-                  {freeShippingThreshold > 0 && (
+                  {displayThreshold > 0 && (
                     <div className="bg-muted/50 border border-border p-3 text-sm">
                       {remaining > 0 ? (
                         <>
-                          <p className="text-muted-foreground mb-2">
+                          <p className="text-muted-foreground mb-1">
                             Add <span className="font-bold text-foreground">€{remaining.toFixed(2)}</span> more for free shipping!
                           </p>
+                          <div className="text-xs text-muted-foreground mb-2">
+                            🇭🇷 Free above €{freeThresholdCroatia} · 🌍 Free above €{freeThresholdIntl}
+                          </div>
                           <div className="w-full bg-border h-1.5">
-                            <div className="bg-primary h-1.5 transition-all" style={{ width: `${Math.min(100, (totalPrice / freeShippingThreshold) * 100)}%` }} />
+                            <div className="bg-primary h-1.5 transition-all" style={{ width: `${Math.min(100, (totalPrice / displayThreshold) * 100)}%` }} />
                           </div>
                         </>
                       ) : (

@@ -246,13 +246,15 @@ function ShippingSection() {
 
   const [croatia, setCroatia] = useState<string>('');
   const [intl, setIntl] = useState<string>('');
-  const [freeThreshold, setFreeThreshold] = useState<string>('');
+  const [freeThresholdCroatia, setFreeThresholdCroatia] = useState<string>('');
+  const [freeThresholdIntl, setFreeThresholdIntl] = useState<string>('');
   const [initialized, setInitialized] = useState(false);
 
   if (!initialized && settings && !isLoading) {
     setCroatia(String(settings.shipping_rate_croatia ?? '5'));
     setIntl(String(settings.shipping_rate_international ?? '15'));
-    setFreeThreshold(String(settings.free_shipping_threshold ?? '100'));
+    setFreeThresholdCroatia(String(settings.free_shipping_threshold_croatia ?? settings.free_shipping_threshold ?? '100'));
+    setFreeThresholdIntl(String(settings.free_shipping_threshold_international ?? settings.free_shipping_threshold ?? '200'));
     setInitialized(true);
   }
 
@@ -261,7 +263,8 @@ function ShippingSection() {
       await Promise.all([
         updateSetting.mutateAsync({ key: 'shipping_rate_croatia', value: Number(croatia) }),
         updateSetting.mutateAsync({ key: 'shipping_rate_international', value: Number(intl) }),
-        updateSetting.mutateAsync({ key: 'free_shipping_threshold', value: Number(freeThreshold) }),
+        updateSetting.mutateAsync({ key: 'free_shipping_threshold_croatia', value: Number(freeThresholdCroatia) }),
+        updateSetting.mutateAsync({ key: 'free_shipping_threshold_international', value: Number(freeThresholdIntl) }),
       ]);
       toast.success('Shipping settings saved');
     } catch (e: any) {
@@ -272,23 +275,29 @@ function ShippingSection() {
   return (
     <div className="bg-black border border-white/10 p-4 sm:p-6 space-y-4">
       <h3 className="text-lg font-display uppercase tracking-widest font-bold text-white">Shipping Rates</h3>
-      <p className="text-white/50 text-sm">Configure shipping rates for Croatia and international orders.</p>
+      <p className="text-white/50 text-sm">Configure shipping rates and free shipping thresholds for Croatia and international orders.</p>
 
       {isLoading ? <p className="text-white/50 text-sm">Loading...</p> : (
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <label className="text-white/70 text-sm w-48">🇭🇷 Croatia (€)</label>
+            <label className="text-white/70 text-sm w-48">🇭🇷 Croatia shipping (€)</label>
             <input type="number" step="0.01" min="0" value={croatia} onChange={e => setCroatia(e.target.value)}
               className="flex-1 bg-transparent border border-white/10 text-white p-2 focus:outline-none focus:border-primary min-h-[40px]" />
           </div>
           <div className="flex items-center gap-3">
-            <label className="text-white/70 text-sm w-48">🌍 International (€)</label>
+            <label className="text-white/70 text-sm w-48">🇭🇷 Free shipping above (€)</label>
+            <input type="number" step="0.01" min="0" value={freeThresholdCroatia} onChange={e => setFreeThresholdCroatia(e.target.value)}
+              className="flex-1 bg-transparent border border-white/10 text-white p-2 focus:outline-none focus:border-primary min-h-[40px]" />
+          </div>
+          <hr className="border-white/10 my-2" />
+          <div className="flex items-center gap-3">
+            <label className="text-white/70 text-sm w-48">🌍 International shipping (€)</label>
             <input type="number" step="0.01" min="0" value={intl} onChange={e => setIntl(e.target.value)}
               className="flex-1 bg-transparent border border-white/10 text-white p-2 focus:outline-none focus:border-primary min-h-[40px]" />
           </div>
           <div className="flex items-center gap-3">
-            <label className="text-white/70 text-sm w-48">Free shipping above (€)</label>
-            <input type="number" step="0.01" min="0" value={freeThreshold} onChange={e => setFreeThreshold(e.target.value)}
+            <label className="text-white/70 text-sm w-48">🌍 Free shipping above (€)</label>
+            <input type="number" step="0.01" min="0" value={freeThresholdIntl} onChange={e => setFreeThresholdIntl(e.target.value)}
               className="flex-1 bg-transparent border border-white/10 text-white p-2 focus:outline-none focus:border-primary min-h-[40px]" />
           </div>
           <button onClick={handleSave} disabled={updateSetting.isPending}

@@ -113,22 +113,6 @@ export default function Settings() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
             <div className="bg-black border border-white/10 p-6 flex flex-col">
-              <h3 className="text-xl font-display uppercase tracking-widest font-bold text-white mb-6 border-b border-white/10 pb-4">Shipping Rules</h3>
-              <div className="space-y-4 font-body flex-1">
-                <div>
-                  <label className="block text-white/50 text-xs font-display uppercase tracking-widest mb-2">Free Shipping Threshold (€)</label>
-                  <input type="number" value={freeThreshold} onChange={e => setFreeThreshold(Number(e.target.value))}
-                    className="w-full bg-white/5 border border-white/10 text-white p-3 focus:outline-none focus:border-primary transition-colors min-h-[48px]" />
-                </div>
-                <div>
-                  <label className="block text-white/50 text-xs font-display uppercase tracking-widest mb-2">Standard Shipping Cost (€)</label>
-                  <input type="number" value={shippingCost} onChange={e => setShippingCost(Number(e.target.value))}
-                    className="w-full bg-white/5 border border-white/10 text-white p-3 focus:outline-none focus:border-primary transition-colors min-h-[48px]" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-black border border-white/10 p-6 flex flex-col">
               <h3 className="text-xl font-display uppercase tracking-widest font-bold text-white mb-6 border-b border-white/10 pb-4">General</h3>
               <div className="space-y-4 font-body flex-1">
                 <div>
