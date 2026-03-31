@@ -1308,7 +1308,7 @@ const Shop = () => {
                                 {[
                                     { id: 'details', label: t('shop.tab.details') },
                                     { id: 'features', label: t('shop.tab.features') },
-                                    { id: 'reviews', label: `${t('shop.tab.reviews')} (${activeProductData.ratingCount})` }
+                                    { id: 'reviews', label: `${t('shop.tab.reviews')}` }
                                 ].map((tab) => (
                                     <button
                                         key={tab.id}
