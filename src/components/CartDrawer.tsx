@@ -48,7 +48,7 @@ const CartDrawer = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[300]"
             onClick={() => setIsOpen(false)}
           />
           <motion.div
@@ -56,7 +56,7 @@ const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed right-0 top-0 bottom-0 w-full sm:max-w-md bg-card border-l border-border z-50 flex flex-col"
+            className="fixed right-0 top-0 bottom-0 w-full sm:max-w-md bg-card border-l border-border z-[301] flex flex-col"
           >
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
               <h2 className="font-display uppercase tracking-widest text-base sm:text-lg">{t("nav.cart")}</h2>
