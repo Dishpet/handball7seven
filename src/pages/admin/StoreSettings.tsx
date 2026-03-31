@@ -10,6 +10,7 @@ import {
   StoreSize, StoreColor,
 } from "@/hooks/useStoreCatalog";
 import { useCollections, DbCollection } from "@/hooks/useCollections";
+import { useStoreSettings, useUpdateStoreSetting } from "@/hooks/useStoreSettings";
 
 // ── Sizes Section ──
 function SizesSection() {
