@@ -11,17 +11,11 @@ export default function Settings() {
   const { data: settings, isLoading } = useStoreSettings();
   const updateSetting = useUpdateStoreSetting();
 
-  const [freeThreshold, setFreeThreshold] = useState(100);
-  const [shippingCost, setShippingCost] = useState(5);
   const [storeName, setStoreName] = useState('Handball Seven');
   const [currency, setCurrency] = useState('EUR');
 
   useEffect(() => {
     if (settings) {
-      if (settings.shipping) {
-        setFreeThreshold(settings.shipping.free_threshold ?? 100);
-        setShippingCost(settings.shipping.standard_cost ?? 5);
-      }
       if (settings.general) {
         setStoreName(settings.general.store_name ?? 'Handball Seven');
         setCurrency(settings.general.currency ?? 'EUR');
@@ -31,10 +25,6 @@ export default function Settings() {
 
   const handleSave = async () => {
     try {
-      await updateSetting.mutateAsync({
-        key: 'shipping',
-        value: { free_threshold: freeThreshold, standard_cost: shippingCost },
-      });
       await updateSetting.mutateAsync({
         key: 'general',
         value: { store_name: storeName, currency },
