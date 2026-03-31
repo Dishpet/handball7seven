@@ -149,7 +149,7 @@ const ProductDetail = () => {
                       {freeThresholdIntl > 0 && <span className="text-primary"> · Free above €{freeThresholdIntl.toFixed(0)}</span>}
                     </p>
                   </div>
-              </div>
+                </div>
             </motion.div>
           </div>
 
