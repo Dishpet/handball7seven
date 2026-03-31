@@ -142,10 +142,12 @@ const ProductDetail = () => {
                 <div>
                   <h3 className="font-display uppercase text-xs tracking-widest mb-2">{t("shop.shipping")}</h3>
                   <div className="text-muted-foreground text-sm space-y-1">
-                    <p>🇭🇷 Croatia: {shippingCroatia > 0 ? `€${shippingCroatia.toFixed(2)}` : 'FREE'}</p>
-                    <p>🌍 International: {shippingIntl > 0 ? `€${shippingIntl.toFixed(2)}` : 'FREE'}</p>
-                    {freeThreshold > 0 && <p className="text-primary font-medium">Free shipping on orders over €{freeThreshold.toFixed(0)}</p>}
-                  </div>
+                    <p>🇭🇷 Croatia: {shippingCroatia > 0 ? `€${shippingCroatia.toFixed(2)}` : 'FREE'}
+                      {freeThresholdCroatia > 0 && <span className="text-primary"> · Free above €{freeThresholdCroatia.toFixed(0)}</span>}
+                    </p>
+                    <p>🌍 International: {shippingIntl > 0 ? `€${shippingIntl.toFixed(2)}` : 'FREE'}
+                      {freeThresholdIntl > 0 && <span className="text-primary"> · Free above €{freeThresholdIntl.toFixed(0)}</span>}
+                    </p>
                 </div>
               </div>
             </motion.div>
