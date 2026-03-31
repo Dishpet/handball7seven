@@ -20,7 +20,13 @@ const ProductDetail = () => {
   const { data: dbProducts } = useProducts();
   const { data: storeSizes } = useStoreSizes();
   const { data: storeColors } = useStoreColors();
+  const { data: settings } = useStoreSettings();
   const [selectedSize, setSelectedSize] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
+  const shippingCroatia = Number(settings?.shipping_rate_croatia) || 0;
+  const shippingIntl = Number(settings?.shipping_rate_international) || 0;
+  const freeThreshold = Number(settings?.free_shipping_threshold) || 0;
   const [quantity, setQuantity] = useState(1);
 
   const products = useMemo(() =>
