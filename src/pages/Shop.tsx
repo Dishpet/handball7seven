@@ -1295,11 +1295,11 @@ const Shop = () => {
                                         }}
                                     >
                                         {/* Inner button */}
-                                        <div className="w-full h-full rounded-none bg-gradient-to-r from-primary to-accent flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3">
+                                        <div className="w-full h-full rounded-none bg-gradient-to-r from-primary to-accent flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 min-w-0">
                                             <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform group-hover/active:rotate-12 shrink-0" />
-                                            <span className="text-white text-sm sm:text-lg font-bold whitespace-nowrap font-display uppercase tracking-widest">{t('shop.addtocart')}</span>
-                                            <div className="w-px h-5 sm:h-6 bg-background/30 mx-1 shrink-0" />
-                                            <span className="text-white text-sm sm:text-lg font-bold tabular-nums whitespace-nowrap font-display uppercase tracking-widest">{(activeProductData.price * quantity).toFixed(2)}€</span>
+                                            <span className="text-white text-xs sm:text-base font-bold font-display uppercase tracking-widest truncate">{t('shop.addtocart')}</span>
+                                            <div className="w-px h-5 sm:h-6 bg-background/30 shrink-0" />
+                                            <span className="text-white text-xs sm:text-base font-bold tabular-nums whitespace-nowrap font-display uppercase tracking-widest">{(activeProductData.price * quantity).toFixed(2)}€</span>
                                         </div>
                                     </button>
                                 )}
