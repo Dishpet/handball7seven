@@ -4,6 +4,9 @@ import { useSearchParams } from 'react-router-dom';
 import { ShopScene } from '../components/3d/ShopScene';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Palette, Ruler, ChevronLeft, ChevronRight, Box, X, Star, Check, Plus, Minus, RefreshCcw, ChevronDown } from 'lucide-react';
+import ProductReviews from '@/components/ProductReviews';
+import { useProductReviews } from '@/hooks/useProductReviews';
+import { useStoreSettings } from '@/hooks/useStoreSettings';
 import { useCart } from '@/lib/cart';
 import { useToast } from '@/components/ui/use-toast';
 import { useShopConfig } from '@/hooks/useShopConfig';
@@ -165,6 +168,7 @@ const Shop = () => {
     const { data: storeColors } = useStoreColors();
     const { data: storeSizes } = useStoreSizes();
     const { data: dbCollections } = useCollections(false);
+    const { data: storeSettingsData } = useStoreSettings();
     const collectionColorMap = useCollectionColorMap(dbCollections?.map(c => ({ id: c.id, slug: c.slug })));
 
     // Dynamic SHARED_COLORS from store catalog (with fallback)
@@ -273,6 +277,7 @@ const Shop = () => {
     // Build variant map for light/dark design resolution
     const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
     // State
+    // Reviews from DB
     const [searchParams, setSearchParams] = useSearchParams();
     const [variationCache, setVariationCache] = useState<Record<string, any[]>>({});
     const [selectedProduct, setSelectedProduct] = useState<'hoodie' | 'tshirt' | 'cap' | 'bottle'>('tshirt');
@@ -289,6 +294,7 @@ const Shop = () => {
     const [activeZone, setActiveZone] = useState<'front' | 'back'>('front');
 
     const [selectedSize, setSelectedSize] = useState<string>('L');
+    const [selectedStyle, setSelectedStyle] = useState<'regular' | 'oversized'>('regular');
 
     // UI States
     // Default to showcase mode - cycling should happen on initial load
@@ -661,12 +667,13 @@ const Shop = () => {
             : designs.front;
 
         addItem({
-            id: product.id + '-' + btoa(JSON.stringify({ c: selectedColor, d: designs, z: selectedSize })),
-            name: product.name,
+            id: product.id + '-' + btoa(JSON.stringify({ c: selectedColor, d: designs, z: selectedSize, st: selectedProduct === 'tshirt' ? selectedStyle : undefined })),
+            name: product.name + (selectedProduct === 'tshirt' ? ` (${selectedStyle})` : ''),
             price: Number(displayPrice),
             size: selectedSize,
             color: selectedColor,
             design: designs.back || designs.front || undefined,
+            style: selectedProduct === 'tshirt' ? selectedStyle : undefined,
             quantity: quantity,
             image: mainImage
         });
@@ -1211,6 +1218,28 @@ const Shop = () => {
                                     ) : null;
                                 })()}
 
+                                {/* Style Picker (T-shirt only) */}
+                                {selectedProduct === 'tshirt' && (
+                                    <div className="flex-1 sm:flex-none flex flex-col gap-3 min-w-[180px]">
+                                        <label className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70 px-1 font-display uppercase tracking-widest">Style</label>
+                                        <div className="flex items-center gap-2 bg-background rounded-none border border-border shadow-sm p-1.5 h-[62px]">
+                                            {(['regular', 'oversized'] as const).map(style => (
+                                                <button
+                                                    key={style}
+                                                    onClick={() => setSelectedStyle(style)}
+                                                    className={`flex-1 h-full rounded-none font-bold text-xs transition-all duration-300 flex items-center justify-center font-display uppercase tracking-widest ${
+                                                        selectedStyle === style
+                                                            ? 'bg-black text-white shadow-md'
+                                                            : 'text-muted-foreground hover:bg-muted hover:text-black'
+                                                    }`}
+                                                >
+                                                    {style}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Quantity Picker */}
                                 <div className="flex-1 sm:flex-none flex flex-col gap-3 min-w-[140px]">
                                     <label className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70 px-1 font-display uppercase tracking-widest">{t('shop.quantity')}</label>
@@ -1279,7 +1308,7 @@ const Shop = () => {
                                 {[
                                     { id: 'details', label: t('shop.tab.details') },
                                     { id: 'features', label: t('shop.tab.features') },
-                                    { id: 'reviews', label: `${t('shop.tab.reviews')} (${activeProductData.ratingCount})` }
+                                    { id: 'reviews', label: `${t('shop.tab.reviews')}` }
                                 ].map((tab) => (
                                     <button
                                         key={tab.id}
@@ -1466,47 +1495,8 @@ const Shop = () => {
                                 )}
 
                                 {activeTab === 'reviews' && (
-                                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-                                        {activeProductData.ratingCount > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-4 mb-8 p-6 bg-primary/10 rounded-2xl border border-primary/20">
-                                                    <div className="text-5xl font-black text-primary">{activeProductData.averageRating.toFixed(1)}</div>
-                                                    <div>
-                                                        <div className="flex text-primary mb-1">
-                                                            {[1, 2, 3, 4, 5].map(i => (
-                                                                <Star
-                                                                    key={i}
-                                                                    className={`w-5 h-5 ${i <= Math.round(activeProductData.averageRating) ? 'fill-current' : 'text-muted-foreground'}`}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                        <div className="text-muted-foreground font-medium">Temeljeno na {activeProductData.ratingCount} recenzija</div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Sample Review - kept static for now as actual review text isn't fetched yet */}
-                                                <div className="border-b border-border pb-6">
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <div className="font-bold text-foreground">Marko P.</div>
-                                                        <span className="text-sm text-muted-foreground/70">Prije 2 dana</span>
-                                                    </div>
-                                                    <div className="flex text-primary mb-2">
-                                                        {[1, 2, 3, 4, 5].map(i => <Star key={i} className="fill-current w-4 h-4" />)}
-                                                    </div>
-                                                    <p className="text-muted-foreground">"Vrhunska hoodica, print je jasan i boje su žive. Dostava je bila super brza!"</p>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="text-center py-12">
-                                                <div className="flex justify-center mb-4">
-                                                    <Star className="w-12 h-12 text-muted-foreground" />
-                                                </div>
-                                                <h3 className="text-xl font-bold text-foreground mb-2">{t('shop.noreviews')}</h3>
-                                                <p className="text-muted-foreground">
-                                                    {t('shop.firstreviewer')} "{activeProductData.name}"
-                                                </p>
-                                            </div>
-                                        )}
+                                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <ProductReviews productSlug={selectedProduct} />
                                     </div>
                                 )}
                             </div>

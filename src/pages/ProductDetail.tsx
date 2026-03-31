@@ -10,6 +10,8 @@ import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { useStoreSizes, useStoreColors } from "@/hooks/useStoreCatalog";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
+import ProductReviews from "@/components/ProductReviews";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -18,8 +20,13 @@ const ProductDetail = () => {
   const { data: dbProducts } = useProducts();
   const { data: storeSizes } = useStoreSizes();
   const { data: storeColors } = useStoreColors();
+  const { data: settings } = useStoreSettings();
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+
+  const shippingCroatia = Number(settings?.shipping_rate_croatia) || 0;
+  const shippingIntl = Number(settings?.shipping_rate_international) || 0;
+  const freeThreshold = Number(settings?.free_shipping_threshold) || 0;
 
   const products = useMemo(() =>
     (dbProducts ?? []).map(p => ({
@@ -133,10 +140,20 @@ const ProductDetail = () => {
                 </div>
                 <div>
                   <h3 className="font-display uppercase text-xs tracking-widest mb-2">{t("shop.shipping")}</h3>
-                  <p className="text-muted-foreground text-sm">Free shipping on orders over €100. Returns within 30 days.</p>
+                  <div className="text-muted-foreground text-sm space-y-1">
+                    <p>🇭🇷 Croatia: {shippingCroatia > 0 ? `€${shippingCroatia.toFixed(2)}` : 'FREE'}</p>
+                    <p>🌍 International: {shippingIntl > 0 ? `€${shippingIntl.toFixed(2)}` : 'FREE'}</p>
+                    {freeThreshold > 0 && <p className="text-primary font-medium">Free shipping on orders over €{freeThreshold.toFixed(0)}</p>}
+                  </div>
                 </div>
               </div>
             </motion.div>
+          </div>
+
+          {/* Reviews */}
+          <div className="mt-12 md:mt-16">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-display uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-6 md:mb-8">Reviews</h2>
+            <ProductReviews productSlug={product.id} />
           </div>
 
           {related.length > 0 && (

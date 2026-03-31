@@ -10,6 +10,7 @@ import {
   StoreSize, StoreColor,
 } from "@/hooks/useStoreCatalog";
 import { useCollections, DbCollection } from "@/hooks/useCollections";
+import { useStoreSettings, useUpdateStoreSetting } from "@/hooks/useStoreSettings";
 
 // ── Sizes Section ──
 function SizesSection() {
@@ -238,14 +239,77 @@ function CollectionsSection() {
   );
 }
 
+// ── Shipping Settings Section ──
+function ShippingSection() {
+  const { data: settings, isLoading } = useStoreSettings();
+  const updateSetting = useUpdateStoreSetting();
+
+  const [croatia, setCroatia] = useState<string>('');
+  const [intl, setIntl] = useState<string>('');
+  const [freeThreshold, setFreeThreshold] = useState<string>('');
+  const [initialized, setInitialized] = useState(false);
+
+  if (!initialized && settings && !isLoading) {
+    setCroatia(String(settings.shipping_rate_croatia ?? '5'));
+    setIntl(String(settings.shipping_rate_international ?? '15'));
+    setFreeThreshold(String(settings.free_shipping_threshold ?? '100'));
+    setInitialized(true);
+  }
+
+  const handleSave = async () => {
+    try {
+      await Promise.all([
+        updateSetting.mutateAsync({ key: 'shipping_rate_croatia', value: Number(croatia) }),
+        updateSetting.mutateAsync({ key: 'shipping_rate_international', value: Number(intl) }),
+        updateSetting.mutateAsync({ key: 'free_shipping_threshold', value: Number(freeThreshold) }),
+      ]);
+      toast.success('Shipping settings saved');
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  return (
+    <div className="bg-black border border-white/10 p-4 sm:p-6 space-y-4">
+      <h3 className="text-lg font-display uppercase tracking-widest font-bold text-white">Shipping Rates</h3>
+      <p className="text-white/50 text-sm">Configure shipping rates for Croatia and international orders.</p>
+
+      {isLoading ? <p className="text-white/50 text-sm">Loading...</p> : (
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <label className="text-white/70 text-sm w-48">🇭🇷 Croatia (€)</label>
+            <input type="number" step="0.01" min="0" value={croatia} onChange={e => setCroatia(e.target.value)}
+              className="flex-1 bg-transparent border border-white/10 text-white p-2 focus:outline-none focus:border-primary min-h-[40px]" />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-white/70 text-sm w-48">🌍 International (€)</label>
+            <input type="number" step="0.01" min="0" value={intl} onChange={e => setIntl(e.target.value)}
+              className="flex-1 bg-transparent border border-white/10 text-white p-2 focus:outline-none focus:border-primary min-h-[40px]" />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-white/70 text-sm w-48">Free shipping above (€)</label>
+            <input type="number" step="0.01" min="0" value={freeThreshold} onChange={e => setFreeThreshold(e.target.value)}
+              className="flex-1 bg-transparent border border-white/10 text-white p-2 focus:outline-none focus:border-primary min-h-[40px]" />
+          </div>
+          <button onClick={handleSave} disabled={updateSetting.isPending}
+            className="bg-primary text-black flex items-center gap-2 font-display uppercase tracking-widest font-bold px-4 py-2 text-xs min-h-[40px]">
+            <Save className="w-4 h-4" /> Save Shipping Settings
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StoreSettingsPage() {
   return (
     <AdminLayout>
       <div className="space-y-4 md:space-y-6">
         <div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Store Settings</h2>
-          <p className="text-white/60 font-body text-sm mt-1">Manage available sizes, colors, and collection configurations</p>
+          <p className="text-white/60 font-body text-sm mt-1">Manage available sizes, colors, collection configurations, and shipping</p>
         </div>
+        <ShippingSection />
         <SizesSection />
         <ColorsSection />
         <CollectionsSection />

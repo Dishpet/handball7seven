@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import ShippingForm, { type ShippingInfo } from "@/components/ShippingForm";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice } = useCart();
@@ -14,8 +16,15 @@ const CartDrawer = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [checkingOut, setCheckingOut] = useState(false);
+  const [showShipping, setShowShipping] = useState(false);
+  const { data: settings } = useStoreSettings();
 
-  const handleCheckout = async () => {
+  const freeShippingThreshold = Number(settings?.free_shipping_threshold) || 0;
+  const shippingCroatia = Number(settings?.shipping_rate_croatia) || 0;
+  const shippingInternational = Number(settings?.shipping_rate_international) || 0;
+  const remaining = freeShippingThreshold > 0 ? Math.max(0, freeShippingThreshold - totalPrice) : 0;
+
+  const handleCheckout = async (shippingInfo: ShippingInfo) => {
     if (!user) {
       setIsOpen(false);
       toast.info("Please sign in or create an account before checkout.");
@@ -25,8 +34,17 @@ const CartDrawer = () => {
 
     setCheckingOut(true);
     try {
+      const isCroatia = shippingInfo.country === 'Croatia';
+      const shippingCost = totalPrice >= freeShippingThreshold && freeShippingThreshold > 0
+        ? 0
+        : (isCroatia ? shippingCroatia : shippingInternational);
+
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { items },
+        body: {
+          items,
+          shipping: shippingInfo,
+          shippingCost,
+        },
       });
       if (error) throw error;
       if (data?.url) {
@@ -40,6 +58,16 @@ const CartDrawer = () => {
     }
   };
 
+  const handleProceed = () => {
+    if (!user) {
+      setIsOpen(false);
+      toast.info("Please sign in or create an account before checkout.");
+      navigate("/auth");
+      return;
+    }
+    setShowShipping(true);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -49,7 +77,7 @@ const CartDrawer = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[300]"
-            onClick={() => setIsOpen(false)}
+            onClick={() => { setIsOpen(false); setShowShipping(false); }}
           />
           <motion.div
             initial={{ x: "100%" }}
@@ -59,9 +87,11 @@ const CartDrawer = () => {
             className="fixed right-0 top-0 bottom-0 w-full sm:max-w-md bg-card border-l border-border z-[301] flex flex-col"
           >
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
-              <h2 className="font-display uppercase tracking-widest text-base sm:text-lg">{t("nav.cart")}</h2>
+              <h2 className="font-display uppercase tracking-widest text-base sm:text-lg">
+                {showShipping ? 'Shipping' : t("nav.cart")}
+              </h2>
               <button 
-                onClick={() => setIsOpen(false)} 
+                onClick={() => { setIsOpen(false); setShowShipping(false); }} 
                 className="text-foreground/60 hover:text-foreground p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <X size={20} />
@@ -69,10 +99,38 @@ const CartDrawer = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              {items.length === 0 ? (
+              {showShipping ? (
+                <ShippingForm onSubmit={handleCheckout} submitting={checkingOut} />
+              ) : items.length === 0 ? (
                 <p className="text-muted-foreground text-sm text-center py-12">Your cart is empty.</p>
               ) : (
                 <div className="space-y-5 sm:space-y-6">
+                  {/* Free shipping progress */}
+                  {freeShippingThreshold > 0 && (
+                    <div className="bg-muted/50 border border-border p-3 text-sm">
+                      {remaining > 0 ? (
+                        <>
+                          <p className="text-muted-foreground mb-2">
+                            Add <span className="font-bold text-foreground">€{remaining.toFixed(2)}</span> more for free shipping!
+                          </p>
+                          <div className="w-full bg-border h-1.5">
+                            <div className="bg-primary h-1.5 transition-all" style={{ width: `${Math.min(100, (totalPrice / freeShippingThreshold) * 100)}%` }} />
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-primary font-bold">🎉 You qualify for free shipping!</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Shipping rates preview */}
+                  {(shippingCroatia > 0 || shippingInternational > 0) && remaining > 0 && (
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <p>🇭🇷 Croatia: €{shippingCroatia.toFixed(2)}</p>
+                      <p>🌍 International: €{shippingInternational.toFixed(2)}</p>
+                    </div>
+                  )}
+
                   {items.map(item => (
                     <div key={`${item.id}-${item.size}`} className="flex gap-3 sm:gap-4">
                       <img src={item.image} alt={item.name} className="w-16 h-16 sm:w-20 sm:h-20 object-cover bg-muted shrink-0" />
@@ -110,18 +168,17 @@ const CartDrawer = () => {
               )}
             </div>
 
-            {items.length > 0 && (
+            {items.length > 0 && !showShipping && (
               <div className="p-4 sm:p-6 border-t border-border pb-safe">
                 <div className="flex justify-between mb-4">
                   <span className="font-display uppercase tracking-wider text-sm">Total</span>
                   <span className="font-display text-lg">€{totalPrice.toFixed(2)}</span>
                 </div>
                 <button
-                  onClick={handleCheckout}
-                  disabled={checkingOut}
-                  className="btn-primary w-full text-center min-h-[48px] flex items-center justify-center gap-2 disabled:opacity-50"
+                  onClick={handleProceed}
+                  className="btn-primary w-full text-center min-h-[48px] flex items-center justify-center gap-2"
                 >
-                  {checkingOut ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : user ? "Checkout" : "Sign In to Checkout"}
+                  {user ? "Continue to Shipping" : "Sign In to Checkout"}
                 </button>
               </div>
             )}

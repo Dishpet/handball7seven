@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import { Instagram, MessageCircle } from "lucide-react";
+import { Instagram } from "lucide-react";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -93,7 +94,7 @@ const Footer = () => {
                   <a href="#" className="text-foreground/40 hover:text-primary transition-colors p-1"><Instagram size={22} /></a>
                 )}
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-[#25D366] transition-colors p-1">
-                  <MessageCircle size={22} />
+                  <WhatsAppIcon size={22} />
                 </a>
               </div>
             </ScrollReveal>

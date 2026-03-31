@@ -23,7 +23,7 @@ serve(async (req) => {
 
     console.log("[checkout] env check - url:", !!supabaseUrl, "anon:", !!supabaseAnonKey, "service:", !!supabaseServiceKey, "stripe:", !!stripeKey);
 
-    const { items } = await req.json();
+    const { items, shipping, shippingCost } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw new Error("No items provided");
@@ -99,17 +99,31 @@ serve(async (req) => {
     // Create order in database
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
     const total = items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
+    const totalWithShipping = total + (shippingCost || 0);
+
+    const shippingAddress = shipping ? {
+      fullName: shipping.fullName,
+      phone: shipping.phone,
+      address: shipping.address,
+      city: shipping.city,
+      postalCode: shipping.postalCode,
+      country: shipping.country,
+    } : {};
 
     const { data: order, error: orderError } = await serviceClient
       .from("orders")
       .insert({
         user_id: userId,
         customer_email: userEmail,
-        customer_name: userName || null,
+        customer_name: shipping?.fullName || userName || null,
         items: items,
-        total: total,
+        total: totalWithShipping,
         status: "pending",
-        notes: userPhone ? `phone:${userPhone}` : '',
+        shipping_address: shippingAddress,
+        notes: [
+          shipping?.phone ? `phone:${shipping.phone}` : (userPhone ? `phone:${userPhone}` : ''),
+          shippingCost !== undefined ? `shipping:€${shippingCost}` : '',
+        ].filter(Boolean).join(' | '),
       })
       .select("id")
       .single();
@@ -120,6 +134,20 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, '') || "https://handball7seven.com";
     console.log("[checkout] origin:", origin);
+
+    // Add shipping as a line item if applicable
+    if (shippingCost && shippingCost > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "eur",
+          product_data: {
+            name: `Shipping (${shipping?.country === 'Croatia' ? 'Croatia' : 'International'})`,
+          },
+          unit_amount: Math.round(shippingCost * 100),
+        },
+        quantity: 1,
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
