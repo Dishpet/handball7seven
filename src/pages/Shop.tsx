@@ -1213,6 +1213,28 @@ const Shop = () => {
                                     ) : null;
                                 })()}
 
+                                {/* Style Picker (T-shirt only) */}
+                                {selectedProduct === 'tshirt' && (
+                                    <div className="flex-1 sm:flex-none flex flex-col gap-3 min-w-[180px]">
+                                        <label className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70 px-1 font-display uppercase tracking-widest">Style</label>
+                                        <div className="flex items-center gap-2 bg-background rounded-none border border-border shadow-sm p-1.5 h-[62px]">
+                                            {(['regular', 'oversized'] as const).map(style => (
+                                                <button
+                                                    key={style}
+                                                    onClick={() => setSelectedStyle(style)}
+                                                    className={`flex-1 h-full rounded-none font-bold text-xs transition-all duration-300 flex items-center justify-center font-display uppercase tracking-widest ${
+                                                        selectedStyle === style
+                                                            ? 'bg-black text-white shadow-md'
+                                                            : 'text-muted-foreground hover:bg-muted hover:text-black'
+                                                    }`}
+                                                >
+                                                    {style}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Quantity Picker */}
                                 <div className="flex-1 sm:flex-none flex flex-col gap-3 min-w-[140px]">
                                     <label className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70 px-1 font-display uppercase tracking-widest">{t('shop.quantity')}</label>
