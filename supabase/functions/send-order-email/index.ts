@@ -63,13 +63,23 @@ function buildEmailHTML(order: any, isAdmin: boolean): string {
     <div style="padding:32px 24px;">
       <h2 style="color:#000;font-size:20px;margin:0 0 8px;">${heading}</h2>
       <p style="color:#666;font-size:14px;line-height:1.6;margin:0 0 24px;">${intro}</p>
-      ${isAdmin ? `
       <div style="background:#f9f9f9;padding:16px;margin-bottom:24px;border-left:3px solid #d4a24e;">
         <p style="margin:0;font-size:13px;color:#666;">
           <strong>Customer:</strong> ${order.customer_name || 'N/A'}<br/>
           <strong>Email:</strong> ${order.customer_email || 'N/A'}<br/>
-          <strong>Phone:</strong> ${order.customer_phone || 'N/A'}<br/>
+          <strong>Phone:</strong> ${order.shipping_address?.phone || order.customer_phone || 'N/A'}<br/>
           <strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}
+        </p>
+      </div>
+      ${order.shipping_address?.address ? `
+      <div style="background:#f9f9f9;padding:16px;margin-bottom:24px;border-left:3px solid #d4a24e;">
+        <p style="margin:0;font-size:13px;color:#666;">
+          <strong>Shipping Address:</strong><br/>
+          ${order.shipping_address.fullName || ''}<br/>
+          ${order.shipping_address.address || ''}<br/>
+          ${order.shipping_address.postalCode || ''} ${order.shipping_address.city || ''}<br/>
+          ${order.shipping_address.country || ''}<br/>
+          ${order.shipping_address.phone ? `Phone: ${order.shipping_address.phone}` : ''}
         </p>
       </div>
       ` : ''}

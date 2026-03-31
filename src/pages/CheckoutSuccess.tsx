@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
@@ -10,10 +11,59 @@ export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("order_id");
   const { clearCart } = useCart();
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     clearCart();
   }, []);
+
+  // Send order confirmation email after payment success
+  useEffect(() => {
+    if (!orderId || emailSent) return;
+
+    const sendOrderEmail = async () => {
+      try {
+        const { data: order, error } = await supabase
+          .from("orders")
+          .select("*")
+          .eq("id", orderId)
+          .single();
+
+        if (error || !order) {
+          console.error("Failed to fetch order for email:", error);
+          return;
+        }
+
+        // Update order status to paid
+        await supabase
+          .from("orders")
+          .update({ status: "paid" })
+          .eq("id", orderId);
+
+        const orderData = {
+          id: order.id,
+          customer_email: order.customer_email,
+          customer_name: order.customer_name,
+          customer_phone: (order.shipping_address as any)?.phone || null,
+          items: order.items,
+          total: order.total,
+          status: "paid",
+          created_at: order.created_at,
+          shipping_address: order.shipping_address,
+        };
+
+        await supabase.functions.invoke("send-order-email", {
+          body: { order: orderData },
+        });
+
+        setEmailSent(true);
+      } catch (e) {
+        console.error("Error sending order email:", e);
+      }
+    };
+
+    sendOrderEmail();
+  }, [orderId, emailSent]);
 
   return (
     <div className="min-h-screen bg-background">
