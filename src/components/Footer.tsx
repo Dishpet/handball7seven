@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import { Instagram, MessageCircle } from "lucide-react";
+import { Instagram } from "lucide-react";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 import ScrollReveal from "@/components/ScrollReveal";
 
