@@ -289,6 +289,7 @@ const Shop = () => {
     const [activeZone, setActiveZone] = useState<'front' | 'back'>('front');
 
     const [selectedSize, setSelectedSize] = useState<string>('L');
+    const [selectedStyle, setSelectedStyle] = useState<'regular' | 'oversized'>('regular');
 
     // UI States
     // Default to showcase mode - cycling should happen on initial load
