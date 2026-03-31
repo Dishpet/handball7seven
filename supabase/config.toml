@@ -2,3 +2,6 @@ project_id = "eotwmtkhtnawvrtyoloy"
 
 [functions.create-checkout]
 verify_jwt = false
+
+[functions.process-email-queue]
+verify_jwt = true
