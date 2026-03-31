@@ -164,32 +164,15 @@ serve(async (req) => {
     console.log("[checkout] stripe session created:", session.id);
 
     // Update order with stripe session id
-    const currentNotes = userPhone ? `phone:${userPhone} | stripe_session:${session.id}` : `stripe_session:${session.id}`;
+    const currentNotes = [
+      shipping?.phone ? `phone:${shipping.phone}` : (userPhone ? `phone:${userPhone}` : ''),
+      `stripe_session:${session.id}`,
+      shippingCost !== undefined ? `shipping:€${shippingCost}` : '',
+    ].filter(Boolean).join(' | ');
     await serviceClient
       .from("orders")
       .update({ notes: currentNotes })
       .eq("id", order.id);
-
-    // Send order confirmation emails (fire-and-forget)
-    const orderData = {
-      id: order.id,
-      customer_email: userEmail,
-      customer_name: userName || null,
-      customer_phone: userPhone || null,
-      items: items,
-      total: total,
-      status: "pending",
-      created_at: new Date().toISOString(),
-    };
-
-    fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${supabaseAnonKey}`,
-      },
-      body: JSON.stringify({ order: orderData }),
-    }).catch(e => console.error("Email send error:", e));
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
