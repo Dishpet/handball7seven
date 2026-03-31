@@ -94,7 +94,7 @@ const Footer = () => {
                   <a href="#" className="text-foreground/40 hover:text-primary transition-colors p-1"><Instagram size={22} /></a>
                 )}
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-[#25D366] transition-colors p-1">
-                  <MessageCircle size={22} />
+                  <WhatsAppIcon size={22} />
                 </a>
               </div>
             </ScrollReveal>
