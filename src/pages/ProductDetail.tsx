@@ -10,6 +10,8 @@ import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { useStoreSizes, useStoreColors } from "@/hooks/useStoreCatalog";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
+import ProductReviews from "@/components/ProductReviews";
 
 const ProductDetail = () => {
   const { id } = useParams();
