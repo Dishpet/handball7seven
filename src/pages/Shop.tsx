@@ -1495,47 +1495,8 @@ const Shop = () => {
                                 )}
 
                                 {activeTab === 'reviews' && (
-                                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-                                        {activeProductData.ratingCount > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-4 mb-8 p-6 bg-primary/10 rounded-2xl border border-primary/20">
-                                                    <div className="text-5xl font-black text-primary">{activeProductData.averageRating.toFixed(1)}</div>
-                                                    <div>
-                                                        <div className="flex text-primary mb-1">
-                                                            {[1, 2, 3, 4, 5].map(i => (
-                                                                <Star
-                                                                    key={i}
-                                                                    className={`w-5 h-5 ${i <= Math.round(activeProductData.averageRating) ? 'fill-current' : 'text-muted-foreground'}`}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                        <div className="text-muted-foreground font-medium">Temeljeno na {activeProductData.ratingCount} recenzija</div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Sample Review - kept static for now as actual review text isn't fetched yet */}
-                                                <div className="border-b border-border pb-6">
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <div className="font-bold text-foreground">Marko P.</div>
-                                                        <span className="text-sm text-muted-foreground/70">Prije 2 dana</span>
-                                                    </div>
-                                                    <div className="flex text-primary mb-2">
-                                                        {[1, 2, 3, 4, 5].map(i => <Star key={i} className="fill-current w-4 h-4" />)}
-                                                    </div>
-                                                    <p className="text-muted-foreground">"Vrhunska hoodica, print je jasan i boje su žive. Dostava je bila super brza!"</p>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="text-center py-12">
-                                                <div className="flex justify-center mb-4">
-                                                    <Star className="w-12 h-12 text-muted-foreground" />
-                                                </div>
-                                                <h3 className="text-xl font-bold text-foreground mb-2">{t('shop.noreviews')}</h3>
-                                                <p className="text-muted-foreground">
-                                                    {t('shop.firstreviewer')} "{activeProductData.name}"
-                                                </p>
-                                            </div>
-                                        )}
+                                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <ProductReviews productSlug={selectedProduct} />
                                     </div>
                                 )}
                             </div>
