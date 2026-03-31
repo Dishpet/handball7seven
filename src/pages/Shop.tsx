@@ -168,6 +168,7 @@ const Shop = () => {
     const { data: storeColors } = useStoreColors();
     const { data: storeSizes } = useStoreSizes();
     const { data: dbCollections } = useCollections(false);
+    const { data: storeSettingsData } = useStoreSettings();
     const collectionColorMap = useCollectionColorMap(dbCollections?.map(c => ({ id: c.id, slug: c.slug })));
 
     // Dynamic SHARED_COLORS from store catalog (with fallback)
