@@ -38,7 +38,8 @@ const CartDrawer = () => {
     setCheckingOut(true);
     try {
       const isCroatia = shippingInfo.country === 'Croatia';
-      const shippingCost = totalPrice >= freeShippingThreshold && freeShippingThreshold > 0
+      const threshold = isCroatia ? freeThresholdCroatia : freeThresholdIntl;
+      const shippingCost = totalPrice >= threshold && threshold > 0
         ? 0
         : (isCroatia ? shippingCroatia : shippingInternational);
 
