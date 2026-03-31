@@ -135,6 +135,20 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, '') || "https://handball7seven.com";
     console.log("[checkout] origin:", origin);
 
+    // Add shipping as a line item if applicable
+    if (shippingCost && shippingCost > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "eur",
+          product_data: {
+            name: `Shipping (${shipping?.country === 'Croatia' ? 'Croatia' : 'International'})`,
+          },
+          unit_amount: Math.round(shippingCost * 100),
+        },
+        quantity: 1,
+      });
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : userEmail,
