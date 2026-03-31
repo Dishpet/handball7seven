@@ -19,10 +19,13 @@ const CartDrawer = () => {
   const [showShipping, setShowShipping] = useState(false);
   const { data: settings } = useStoreSettings();
 
-  const freeShippingThreshold = Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdCroatia = Number(settings?.free_shipping_threshold_croatia) || Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdIntl = Number(settings?.free_shipping_threshold_international) || Number(settings?.free_shipping_threshold) || 0;
   const shippingCroatia = Number(settings?.shipping_rate_croatia) || 0;
   const shippingInternational = Number(settings?.shipping_rate_international) || 0;
-  const remaining = freeShippingThreshold > 0 ? Math.max(0, freeShippingThreshold - totalPrice) : 0;
+  const lowestThreshold = Math.min(freeThresholdCroatia || Infinity, freeThresholdIntl || Infinity);
+  const displayThreshold = lowestThreshold === Infinity ? 0 : lowestThreshold;
+  const remaining = displayThreshold > 0 ? Math.max(0, displayThreshold - totalPrice) : 0;
 
   const handleCheckout = async (shippingInfo: ShippingInfo) => {
     if (!user) {
