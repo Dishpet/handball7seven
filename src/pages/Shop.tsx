@@ -277,6 +277,7 @@ const Shop = () => {
     // Build variant map for light/dark design resolution
     const designVariantMap = useMemo(() => buildDesignVariantMap(dbDesignCollections), [dbDesignCollections]);
     // State
+    // Reviews from DB
     const [searchParams, setSearchParams] = useSearchParams();
     const [variationCache, setVariationCache] = useState<Record<string, any[]>>({});
     const [selectedProduct, setSelectedProduct] = useState<'hoodie' | 'tshirt' | 'cap' | 'bottle'>('tshirt');
