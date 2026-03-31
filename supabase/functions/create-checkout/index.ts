@@ -23,7 +23,7 @@ serve(async (req) => {
 
     console.log("[checkout] env check - url:", !!supabaseUrl, "anon:", !!supabaseAnonKey, "service:", !!supabaseServiceKey, "stripe:", !!stripeKey);
 
-    const { items } = await req.json();
+    const { items, shipping, shippingCost } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw new Error("No items provided");
