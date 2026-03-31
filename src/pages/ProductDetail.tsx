@@ -26,7 +26,8 @@ const ProductDetail = () => {
 
   const shippingCroatia = Number(settings?.shipping_rate_croatia) || 0;
   const shippingIntl = Number(settings?.shipping_rate_international) || 0;
-  const freeThreshold = Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdCroatia = Number(settings?.free_shipping_threshold_croatia) || Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdIntl = Number(settings?.free_shipping_threshold_international) || Number(settings?.free_shipping_threshold) || 0;
 
   const products = useMemo(() =>
     (dbProducts ?? []).map(p => ({
@@ -141,9 +142,12 @@ const ProductDetail = () => {
                 <div>
                   <h3 className="font-display uppercase text-xs tracking-widest mb-2">{t("shop.shipping")}</h3>
                   <div className="text-muted-foreground text-sm space-y-1">
-                    <p>🇭🇷 Croatia: {shippingCroatia > 0 ? `€${shippingCroatia.toFixed(2)}` : 'FREE'}</p>
-                    <p>🌍 International: {shippingIntl > 0 ? `€${shippingIntl.toFixed(2)}` : 'FREE'}</p>
-                    {freeThreshold > 0 && <p className="text-primary font-medium">Free shipping on orders over €{freeThreshold.toFixed(0)}</p>}
+                    <p>🇭🇷 Croatia: {shippingCroatia > 0 ? `€${shippingCroatia.toFixed(2)}` : 'FREE'}
+                      {freeThresholdCroatia > 0 && <span className="text-primary"> · Free above €{freeThresholdCroatia.toFixed(0)}</span>}
+                    </p>
+                    <p>🌍 International: {shippingIntl > 0 ? `€${shippingIntl.toFixed(2)}` : 'FREE'}
+                      {freeThresholdIntl > 0 && <span className="text-primary"> · Free above €{freeThresholdIntl.toFixed(0)}</span>}
+                    </p>
                   </div>
                 </div>
               </div>

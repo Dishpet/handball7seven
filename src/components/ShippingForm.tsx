@@ -31,7 +31,8 @@ export default function ShippingForm({ onSubmit, submitting }: Props) {
 
   const shippingCroatia = settings?.shipping_rate_croatia ?? 0;
   const shippingInternational = settings?.shipping_rate_international ?? 0;
-  const freeShippingThreshold = settings?.free_shipping_threshold ?? 0;
+  const freeThresholdCroatia = Number(settings?.free_shipping_threshold_croatia) || Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdIntl = Number(settings?.free_shipping_threshold_international) || Number(settings?.free_shipping_threshold) || 0;
 
   const isCroatia = info.country === 'Croatia';
   const shippingRate = isCroatia ? shippingCroatia : shippingInternational;

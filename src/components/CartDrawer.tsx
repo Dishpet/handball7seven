@@ -19,10 +19,13 @@ const CartDrawer = () => {
   const [showShipping, setShowShipping] = useState(false);
   const { data: settings } = useStoreSettings();
 
-  const freeShippingThreshold = Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdCroatia = Number(settings?.free_shipping_threshold_croatia) || Number(settings?.free_shipping_threshold) || 0;
+  const freeThresholdIntl = Number(settings?.free_shipping_threshold_international) || Number(settings?.free_shipping_threshold) || 0;
   const shippingCroatia = Number(settings?.shipping_rate_croatia) || 0;
   const shippingInternational = Number(settings?.shipping_rate_international) || 0;
-  const remaining = freeShippingThreshold > 0 ? Math.max(0, freeShippingThreshold - totalPrice) : 0;
+  const lowestThreshold = Math.min(freeThresholdCroatia || Infinity, freeThresholdIntl || Infinity);
+  const displayThreshold = lowestThreshold === Infinity ? 0 : lowestThreshold;
+  const remaining = displayThreshold > 0 ? Math.max(0, displayThreshold - totalPrice) : 0;
 
   const handleCheckout = async (shippingInfo: ShippingInfo) => {
     if (!user) {
@@ -35,7 +38,8 @@ const CartDrawer = () => {
     setCheckingOut(true);
     try {
       const isCroatia = shippingInfo.country === 'Croatia';
-      const shippingCost = totalPrice >= freeShippingThreshold && freeShippingThreshold > 0
+      const threshold = isCroatia ? freeThresholdCroatia : freeThresholdIntl;
+      const shippingCost = totalPrice >= threshold && threshold > 0
         ? 0
         : (isCroatia ? shippingCroatia : shippingInternational);
 
@@ -106,15 +110,18 @@ const CartDrawer = () => {
               ) : (
                 <div className="space-y-5 sm:space-y-6">
                   {/* Free shipping progress */}
-                  {freeShippingThreshold > 0 && (
+                  {displayThreshold > 0 && (
                     <div className="bg-muted/50 border border-border p-3 text-sm">
                       {remaining > 0 ? (
                         <>
-                          <p className="text-muted-foreground mb-2">
+                          <p className="text-muted-foreground mb-1">
                             Add <span className="font-bold text-foreground">€{remaining.toFixed(2)}</span> more for free shipping!
                           </p>
+                          <div className="text-xs text-muted-foreground mb-2">
+                            🇭🇷 Free above €{freeThresholdCroatia} · 🌍 Free above €{freeThresholdIntl}
+                          </div>
                           <div className="w-full bg-border h-1.5">
-                            <div className="bg-primary h-1.5 transition-all" style={{ width: `${Math.min(100, (totalPrice / freeShippingThreshold) * 100)}%` }} />
+                            <div className="bg-primary h-1.5 transition-all" style={{ width: `${Math.min(100, (totalPrice / displayThreshold) * 100)}%` }} />
                           </div>
                         </>
                       ) : (
