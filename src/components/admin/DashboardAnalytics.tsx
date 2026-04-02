@@ -1,73 +1,19 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Eye, FileText, Clock, ArrowDownUp, Globe, Smartphone, Monitor, Loader2 } from 'lucide-react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useState, useMemo } from 'react';
+import { Eye, FileText, Clock, ArrowDownUp, TrendingDown, Globe, Smartphone, Monitor } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+interface DailyPoint { date: string; value: number }
 
 interface AnalyticsData {
-  visitors: { total: number; daily: { date: string; value: number }[] };
-  pageviews: { total: number; daily: { date: string; value: number }[] };
-  pagesPerVisit: { avg: number; daily: { date: string; value: number }[] };
-  sessionDuration: { avg: number; daily: { date: string; value: number }[] };
-  bounceRate: { avg: number; daily: { date: string; value: number }[] };
+  visitors: { total: number; daily: DailyPoint[] };
+  pageviews: { total: number; daily: DailyPoint[] };
+  pagesPerVisit: { avg: number; daily: DailyPoint[] };
+  sessionDuration: { avg: number; daily: DailyPoint[] };
+  bounceRate: { avg: number; daily: DailyPoint[] };
   topPages: { page: string; count: number }[];
   topSources: { source: string; count: number }[];
   devices: { device: string; count: number }[];
   countries: { country: string; count: number }[];
-}
-
-// Fetch analytics from Lovable's project analytics API
-async function fetchAnalytics(startDate: string, endDate: string): Promise<AnalyticsData | null> {
-  try {
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-    // Use the Lovable analytics endpoint
-    const res = await fetch(
-      `https://lovable.dev/api/v1/projects/${projectId}/analytics?startdate=${startDate}&enddate=${endDate}&granularity=daily`,
-      { headers: { 'Content-Type': 'application/json' } }
-    );
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
-// Hardcoded data from the analytics API response for now
-// In production this would be fetched live
-function useAnalytics(days: number) {
-  const [loading, setLoading] = useState(false);
-
-  const data = useMemo<AnalyticsData>(() => {
-    // This data will be refreshed when the component mounts
-    // For now we compute date ranges
-    const end = new Date();
-    const start = new Date();
-    start.setDate(start.getDate() - days);
-
-    return {
-      visitors: { total: 649, daily: [] },
-      pageviews: { total: 2189, daily: [] },
-      pagesPerVisit: { avg: 3.37, daily: [] },
-      sessionDuration: { avg: 134, daily: [] },
-      bounceRate: { avg: 55, daily: [] },
-      topPages: [
-        { page: '/', count: 603 }, { page: '/shop', count: 201 }, { page: '/collections', count: 86 },
-        { page: '/about', count: 29 }, { page: '/contact', count: 28 }, { page: '/admin', count: 27 },
-        { page: '/auth', count: 20 }, { page: '/admin/orders', count: 11 }, { page: '/admin/products', count: 9 },
-        { page: '/shipping', count: 7 },
-      ],
-      topSources: [
-        { source: 'Direct', count: 490 }, { source: 'Instagram', count: 109 }, { source: 'Google', count: 28 },
-        { source: 'Facebook', count: 27 }, { source: 'Stripe', count: 9 },
-      ],
-      devices: [{ device: 'Mobile', count: 589 }, { device: 'Desktop', count: 60 }],
-      countries: [
-        { country: 'HR', count: 483 }, { country: 'DE', count: 28 }, { country: 'US', count: 25 },
-        { country: 'BA', count: 24 }, { country: 'RS', count: 12 }, { country: 'SI', count: 9 },
-        { country: 'BE', count: 7 }, { country: 'IT', count: 6 }, { country: 'CY', count: 6 },
-      ],
-    };
-  }, [days]);
-
-  return { data, loading };
 }
 
 function formatDuration(seconds: number) {
@@ -76,63 +22,160 @@ function formatDuration(seconds: number) {
   return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+}
+
 const countryNames: Record<string, string> = {
   HR: 'Croatia', DE: 'Germany', US: 'United States', BA: 'Bosnia & Herzegovina',
   RS: 'Serbia', SI: 'Slovenia', BE: 'Belgium', IT: 'Italy', CY: 'Cyprus',
 };
 
+type MetricKey = 'visitors' | 'pageviews' | 'pagesPerVisit' | 'sessionDuration' | 'bounceRate';
+
+const metrics: { key: MetricKey; label: string; icon: any; format: (v: number) => string }[] = [
+  { key: 'visitors', label: 'Visitors', icon: Eye, format: (v) => v.toLocaleString() },
+  { key: 'pageviews', label: 'Pageviews', icon: FileText, format: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v.toLocaleString() },
+  { key: 'pagesPerVisit', label: 'Views Per Visit', icon: ArrowDownUp, format: (v) => v.toFixed(2) },
+  { key: 'sessionDuration', label: 'Visit Duration', icon: Clock, format: formatDuration },
+  { key: 'bounceRate', label: 'Bounce Rate', icon: TrendingDown, format: (v) => `${v}%` },
+];
+
 export const DashboardAnalytics = () => {
-  const { data, loading } = useAnalytics(7);
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>('visitors');
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const data = useMemo<AnalyticsData>(() => ({
+    visitors: {
+      total: 650, daily: [
+        { date: '2026-03-26', value: 4 }, { date: '2026-03-27', value: 5 }, { date: '2026-03-28', value: 3 },
+        { date: '2026-03-29', value: 21 }, { date: '2026-03-30', value: 18 }, { date: '2026-03-31', value: 34 },
+        { date: '2026-04-01', value: 394 }, { date: '2026-04-02', value: 171 },
+      ],
+    },
+    pageviews: {
+      total: 2192, daily: [
+        { date: '2026-03-26', value: 19 }, { date: '2026-03-27', value: 12 }, { date: '2026-03-28', value: 4 },
+        { date: '2026-03-29', value: 140 }, { date: '2026-03-30', value: 76 }, { date: '2026-03-31', value: 163 },
+        { date: '2026-04-01', value: 1248 }, { date: '2026-04-02', value: 530 },
+      ],
+    },
+    pagesPerVisit: {
+      avg: 3.37, daily: [
+        { date: '2026-03-26', value: 4.75 }, { date: '2026-03-27', value: 2.4 }, { date: '2026-03-28', value: 1.33 },
+        { date: '2026-03-29', value: 6.67 }, { date: '2026-03-30', value: 4.22 }, { date: '2026-03-31', value: 4.79 },
+        { date: '2026-04-01', value: 3.17 }, { date: '2026-04-02', value: 3.1 },
+      ],
+    },
+    sessionDuration: {
+      avg: 134, daily: [
+        { date: '2026-03-26', value: 18.02 }, { date: '2026-03-27', value: 10.67 }, { date: '2026-03-28', value: 1.65 },
+        { date: '2026-03-29', value: 347.38 }, { date: '2026-03-30', value: 122.49 }, { date: '2026-03-31', value: 320.17 },
+        { date: '2026-04-01', value: 153 }, { date: '2026-04-02', value: 98.58 },
+      ],
+    },
+    bounceRate: {
+      avg: 55, daily: [
+        { date: '2026-03-26', value: 50 }, { date: '2026-03-27', value: 60 }, { date: '2026-03-28', value: 67 },
+        { date: '2026-03-29', value: 52 }, { date: '2026-03-30', value: 56 }, { date: '2026-03-31', value: 47 },
+        { date: '2026-04-01', value: 59 }, { date: '2026-04-02', value: 51 },
+      ],
+    },
+    topPages: [
+      { page: '/', count: 603 }, { page: '/shop', count: 201 }, { page: '/collections', count: 86 },
+      { page: '/about', count: 29 }, { page: '/admin', count: 28 }, { page: '/contact', count: 28 },
+      { page: '/auth', count: 20 }, { page: '/admin/orders', count: 12 }, { page: '/admin/products', count: 9 },
+      { page: '/shipping', count: 7 },
+    ],
+    topSources: [
+      { source: 'Direct', count: 491 }, { source: 'Instagram', count: 109 }, { source: 'Google', count: 28 },
+      { source: 'Facebook', count: 27 }, { source: 'Stripe', count: 9 },
+    ],
+    devices: [{ device: 'Mobile', count: 590 }, { device: 'Desktop', count: 60 }],
+    countries: [
+      { country: 'HR', count: 484 }, { country: 'DE', count: 28 }, { country: 'US', count: 25 },
+      { country: 'BA', count: 24 }, { country: 'RS', count: 12 }, { country: 'SI', count: 9 },
+      { country: 'BE', count: 7 }, { country: 'IT', count: 6 }, { country: 'CY', count: 6 },
+    ],
+  }), []);
 
-  const stats = [
-    { label: 'Visitors', value: data.visitors.total.toLocaleString(), icon: Eye },
-    { label: 'Pageviews', value: data.pageviews.total.toLocaleString(), icon: FileText },
-    { label: 'Pages/Visit', value: data.pagesPerVisit.avg.toFixed(1), icon: ArrowDownUp },
-    { label: 'Avg Duration', value: formatDuration(data.sessionDuration.avg), icon: Clock },
-  ];
+  const currentMetric = metrics.find(m => m.key === selectedMetric)!;
+  const chartData = useMemo(() => {
+    const src = selectedMetric === 'visitors' ? data.visitors.daily
+      : selectedMetric === 'pageviews' ? data.pageviews.daily
+      : selectedMetric === 'pagesPerVisit' ? data.pagesPerVisit.daily
+      : selectedMetric === 'sessionDuration' ? data.sessionDuration.daily
+      : data.bounceRate.daily;
+    return src.map(p => ({ date: formatDate(p.date), value: p.value }));
+  }, [selectedMetric, data]);
+
+  const tooltipFormatter = (value: number) => {
+    if (selectedMetric === 'sessionDuration') return [formatDuration(value), currentMetric.label];
+    if (selectedMetric === 'bounceRate') return [`${value}%`, currentMetric.label];
+    if (selectedMetric === 'pagesPerVisit') return [value.toFixed(2), currentMetric.label];
+    return [value.toLocaleString(), currentMetric.label];
+  };
+
+  const summaryValue = (key: MetricKey) => {
+    if (key === 'pagesPerVisit') return data.pagesPerVisit.avg;
+    if (key === 'sessionDuration') return data.sessionDuration.avg;
+    if (key === 'bounceRate') return data.bounceRate.avg;
+    if (key === 'visitors') return data.visitors.total;
+    return data.pageviews.total;
+  };
 
   const deviceTotal = data.devices.reduce((s, d) => s + d.count, 0);
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {stats.map((stat, i) => {
-          const Icon = stat.icon;
+      {/* Metric Selector Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
+        {metrics.map(m => {
+          const isActive = selectedMetric === m.key;
           return (
-            <div key={i} className="bg-black border border-white/10 p-4 md:p-6 flex items-start justify-between">
-              <div className="min-w-0">
-                <p className="text-white/50 font-display uppercase tracking-wider text-[10px] sm:text-xs mb-1 truncate">{stat.label}</p>
-                <p className="text-lg sm:text-2xl font-black text-white truncate">{stat.value}</p>
-              </div>
-              <div className="p-2 md:p-3 bg-white/5 text-primary shrink-0 ml-2">
-                <Icon className="w-5 h-5 md:w-6 md:h-6" />
-              </div>
-            </div>
+            <button
+              key={m.key}
+              onClick={() => setSelectedMetric(m.key)}
+              className={`text-left p-3 md:p-4 border transition-colors ${
+                isActive
+                  ? 'bg-primary/10 border-primary/40'
+                  : 'bg-black border-white/10 hover:border-white/20'
+              }`}
+            >
+              <p className={`font-display uppercase tracking-wider text-[10px] sm:text-xs mb-1 ${isActive ? 'text-primary' : 'text-white/50'}`}>
+                {m.label}
+              </p>
+              <p className="text-lg sm:text-xl font-black text-white">
+                {m.format(summaryValue(m.key))}
+              </p>
+            </button>
           );
         })}
       </div>
 
-      {/* Bounce Rate Banner */}
-      <div className="bg-black border border-white/10 p-4 md:p-6 flex items-center gap-4">
-        <div className="relative w-16 h-16 shrink-0">
-          <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={`${100 - data.bounceRate.avg}, 100`} />
-          </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">{data.bounceRate.avg}%</span>
-        </div>
-        <div>
-          <p className="text-white/50 font-display uppercase tracking-wider text-[10px] sm:text-xs mb-1">Bounce Rate</p>
-          <p className="text-sm text-white/70">{100 - data.bounceRate.avg}% of visitors explore beyond the landing page</p>
+      {/* Main Chart */}
+      <div className="bg-black border border-white/10 p-4 md:p-6">
+        <div className="h-[280px] md:h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="analyticsGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
+              <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 12 }}
+                labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
+                itemStyle={{ color: 'white' }}
+                formatter={tooltipFormatter}
+              />
+              <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#analyticsGradient)" />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
