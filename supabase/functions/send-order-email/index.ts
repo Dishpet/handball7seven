@@ -30,9 +30,9 @@ function buildItemRows(items: OrderItem[], isAdmin: boolean): string {
         <span style="color:#888;font-size:12px;">
           ${[
             item.size ? `Size: ${item.size}` : '',
-            item.color ? `Color: ${item.color}` : '',
+            item.color ? `Color: ${colorDisplay(item.color)}` : '',
             item.collection ? `Collection: ${item.collection}` : '',
-          ].filter(Boolean).join(' · ')}
+          ].filter(Boolean).join(' &middot; ')}
         </span>
         ${isAdmin && item.design ? `<br/><span style="color:#888;font-size:11px;">Design: <a href="${item.design}" style="color:#d4a24e;">View Design</a></span>` : ''}
       </td>
