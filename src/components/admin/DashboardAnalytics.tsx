@@ -1,20 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Eye, FileText, Clock, ArrowDownUp, TrendingDown, Globe, Smartphone, Monitor } from 'lucide-react';
+import { Eye, FileText, Clock, ArrowDownUp, TrendingDown, Globe, Smartphone, Monitor, Loader2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface DailyPoint { date: string; value: number }
-
-interface AnalyticsData {
-  visitors: { total: number; daily: DailyPoint[] };
-  pageviews: { total: number; daily: DailyPoint[] };
-  pagesPerVisit: { avg: number; daily: DailyPoint[] };
-  sessionDuration: { avg: number; daily: DailyPoint[] };
-  bounceRate: { avg: number; daily: DailyPoint[] };
-  topPages: { page: string; count: number }[];
-  topSources: { source: string; count: number }[];
-  devices: { device: string; count: number }[];
-  countries: { country: string; count: number }[];
-}
 
 function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -42,72 +31,25 @@ const metrics: { key: MetricKey; label: string; icon: any; format: (v: number) =
   { key: 'bounceRate', label: 'Bounce Rate', icon: TrendingDown, format: (v) => `${v}%` },
 ];
 
+const dayOptions = [
+  { value: 7, label: '7 days' },
+  { value: 14, label: '14 days' },
+  { value: 30, label: '30 days' },
+];
+
 export const DashboardAnalytics = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>('visitors');
+  const [days, setDays] = useState(7);
+  const { data, isLoading, error } = useAnalytics(days);
 
-  const data = useMemo<AnalyticsData>(() => ({
-    visitors: {
-      total: 650, daily: [
-        { date: '2026-03-26', value: 4 }, { date: '2026-03-27', value: 5 }, { date: '2026-03-28', value: 3 },
-        { date: '2026-03-29', value: 21 }, { date: '2026-03-30', value: 18 }, { date: '2026-03-31', value: 34 },
-        { date: '2026-04-01', value: 394 }, { date: '2026-04-02', value: 171 },
-      ],
-    },
-    pageviews: {
-      total: 2192, daily: [
-        { date: '2026-03-26', value: 19 }, { date: '2026-03-27', value: 12 }, { date: '2026-03-28', value: 4 },
-        { date: '2026-03-29', value: 140 }, { date: '2026-03-30', value: 76 }, { date: '2026-03-31', value: 163 },
-        { date: '2026-04-01', value: 1248 }, { date: '2026-04-02', value: 530 },
-      ],
-    },
-    pagesPerVisit: {
-      avg: 3.37, daily: [
-        { date: '2026-03-26', value: 4.75 }, { date: '2026-03-27', value: 2.4 }, { date: '2026-03-28', value: 1.33 },
-        { date: '2026-03-29', value: 6.67 }, { date: '2026-03-30', value: 4.22 }, { date: '2026-03-31', value: 4.79 },
-        { date: '2026-04-01', value: 3.17 }, { date: '2026-04-02', value: 3.1 },
-      ],
-    },
-    sessionDuration: {
-      avg: 134, daily: [
-        { date: '2026-03-26', value: 18.02 }, { date: '2026-03-27', value: 10.67 }, { date: '2026-03-28', value: 1.65 },
-        { date: '2026-03-29', value: 347.38 }, { date: '2026-03-30', value: 122.49 }, { date: '2026-03-31', value: 320.17 },
-        { date: '2026-04-01', value: 153 }, { date: '2026-04-02', value: 98.58 },
-      ],
-    },
-    bounceRate: {
-      avg: 55, daily: [
-        { date: '2026-03-26', value: 50 }, { date: '2026-03-27', value: 60 }, { date: '2026-03-28', value: 67 },
-        { date: '2026-03-29', value: 52 }, { date: '2026-03-30', value: 56 }, { date: '2026-03-31', value: 47 },
-        { date: '2026-04-01', value: 59 }, { date: '2026-04-02', value: 51 },
-      ],
-    },
-    topPages: [
-      { page: '/', count: 603 }, { page: '/shop', count: 201 }, { page: '/collections', count: 86 },
-      { page: '/about', count: 29 }, { page: '/admin', count: 28 }, { page: '/contact', count: 28 },
-      { page: '/auth', count: 20 }, { page: '/admin/orders', count: 12 }, { page: '/admin/products', count: 9 },
-      { page: '/shipping', count: 7 },
-    ],
-    topSources: [
-      { source: 'Direct', count: 491 }, { source: 'Instagram', count: 109 }, { source: 'Google', count: 28 },
-      { source: 'Facebook', count: 27 }, { source: 'Stripe', count: 9 },
-    ],
-    devices: [{ device: 'Mobile', count: 590 }, { device: 'Desktop', count: 60 }],
-    countries: [
-      { country: 'HR', count: 484 }, { country: 'DE', count: 28 }, { country: 'US', count: 25 },
-      { country: 'BA', count: 24 }, { country: 'RS', count: 12 }, { country: 'SI', count: 9 },
-      { country: 'BE', count: 7 }, { country: 'IT', count: 6 }, { country: 'CY', count: 6 },
-    ],
-  }), []);
+  const chartData = useMemo(() => {
+    if (!data) return [];
+    const src = data[selectedMetric === 'pagesPerVisit' ? 'pagesPerVisit' : selectedMetric];
+    const daily = 'daily' in src ? src.daily : [];
+    return daily.map((p: DailyPoint) => ({ date: formatDate(p.date), value: p.value }));
+  }, [selectedMetric, data]);
 
   const currentMetric = metrics.find(m => m.key === selectedMetric)!;
-  const chartData = useMemo(() => {
-    const src = selectedMetric === 'visitors' ? data.visitors.daily
-      : selectedMetric === 'pageviews' ? data.pageviews.daily
-      : selectedMetric === 'pagesPerVisit' ? data.pagesPerVisit.daily
-      : selectedMetric === 'sessionDuration' ? data.sessionDuration.daily
-      : data.bounceRate.daily;
-    return src.map(p => ({ date: formatDate(p.date), value: p.value }));
-  }, [selectedMetric, data]);
 
   const tooltipFormatter = (value: number) => {
     if (selectedMetric === 'sessionDuration') return [formatDuration(value), currentMetric.label];
@@ -117,6 +59,7 @@ export const DashboardAnalytics = () => {
   };
 
   const summaryValue = (key: MetricKey) => {
+    if (!data) return 0;
     if (key === 'pagesPerVisit') return data.pagesPerVisit.avg;
     if (key === 'sessionDuration') return data.sessionDuration.avg;
     if (key === 'bounceRate') return data.bounceRate.avg;
@@ -124,10 +67,46 @@ export const DashboardAnalytics = () => {
     return data.pageviews.total;
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="ml-3 text-white/50 font-display uppercase tracking-widest text-sm">Loading analytics...</span>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="border border-white/10 bg-black p-8 text-center">
+        <p className="text-white/50 font-display uppercase tracking-widest text-sm">
+          {error ? 'Failed to load analytics' : 'No data available'}
+        </p>
+      </div>
+    );
+  }
+
   const deviceTotal = data.devices.reduce((s, d) => s + d.count, 0);
 
   return (
     <div className="space-y-6">
+      {/* Period Selector */}
+      <div className="flex gap-1">
+        {dayOptions.map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => setDays(opt.value)}
+            className={`px-3 py-1.5 text-xs font-display uppercase tracking-widest transition-colors border ${
+              days === opt.value
+                ? 'bg-primary/10 border-primary/40 text-primary'
+                : 'border-white/10 text-white/50 hover:text-white/80'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
       {/* Metric Selector Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
         {metrics.map(m => {
@@ -185,7 +164,7 @@ export const DashboardAnalytics = () => {
           <h3 className="text-base md:text-lg font-display uppercase tracking-widest font-bold text-white mb-4">Top Pages</h3>
           <div className="space-y-3">
             {data.topPages.map((page, i) => {
-              const pct = (page.count / data.topPages[0].count) * 100;
+              const pct = data.topPages[0]?.count ? (page.count / data.topPages[0].count) * 100 : 0;
               return (
                 <div key={i}>
                   <div className="flex justify-between text-sm mb-1">
@@ -206,7 +185,7 @@ export const DashboardAnalytics = () => {
           <h3 className="text-base md:text-lg font-display uppercase tracking-widest font-bold text-white mb-4">Traffic Sources</h3>
           <div className="space-y-3">
             {data.topSources.map((src, i) => {
-              const pct = (src.count / data.topSources[0].count) * 100;
+              const pct = data.topSources[0]?.count ? (src.count / data.topSources[0].count) * 100 : 0;
               return (
                 <div key={i}>
                   <div className="flex justify-between text-sm mb-1">
@@ -229,8 +208,8 @@ export const DashboardAnalytics = () => {
           <h3 className="text-base md:text-lg font-display uppercase tracking-widest font-bold text-white mb-4">Devices</h3>
           <div className="flex gap-6 items-center">
             {data.devices.map((d, i) => {
-              const pct = Math.round((d.count / deviceTotal) * 100);
-              const Icon = d.device === 'Mobile' ? Smartphone : Monitor;
+              const pct = deviceTotal ? Math.round((d.count / deviceTotal) * 100) : 0;
+              const Icon = d.device.toLowerCase() === 'mobile' ? Smartphone : Monitor;
               return (
                 <div key={i} className="flex items-center gap-3">
                   <Icon className="w-8 h-8 text-primary/70" />
@@ -252,7 +231,7 @@ export const DashboardAnalytics = () => {
           </h3>
           <div className="space-y-2">
             {data.countries.slice(0, 6).map((c, i) => {
-              const pct = (c.count / data.countries[0].count) * 100;
+              const pct = data.countries[0]?.count ? (c.count / data.countries[0].count) * 100 : 0;
               return (
                 <div key={i}>
                   <div className="flex justify-between text-sm mb-1">
