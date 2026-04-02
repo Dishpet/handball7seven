@@ -31,20 +31,13 @@ const metrics: { key: MetricKey; label: string; icon: any; format: (v: number) =
   { key: 'bounceRate', label: 'Bounce Rate', icon: TrendingDown, format: (v) => `${v}%` },
 ];
 
-const dayOptions = [
-  { value: 7, label: '7 days' },
-  { value: 14, label: '14 days' },
-  { value: 30, label: '30 days' },
-];
-
 export const DashboardAnalytics = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>('visitors');
-  const [days, setDays] = useState(7);
-  const { data, isLoading, error } = useAnalytics(days);
+  const { data, isLoading, error } = useAnalytics();
 
   const chartData = useMemo(() => {
     if (!data) return [];
-    const src = data[selectedMetric === 'pagesPerVisit' ? 'pagesPerVisit' : selectedMetric];
+    const src = data[selectedMetric];
     const daily = 'daily' in src ? src.daily : [];
     return daily.map((p: DailyPoint) => ({ date: formatDate(p.date), value: p.value }));
   }, [selectedMetric, data]);
@@ -90,23 +83,6 @@ export const DashboardAnalytics = () => {
 
   return (
     <div className="space-y-6">
-      {/* Period Selector */}
-      <div className="flex gap-1">
-        {dayOptions.map(opt => (
-          <button
-            key={opt.value}
-            onClick={() => setDays(opt.value)}
-            className={`px-3 py-1.5 text-xs font-display uppercase tracking-widest transition-colors border ${
-              days === opt.value
-                ? 'bg-primary/10 border-primary/40 text-primary'
-                : 'border-white/10 text-white/50 hover:text-white/80'
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
       {/* Metric Selector Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
         {metrics.map(m => {
