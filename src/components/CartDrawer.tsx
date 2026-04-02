@@ -1,4 +1,5 @@
 import { X, Plus, Minus, Loader2 } from "lucide-react";
+import { hexToColorName, isHexColor } from "@/lib/colorUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -143,9 +144,20 @@ const CartDrawer = () => {
                       <img src={item.image} alt={item.name} className="w-16 h-16 sm:w-20 sm:h-20 object-cover bg-muted shrink-0" />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-display uppercase text-xs sm:text-sm tracking-wider truncate">{item.name}</h3>
-                        <p className="text-muted-foreground text-xs mt-1">
-                          {t("shop.size")}: {item.size}
-                          {item.color && ` · ${item.color}`}
+                        <p className="text-muted-foreground text-xs mt-1 flex items-center gap-1 flex-wrap">
+                          <span>{t("shop.size")}: {item.size}</span>
+                          {item.color && (
+                            <span className="inline-flex items-center gap-1">
+                              ·
+                              {isHexColor(item.color) && (
+                                <span
+                                  className="inline-block w-2.5 h-2.5 rounded-full border border-border"
+                                  style={{ backgroundColor: item.color }}
+                                />
+                              )}
+                              {hexToColorName(item.color)}
+                            </span>
+                          )}
                         </p>
                         <div className="flex items-center gap-3 mt-2">
                           <button 
