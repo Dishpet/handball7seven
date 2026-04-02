@@ -30,7 +30,18 @@ function OrderItemsDetail({ items }: { items: any }) {
             <p className="text-white text-sm font-bold truncate">{item.name || 'Unknown product'}</p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50">
               {item.size && <span>Size: <span className="text-white/80">{item.size}</span></span>}
-              {item.color && <span>Color: <span className="text-white/80">{item.color}</span></span>}
+              {item.color && (
+                <span className="inline-flex items-center gap-1.5">
+                  Color:
+                  {isHexColor(item.color) && (
+                    <span
+                      className="inline-block w-3 h-3 rounded-full border border-white/20"
+                      style={{ backgroundColor: item.color }}
+                    />
+                  )}
+                  <span className="text-white/80">{hexToColorName(item.color)}</span>
+                </span>
+              )}
               {item.collection && <span>Collection: <span className="text-white/80 capitalize">{item.collection}</span></span>}
               <span>Qty: <span className="text-white/80">{item.quantity ?? 1}</span></span>
             </div>
