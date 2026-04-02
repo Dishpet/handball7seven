@@ -1,4 +1,5 @@
 import { X, Plus, Minus, Loader2 } from "lucide-react";
+import { hexToColorName, isHexColor } from "@/lib/colorUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
