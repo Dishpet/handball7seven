@@ -19,6 +19,21 @@ interface OrderItem {
   image?: string;
 }
 
+const HEX_TO_NAME: Record<string, string> = {
+  '#111111': 'Black', '#f0f0f0': 'White', '#1c2e4a': 'Navy', '#808080': 'Grey',
+  '#e0e0e0': 'Silver', '#231f20': 'Black', '#e91e63': 'Pink', '#ff5722': 'Orange',
+  '#4caf50': 'Green', '#2196f3': 'Blue', '#9c27b0': 'Purple', '#f44336': 'Red',
+  '#ffeb3b': 'Yellow', '#795548': 'Brown', '#ffffff': 'White', '#000000': 'Black',
+};
+function colorDisplay(hex: string): string {
+  const name = HEX_TO_NAME[hex.toLowerCase().trim()] || hex;
+  const isHex = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/i.test(hex);
+  const swatch = isHex
+    ? `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${hex};border:1px solid #ddd;vertical-align:middle;margin-right:4px;"></span>`
+    : '';
+  return `${swatch}${name}`;
+}
+
 function buildItemRows(items: OrderItem[], isAdmin: boolean): string {
   return items.map(item => `
     <tr>
