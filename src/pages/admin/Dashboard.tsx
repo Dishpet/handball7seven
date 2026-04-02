@@ -22,14 +22,18 @@ export default function Dashboard() {
         return { date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue: 0, orders: 0 };
       });
     }
-    const byDay: Record<string, { revenue: number; orders: number }> = {};
+    const byDay: Record<string, { revenue: number; orders: number; sortKey: string }> = {};
     orders.forEach(o => {
-      const key = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      if (!byDay[key]) byDay[key] = { revenue: 0, orders: 0 };
-      byDay[key].revenue += Number(o.total);
-      byDay[key].orders += 1;
+      const d = new Date(o.created_at);
+      const sortKey = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (!byDay[sortKey]) byDay[sortKey] = { revenue: 0, orders: 0, sortKey };
+      byDay[sortKey].revenue += Number(o.total);
+      byDay[sortKey].orders += 1;
     });
-    return Object.entries(byDay).map(([date, v]) => ({ date, ...v }));
+    return Object.entries(byDay)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, v]) => ({ date: new Date(key).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue: v.revenue, orders: v.orders }));
   }, [orders]);
 
   const stats = [
