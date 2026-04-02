@@ -14,8 +14,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/placeholder.svg',
-      badge: '/placeholder.svg',
+      icon: '/H7-site-icon.png',
+      badge: '/H7-site-icon.png',
       tag: 'new-order',
       renotify: true,
       vibrate: [200, 100, 200],
