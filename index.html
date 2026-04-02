@@ -19,10 +19,18 @@
     <meta name="twitter:title" content="Handball 7seven – Premium Handball Apparel & Streetwear" />
     <meta name="twitter:description" content="Premium handball-inspired streetwear. Shop the Court Collection: t-shirts, hoodies & accessories." />
     <meta name="twitter:image" content="https://eotwmtkhtnawvrtyoloy.supabase.co/storage/v1/object/public/cms-images/hero/bg_image.webp" />
+    <link rel="manifest" href="/manifest.json" />
 </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(function(e) {
+          console.log('SW registration failed:', e);
+        });
+      }
+    </script>
   </body>
 </html>

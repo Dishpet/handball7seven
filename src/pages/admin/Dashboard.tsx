@@ -48,9 +48,13 @@ export default function Dashboard() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Dashboard</h2>
-          <p className="text-white/60 font-body text-sm mt-1">Welcome to H7 Administration</p>
+        <AdminInstallPrompt />
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-display uppercase tracking-widest font-black text-white">Dashboard</h2>
+            <p className="text-white/60 font-body text-sm mt-1">Welcome to H7 Administration</p>
+          </div>
+          <PushNotificationSetup />
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
