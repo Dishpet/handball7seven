@@ -4,6 +4,8 @@ import { useProducts } from "@/hooks/useProducts";
 import { useOrders } from "@/hooks/useOrders";
 import { useMemo } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { AdminInstallPrompt } from "@/components/admin/AdminInstallPrompt";
+import { PushNotificationSetup } from "@/components/admin/PushNotificationSetup";
 
 export default function Dashboard() {
   const { data: products } = useProducts(false);
