@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { hexToColorName, isHexColor } from "@/lib/colorUtils";
 import { useOrders } from "@/hooks/useOrders";
 import { Package, ChevronDown, ChevronUp } from "lucide-react";
 
