@@ -2,6 +2,8 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Package, TrendingUp, Users, ShoppingCart } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
 import { useOrders } from "@/hooks/useOrders";
+import { useMemo } from "react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function Dashboard() {
   const { data: products } = useProducts(false);
@@ -10,6 +12,25 @@ export default function Dashboard() {
   const totalRevenue = orders?.reduce((s, o) => s + Number(o.total), 0) ?? 0;
   const activeProducts = products?.filter(p => p.is_visible).length ?? 0;
   const newOrders = orders?.filter(o => o.status === 'pending').length ?? 0;
+
+  const chartData = useMemo(() => {
+    if (!orders || orders.length === 0) {
+      const today = new Date();
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() - (6 - i));
+        return { date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue: 0, orders: 0 };
+      });
+    }
+    const byDay: Record<string, { revenue: number; orders: number }> = {};
+    orders.forEach(o => {
+      const key = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (!byDay[key]) byDay[key] = { revenue: 0, orders: 0 };
+      byDay[key].revenue += Number(o.total);
+      byDay[key].orders += 1;
+    });
+    return Object.entries(byDay).map(([date, v]) => ({ date, ...v }));
+  }, [orders]);
 
   const stats = [
     { label: "Total Revenue", value: `€${totalRevenue.toFixed(2)}`, icon: TrendingUp },
@@ -41,6 +62,33 @@ export default function Dashboard() {
               </div>
             );
           })}
+        </div>
+
+        {/* Sales Chart */}
+        <div className="bg-black border border-white/10 p-4 md:p-6">
+          <h3 className="text-base md:text-xl font-display uppercase tracking-widest font-bold text-white mb-6">Sales Overview</h3>
+          <div className="h-[250px] md:h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
+                <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 12 }}
+                  labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
+                  itemStyle={{ color: 'white' }}
+                  formatter={(value: number) => [`€${value.toFixed(2)}`, 'Revenue']}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#salesGradient)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
