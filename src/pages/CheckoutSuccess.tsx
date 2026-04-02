@@ -52,9 +52,14 @@ export default function CheckoutSuccess() {
           shipping_address: order.shipping_address,
         };
 
-        await supabase.functions.invoke("send-order-email", {
-          body: { order: orderData },
-        });
+        await Promise.all([
+          supabase.functions.invoke("send-order-email", {
+            body: { order: orderData },
+          }),
+          supabase.functions.invoke("send-order-push", {
+            body: { total: order.total },
+          }),
+        ]);
 
         setEmailSent(true);
       } catch (e) {
