@@ -49,6 +49,24 @@ const Hero = () => {
               <Link to="/shop" className="btn-primary text-center">{t("hero.shop")}</Link>
               <Link to="/collections" className="btn-outline text-center">{t("hero.explore")}</Link>
             </motion.div>
+            <motion.div
+              className="mt-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+            >
+              <div className="flex items-center gap-3 mb-2 text-primary/70">
+                {["🌎", "🌍", "🌏"].map((icon, i) => (
+                  <span key={i} className="text-2xl opacity-70">{icon}</span>
+                ))}
+              </div>
+              <p className="text-foreground/50 text-sm font-body tracking-wide">
+                7 Continents. Handball Seven.
+              </p>
+              <p className="text-foreground font-display uppercase tracking-wider text-base mt-0.5">
+                Shipping worldwide
+              </p>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -79,6 +97,27 @@ const Hero = () => {
         >
           <Link to="/shop" className="btn-primary text-center">{t("hero.shop")}</Link>
           <Link to="/collections" className="btn-outline text-center">{t("hero.explore")}</Link>
+        </motion.div>
+
+        {/* 7 Continents shipping banner */}
+        <motion.div
+          className="mt-10 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          <div className="flex justify-center items-center gap-3 mb-3 text-primary/70">
+            {/* Simple continent glyphs using text symbols */}
+            {["🌎", "🌍", "🌏"].map((icon, i) => (
+              <span key={i} className="text-2xl opacity-70">{icon}</span>
+            ))}
+          </div>
+          <p className="text-foreground/50 text-xs font-body tracking-wide">
+            7 Continents. Handball Seven.
+          </p>
+          <p className="text-foreground font-display uppercase tracking-wider text-sm mt-0.5">
+            Shipping worldwide
+          </p>
         </motion.div>
       </div>
     </section>
