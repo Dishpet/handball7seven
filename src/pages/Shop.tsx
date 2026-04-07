@@ -18,6 +18,7 @@ import { useCollections } from '@/hooks/useCollections';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
+import ShippingWorldwide from '@/components/ShippingWorldwide';
 
 // Fallback local designs
 // @ts-ignore
@@ -1509,6 +1510,9 @@ const Shop = () => {
                     </div>
                 </div>
             )}
+        </div>
+        <div className="py-10">
+          <ShippingWorldwide center delay={0} />
         </div>
         <Footer />
         </>
