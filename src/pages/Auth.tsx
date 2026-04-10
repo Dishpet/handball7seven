@@ -54,7 +54,7 @@ export default function Auth() {
           </h1>
         </div>
 
-        {/* Google Sign In */}
+        {/* Google Sign In - temporarily disabled
         <button
           onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-3 border border-border bg-card text-foreground font-body text-sm py-3 px-4 hover:bg-muted transition-colors min-h-[48px]"
@@ -68,6 +68,7 @@ export default function Auth() {
           <span className="text-muted-foreground text-xs font-display uppercase tracking-widest">or</span>
           <div className="flex-1 h-px bg-border" />
         </div>
+        */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
