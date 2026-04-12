@@ -17,28 +17,24 @@ export default function CheckoutSuccess() {
     clearCart();
   }, []);
 
-  // Send order confirmation email after payment success
+  // Confirm order and send emails via edge function (works for both guests and logged-in users)
   useEffect(() => {
     if (!orderId || emailSent) return;
 
-    const sendOrderEmail = async () => {
+    const confirmAndNotify = async () => {
       try {
-        const { data: order, error } = await supabase
-          .from("orders")
-          .select("*")
-          .eq("id", orderId)
-          .single();
+        // Use edge function to mark as paid (bypasses RLS)
+        const { data: confirmData, error: confirmError } = await supabase.functions.invoke("confirm-order", {
+          body: { order_id: orderId },
+        });
 
-        if (error || !order) {
-          console.error("Failed to fetch order for email:", error);
+        if (confirmError) {
+          console.error("Failed to confirm order:", confirmError);
           return;
         }
 
-        // Update order status to paid
-        await supabase
-          .from("orders")
-          .update({ status: "paid" })
-          .eq("id", orderId);
+        const order = confirmData?.order;
+        if (!order) return;
 
         const orderData = {
           id: order.id,
@@ -63,11 +59,11 @@ export default function CheckoutSuccess() {
 
         setEmailSent(true);
       } catch (e) {
-        console.error("Error sending order email:", e);
+        console.error("Error confirming order:", e);
       }
     };
 
-    sendOrderEmail();
+    confirmAndNotify();
   }, [orderId, emailSent]);
 
   return (
@@ -91,9 +87,6 @@ export default function CheckoutSuccess() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
             <Link to="/shop" className="btn-primary text-center min-h-[48px] flex items-center justify-center">
               Continue Shopping
-            </Link>
-            <Link to="/account" className="border border-border text-foreground font-display uppercase tracking-widest text-sm px-6 py-3 hover:bg-muted transition-colors text-center min-h-[48px] flex items-center justify-center">
-              View Orders
             </Link>
           </div>
         </div>

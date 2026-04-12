@@ -21,12 +21,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
 
-    console.log("[checkout] env check - url:", !!supabaseUrl, "anon:", !!supabaseAnonKey, "service:", !!supabaseServiceKey, "stripe:", !!stripeKey);
-
     const { items, shipping, shippingCost } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw new Error("No items provided");
+    }
+
+    if (!shipping?.email) {
+      throw new Error("Email is required for checkout");
     }
 
     console.log("[checkout] items:", items.length);
@@ -34,9 +36,9 @@ serve(async (req) => {
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Require authenticated user
-    let userEmail: string | undefined;
-    let userId: string | undefined;
+    // Check for authenticated user (optional now)
+    let userEmail: string = shipping.email;
+    let userId: string | null = null;
     let userName: string | undefined;
     let userPhone: string | undefined;
 
@@ -45,12 +47,11 @@ serve(async (req) => {
       const token = authHeader.replace("Bearer ", "");
       const { data } = await supabaseClient.auth.getUser(token);
       if (data.user) {
-        userEmail = data.user.email;
+        userEmail = data.user.email || shipping.email;
         userId = data.user.id;
 
         console.log("[checkout] user authenticated:", userId);
 
-        // Fetch profile for name and phone
         const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
         const { data: profile } = await serviceClient
           .from("profiles")
@@ -64,9 +65,7 @@ serve(async (req) => {
       }
     }
 
-    if (!userId || !userEmail) {
-      throw new Error("You must be signed in to checkout");
-    }
+    console.log("[checkout] email:", userEmail, "userId:", userId || "guest");
 
     // Find or create Stripe customer
     let customerId: string | undefined;
@@ -74,8 +73,6 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     }
-
-    console.log("[checkout] stripe customer:", customerId || "new");
 
     // Build line items
     const lineItems = items.map((item: any) => ({
@@ -133,7 +130,6 @@ serve(async (req) => {
     console.log("[checkout] order created:", order.id);
 
     const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, '') || "https://handball7seven.com";
-    console.log("[checkout] origin:", origin);
 
     // Add shipping as a line item if applicable
     if (shippingCost && shippingCost > 0) {
