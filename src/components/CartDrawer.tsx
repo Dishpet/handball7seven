@@ -1,7 +1,6 @@
-import { X, Plus, Minus, Loader2 } from "lucide-react";
+import { X, Plus, Minus } from "lucide-react";
 import { hexToColorName, isHexColor } from "@/lib/colorUtils";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
@@ -15,7 +14,6 @@ const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, totalPrice } = useCart();
   const { t } = useI18n();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [checkingOut, setCheckingOut] = useState(false);
   const [showShipping, setShowShipping] = useState(false);
   const { data: settings } = useStoreSettings();
@@ -29,13 +27,6 @@ const CartDrawer = () => {
   const remaining = displayThreshold > 0 ? Math.max(0, displayThreshold - totalPrice) : 0;
 
   const handleCheckout = async (shippingInfo: ShippingInfo) => {
-    if (!user) {
-      setIsOpen(false);
-      toast.info("Please sign in or create an account before checkout.");
-      navigate("/auth");
-      return;
-    }
-
     setCheckingOut(true);
     try {
       const isCroatia = shippingInfo.country === 'Croatia';
@@ -64,12 +55,6 @@ const CartDrawer = () => {
   };
 
   const handleProceed = () => {
-    if (!user) {
-      setIsOpen(false);
-      toast.info("Please sign in or create an account before checkout.");
-      navigate("/auth");
-      return;
-    }
     setShowShipping(true);
   };
 
@@ -110,7 +95,6 @@ const CartDrawer = () => {
                 <p className="text-muted-foreground text-sm text-center py-12">Your cart is empty.</p>
               ) : (
                 <div className="space-y-5 sm:space-y-6">
-                  {/* Free shipping progress */}
                   {displayThreshold > 0 && (
                     <div className="bg-muted/50 border border-border p-3 text-sm">
                       {remaining > 0 ? (
@@ -131,7 +115,6 @@ const CartDrawer = () => {
                     </div>
                   )}
 
-                  {/* Shipping rates preview */}
                   {(shippingCroatia > 0 || shippingInternational > 0) && remaining > 0 && (
                     <div className="text-xs text-muted-foreground space-y-1">
                       <p>🇭🇷 Croatia: €{shippingCroatia.toFixed(2)}</p>
@@ -197,7 +180,7 @@ const CartDrawer = () => {
                   onClick={handleProceed}
                   className="btn-primary w-full text-center min-h-[48px] flex items-center justify-center gap-2"
                 >
-                  {user ? "Continue to Shipping" : "Sign In to Checkout"}
+                  Continue to Shipping
                 </button>
               </div>
             )}

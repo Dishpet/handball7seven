@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useStoreSettings } from '@/hooks/useStoreSettings';
+import { useAuth } from '@/hooks/useAuth';
 
 export type ShippingInfo = {
   fullName: string;
+  email: string;
   phone: string;
   address: string;
   city: string;
@@ -24,8 +26,9 @@ const COUNTRIES = [
 ];
 
 export default function ShippingForm({ onSubmit, submitting }: Props) {
+  const { user } = useAuth();
   const [info, setInfo] = useState<ShippingInfo>({
-    fullName: '', phone: '', address: '', city: '', postalCode: '', country: 'Croatia',
+    fullName: '', email: user?.email || '', phone: '', address: '', city: '', postalCode: '', country: 'Croatia',
   });
   const { data: settings } = useStoreSettings();
 
@@ -55,10 +58,16 @@ export default function ShippingForm({ onSubmit, submitting }: Props) {
             className={inputClass} required />
         </div>
         <div>
-          <label className="font-display uppercase text-xs tracking-widest block mb-1">Phone *</label>
-          <input type="tel" value={info.phone} onChange={e => setInfo({ ...info, phone: e.target.value })}
-            className={inputClass} required placeholder="+385..." />
+          <label className="font-display uppercase text-xs tracking-widest block mb-1">Email *</label>
+          <input type="email" value={info.email} onChange={e => setInfo({ ...info, email: e.target.value })}
+            className={inputClass} required placeholder="your@email.com" />
         </div>
+      </div>
+
+      <div>
+        <label className="font-display uppercase text-xs tracking-widest block mb-1">Phone *</label>
+        <input type="tel" value={info.phone} onChange={e => setInfo({ ...info, phone: e.target.value })}
+          className={inputClass} required placeholder="+385..." />
       </div>
 
       <div>
