@@ -36,7 +36,7 @@ const About = () => {
               </ScrollReveal>
             </div>
             <ScrollReveal direction="scale" className="order-1 md:order-2">
-              <img src={mainImage} alt="Handball Seven" className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto" />
+              {mainImage && <img src={mainImage} alt="Handball Seven" className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto" />}
             </ScrollReveal>
           </div>
         </div>

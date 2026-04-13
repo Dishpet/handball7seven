@@ -2,18 +2,26 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import ScrollReveal from "@/components/ScrollReveal";
-import vintageImg from "@/assets/vintage-collection.webp";
-import classicImg from "@/assets/classic-collection.webp";
-import streetImg from "@/assets/street-collection.webp";
+import { useCollections } from "@/hooks/useCollections";
 
 const FeaturedCollections = () => {
   const { t } = useI18n();
+  const { data: dbCollections } = useCollections(true);
 
-  const collections = [
-    { id: "vintage", name: t("col.vintage"), desc: t("col.vintage.desc"), image: vintageImg },
-    { id: "classic", name: t("col.classic"), desc: t("col.classic.desc"), image: classicImg },
-    { id: "street", name: t("col.street"), desc: t("col.street.desc"), image: streetImg },
-  ];
+  const slugMap: Record<string, { name: string; desc: string }> = {
+    vintage: { name: t("col.vintage"), desc: t("col.vintage.desc") },
+    original: { name: t("col.classic"), desc: t("col.classic.desc") },
+    street: { name: t("col.street"), desc: t("col.street.desc") },
+  };
+
+  const collections = (dbCollections || [])
+    .filter((c) => slugMap[c.slug])
+    .map((c) => ({
+      id: c.slug,
+      name: slugMap[c.slug].name,
+      desc: slugMap[c.slug].desc,
+      image: c.image_url || "",
+    }));
 
   return (
     <section className="px-5 md:px-12 lg:px-20 py-12 md:py-24">
