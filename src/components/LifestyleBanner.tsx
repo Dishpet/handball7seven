@@ -6,17 +6,17 @@ import ScrollCharReveal from "@/components/ScrollCharReveal";
 const LifestyleBanner = () => {
   const { t, getSiteContent } = useI18n();
   const lifestyleContent = getSiteContent("lifestyle") as Record<string, any> | undefined;
-  const bgImage = lifestyleContent?.bg_image || "/images/lifestyle-banner.jpg";
+  const bgImage = lifestyleContent?.bg_image || "";
 
   return (
     <section className="relative w-full overflow-hidden">
       <div className="relative w-full">
-        <img
+        {bgImage && <img
           src={bgImage}
           alt=""
           className="w-full h-auto block"
-        />
-        <div className="absolute bottom-0 left-0 right-0 h-[60%] md:h-[80%] bg-gradient-to-t from-background via-background/60 to-transparent" />
+        />}
+        {bgImage && <div className="absolute bottom-0 left-0 right-0 h-[60%] md:h-[80%] bg-gradient-to-t from-background via-background/60 to-transparent" />}
 
         {/* Desktop: text overlaid at bottom */}
         <div className="hidden md:flex absolute inset-0 items-end justify-center">

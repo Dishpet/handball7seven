@@ -3,13 +3,13 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import FeaturedCollections from "@/components/FeaturedCollections";
 import { useI18n } from "@/lib/i18n";
-import hoodieImg from "@/assets/hoodie-vintage.png";
+
 import ScrollReveal from "@/components/ScrollReveal";
 
 const About = () => {
   const { t, getSiteContent } = useI18n();
   const aboutContent = getSiteContent("about") as Record<string, any> | undefined;
-  const mainImage = aboutContent?.main_image || hoodieImg;
+  const mainImage = aboutContent?.main_image || "";
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,7 +36,7 @@ const About = () => {
               </ScrollReveal>
             </div>
             <ScrollReveal direction="scale" className="order-1 md:order-2">
-              <img src={mainImage} alt="Handball Seven" className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto" />
+              {mainImage && <img src={mainImage} alt="Handball Seven" className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto" />}
             </ScrollReveal>
           </div>
         </div>
