@@ -7,13 +7,13 @@ import ShippingWorldwide from "@/components/ShippingWorldwide";
 const Hero = () => {
   const { t, getSiteContent } = useI18n();
   const heroContent = getSiteContent("hero") as Record<string, any> | undefined;
-  const bgImage = heroContent?.bg_image || "/images/hero-bg.jpg";
+  const bgImage = heroContent?.bg_image || "";
 
   return (
     <section className="relative w-full pt-[60px] md:pt-[72px]">
       <div className="relative w-full">
-        <img src={bgImage} alt="" className="w-full h-auto block" />
-        <div className="absolute bottom-0 left-0 right-0 h-[60%] md:h-[80%] bg-gradient-to-t from-background via-background/60 to-transparent" />
+        {bgImage && <img src={bgImage} alt="" className="w-full h-auto block" />}
+        {bgImage && <div className="absolute bottom-0 left-0 right-0 h-[60%] md:h-[80%] bg-gradient-to-t from-background via-background/60 to-transparent" />}
 
         {/* Desktop: overlaid at bottom */}
         <div className="hidden md:flex absolute inset-0 items-end">
