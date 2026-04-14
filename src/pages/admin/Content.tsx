@@ -257,6 +257,7 @@ function ImageUploadField({ value, onChange, sectionKey, fieldName }: {
 export default function Content() {
   const { data: allContent, isLoading } = useSiteContent();
   const updateContent = useUpdateSiteContent();
+  const { data: dbCollections, refetch: refetchCollections } = useCollections(false);
   const [contentMap, setContentMap] = useState<Record<string, ContentData>>({});
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["hero"]));
   const [saving, setSaving] = useState(false);
