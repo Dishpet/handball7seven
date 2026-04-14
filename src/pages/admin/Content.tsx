@@ -310,7 +310,7 @@ function CollectionImageUpload({ collectionId, currentUrl, slug, onUpdated }: {
   );
 }
 
-
+export default function Content() {
   const { data: allContent, isLoading } = useSiteContent();
   const updateContent = useUpdateSiteContent();
   const { data: dbCollections, refetch: refetchCollections } = useCollections(false);
