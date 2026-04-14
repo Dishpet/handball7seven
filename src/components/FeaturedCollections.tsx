@@ -14,8 +14,11 @@ const FeaturedCollections = () => {
     street: { name: t("col.street"), desc: t("col.street.desc") },
   };
 
-  const collections = (dbCollections || [])
-    .filter((c) => slugMap[c.slug])
+  const displayOrder = ["vintage", "classic", "street"];
+
+  const collections = displayOrder
+    .map((slug) => (dbCollections || []).find((c) => c.slug === slug))
+    .filter((c): c is NonNullable<typeof c> => !!c && !!slugMap[c.slug])
     .map((c) => ({
       id: c.slug,
       name: slugMap[c.slug].name,

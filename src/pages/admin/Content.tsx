@@ -1,7 +1,8 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Save, ChevronDown, ChevronRight, Languages, Loader2, Upload, X, ImageIcon, Download } from "lucide-react";
 import { useSiteContent, useUpdateSiteContent } from "@/hooks/useSiteContent";
+import { useCollections } from "@/hooks/useCollections";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -71,7 +72,6 @@ const SECTIONS: { key: string; label: string; fields: FieldConfig[] }[] = [
     label: "About Page",
     fields: [
       { name: "main_image", label: "Main Image", type: "image", i18n: false },
-      { name: "banner_image", label: "Bottom Banner Image", type: "image", i18n: false },
       { name: "title", label: "Page Title", type: "text", i18n: true },
       { name: "p1", label: "Paragraph 1", type: "textarea", i18n: true },
       { name: "p2", label: "Paragraph 2", type: "textarea", i18n: true },
@@ -253,10 +253,67 @@ function ImageUploadField({ value, onChange, sectionKey, fieldName }: {
     </div>
   );
 }
+function CollectionImageUpload({ collectionId, currentUrl, slug, onUpdated }: {
+  collectionId: string;
+  currentUrl: string;
+  slug: string;
+  onUpdated: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
-export default function Content() {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !collectionId) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image"); return; }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `collections/${slug}.${ext}`;
+      await supabase.storage.from("cms-images").remove([path]);
+      const { error } = await supabase.storage.from("cms-images").upload(path, file, { cacheControl: "3600", upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("cms-images").getPublicUrl(path);
+      const newUrl = urlData.publicUrl + "?t=" + Date.now();
+      const { error: dbErr } = await supabase.from("collections").update({ image_url: newUrl }).eq("id", collectionId);
+      if (dbErr) throw dbErr;
+      toast.success("Collection image updated!");
+      onUpdated();
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {currentUrl ? (
+        <img src={currentUrl} alt={slug} className="h-32 w-full object-cover border border-white/10" />
+      ) : (
+        <div className="h-32 w-full border border-dashed border-white/20 flex items-center justify-center text-white/30">
+          <ImageIcon className="w-8 h-8" />
+        </div>
+      )}
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+      <button
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading || !collectionId}
+        className="flex items-center gap-2 px-4 py-2 border border-white/20 text-white/70 text-xs font-display uppercase tracking-widest hover:bg-white/5 transition-colors disabled:opacity-50"
+      >
+        {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+        {uploading ? "Uploading..." : currentUrl ? "Replace" : "Upload"}
+      </button>
+    </div>
+  );
+}
+
+
   const { data: allContent, isLoading } = useSiteContent();
   const updateContent = useUpdateSiteContent();
+  const { data: dbCollections, refetch: refetchCollections } = useCollections(false);
   const [contentMap, setContentMap] = useState<Record<string, ContentData>>({});
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["hero"]));
   const [saving, setSaving] = useState(false);
@@ -673,6 +730,31 @@ export default function Content() {
                           )}
                         </div>
                       ))}
+
+                      {section.key === "about" && (
+                        <div className="space-y-4 border-t border-white/5 pt-4">
+                          <label className="block text-white/50 text-xs font-display uppercase tracking-widest">
+                            Collection Images (Vintage · Original · Street)
+                          </label>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {["vintage", "classic", "street"].map((slug) => {
+                              const col = (dbCollections || []).find((c) => c.slug === slug);
+                              const label = slug === "classic" ? "Original" : slug.charAt(0).toUpperCase() + slug.slice(1);
+                              return (
+                                <div key={slug}>
+                                  <p className="text-white/40 text-[10px] font-display uppercase tracking-widest mb-2">{label}</p>
+                                  <CollectionImageUpload
+                                    collectionId={col?.id || ""}
+                                    currentUrl={col?.image_url || ""}
+                                    slug={slug}
+                                    onUpdated={() => refetchCollections()}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
 
                       {section.key === "features_bar" && (
                         <div className="space-y-4">
