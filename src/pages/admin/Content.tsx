@@ -675,6 +675,31 @@ export default function Content() {
                         </div>
                       ))}
 
+                      {section.key === "about" && (
+                        <div className="space-y-4 border-t border-white/5 pt-4">
+                          <label className="block text-white/50 text-xs font-display uppercase tracking-widest">
+                            Collection Images (Vintage · Original · Street)
+                          </label>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {["vintage", "classic", "street"].map((slug) => {
+                              const col = (dbCollections || []).find((c) => c.slug === slug);
+                              const label = slug === "classic" ? "Original" : slug.charAt(0).toUpperCase() + slug.slice(1);
+                              return (
+                                <div key={slug}>
+                                  <p className="text-white/40 text-[10px] font-display uppercase tracking-widest mb-2">{label}</p>
+                                  <CollectionImageUpload
+                                    collectionId={col?.id || ""}
+                                    currentUrl={col?.image_url || ""}
+                                    slug={slug}
+                                    onUpdated={() => refetchCollections()}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                       {section.key === "features_bar" && (
                         <div className="space-y-4">
                           {getFeaturesBar().map((item: any, idx: number) => (
