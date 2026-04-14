@@ -253,8 +253,64 @@ function ImageUploadField({ value, onChange, sectionKey, fieldName }: {
     </div>
   );
 }
+function CollectionImageUpload({ collectionId, currentUrl, slug, onUpdated }: {
+  collectionId: string;
+  currentUrl: string;
+  slug: string;
+  onUpdated: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
-export default function Content() {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !collectionId) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image"); return; }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `collections/${slug}.${ext}`;
+      await supabase.storage.from("cms-images").remove([path]);
+      const { error } = await supabase.storage.from("cms-images").upload(path, file, { cacheControl: "3600", upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("cms-images").getPublicUrl(path);
+      const newUrl = urlData.publicUrl + "?t=" + Date.now();
+      const { error: dbErr } = await supabase.from("collections").update({ image_url: newUrl }).eq("id", collectionId);
+      if (dbErr) throw dbErr;
+      toast.success("Collection image updated!");
+      onUpdated();
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {currentUrl ? (
+        <img src={currentUrl} alt={slug} className="h-32 w-full object-cover border border-white/10" />
+      ) : (
+        <div className="h-32 w-full border border-dashed border-white/20 flex items-center justify-center text-white/30">
+          <ImageIcon className="w-8 h-8" />
+        </div>
+      )}
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+      <button
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading || !collectionId}
+        className="flex items-center gap-2 px-4 py-2 border border-white/20 text-white/70 text-xs font-display uppercase tracking-widest hover:bg-white/5 transition-colors disabled:opacity-50"
+      >
+        {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+        {uploading ? "Uploading..." : currentUrl ? "Replace" : "Upload"}
+      </button>
+    </div>
+  );
+}
+
+
   const { data: allContent, isLoading } = useSiteContent();
   const updateContent = useUpdateSiteContent();
   const { data: dbCollections, refetch: refetchCollections } = useCollections(false);
