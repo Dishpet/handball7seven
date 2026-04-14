@@ -1,7 +1,8 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Save, ChevronDown, ChevronRight, Languages, Loader2, Upload, X, ImageIcon, Download } from "lucide-react";
 import { useSiteContent, useUpdateSiteContent } from "@/hooks/useSiteContent";
+import { useCollections } from "@/hooks/useCollections";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -71,7 +72,6 @@ const SECTIONS: { key: string; label: string; fields: FieldConfig[] }[] = [
     label: "About Page",
     fields: [
       { name: "main_image", label: "Main Image", type: "image", i18n: false },
-      { name: "banner_image", label: "Bottom Banner Image", type: "image", i18n: false },
       { name: "title", label: "Page Title", type: "text", i18n: true },
       { name: "p1", label: "Paragraph 1", type: "textarea", i18n: true },
       { name: "p2", label: "Paragraph 2", type: "textarea", i18n: true },
