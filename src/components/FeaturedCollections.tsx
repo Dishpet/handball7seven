@@ -10,7 +10,7 @@ const FeaturedCollections = () => {
 
   const slugMap: Record<string, { name: string; desc: string }> = {
     vintage: { name: t("col.vintage"), desc: t("col.vintage.desc") },
-    original: { name: t("col.classic"), desc: t("col.classic.desc") },
+    classic: { name: t("col.classic"), desc: t("col.classic.desc") },
     street: { name: t("col.street"), desc: t("col.street.desc") },
   };
 
