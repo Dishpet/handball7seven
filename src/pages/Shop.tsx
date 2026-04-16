@@ -162,6 +162,14 @@ const INITIAL_PRODUCTS = {
 
 const FALLBACK_SIZES = ['6-8 g.', '8-10 g.', '10-12 g.', 'S', 'M', 'L', 'XL'];
 
+// Product gallery images – add arrays per product slug as images become available
+const PRODUCT_GALLERY_IMAGES: Record<string, ProductGalleryImage[]> = {
+  hoodie: Array.from({ length: 26 }, (_, i) => ({
+    src: `/gallery/hoodie/hoodie-${i + 1}.webp`,
+    alt: `Hoodie photo ${i + 1}`,
+  })),
+};
+
 const Shop = () => {
     // i18n
     const { t } = useI18n();
