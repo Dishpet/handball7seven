@@ -1173,7 +1173,7 @@ const Shop = () => {
                     </div>
                 </div>
             ) : (
-                <div className="container mx-auto px-4 py-12 md:py-20 bg-transparent relative z-40 rounded-none border-t-0 shadow-none">
+                <div className="container mx-auto px-4 py-12 md:py-20 bg-background relative z-[101] rounded-none border-t-0 shadow-none">
                     <div className="max-w-4xl mx-auto space-y-8">
 
                         {/* Product Photo Gallery */}
