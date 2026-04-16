@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import ProductGallery, { type ProductGalleryImage } from '@/components/ProductGallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { ShopScene } from '../components/3d/ShopScene';
@@ -1166,6 +1167,14 @@ const Shop = () => {
             ) : (
                 <div className="container mx-auto px-4 py-12 md:py-20 bg-transparent relative z-40 rounded-none border-t-0 shadow-none">
                     <div className="max-w-4xl mx-auto space-y-8">
+
+                        {/* Product Photo Gallery */}
+                        {PRODUCT_GALLERY_IMAGES[selectedProduct] && PRODUCT_GALLERY_IMAGES[selectedProduct].length > 0 && (
+                            <ProductGallery
+                                images={PRODUCT_GALLERY_IMAGES[selectedProduct]}
+                                label={`${activeProductData.name} Photos`}
+                            />
+                        )}
 
                         {/* 1. Top Section: Controls (Size + Quantity + Cart) */}
                         <div className="flex flex-col xl:flex-row items-stretch xl:items-end gap-6 my-8">
