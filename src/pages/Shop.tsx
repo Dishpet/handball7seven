@@ -168,6 +168,10 @@ const PRODUCT_GALLERY_IMAGES: Record<string, ProductGalleryImage[]> = {
     src: `/gallery/hoodie/hoodie-${i + 1}.webp`,
     alt: `Hoodie photo ${i + 1}`,
   })),
+  tshirt: Array.from({ length: 28 }, (_, i) => ({
+    src: `/gallery/tshirt/tshirt-${i + 1}.webp`,
+    alt: `T-shirt photo ${i + 1}`,
+  })),
 };
 
 const Shop = () => {

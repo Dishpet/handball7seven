@@ -90,13 +90,13 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images, label = 'Galler
             {/* Close button */}
             <button
               onClick={closeLightbox}
-              className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="absolute top-16 right-4 z-10 p-2 text-white/70 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X className="w-6 h-6" />
             </button>
 
             {/* Counter */}
-            <div className="absolute top-4 left-4 z-10 text-white/50 text-sm font-display tracking-widest">
+            <div className="absolute top-16 left-4 z-10 text-white/50 text-sm font-display tracking-widest">
               {lightboxIndex + 1} / {images.length}
             </div>
 
